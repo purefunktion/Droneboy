@@ -18,7 +18,7 @@ On the duty page:
 **RIGHT/LEFT** change sound channel.  
 Channels(left to right) sweep and square
 
-**UP/DOWN** to increase/decrease duty 
+**UP/DOWN** to cycle through duty settings 
 
 On frequency page:
 
@@ -39,8 +39,8 @@ In note mode:
 
 **RIGHT/LEFT** change channel(noise disabled)
 
-**UP/DOWN** changes note one semitone
+**UP/DOWN** changes note 1 semitone
 
-**HOLD A + UP** changes note 12 semitones(oktave)
+**HOLD A + UP** changes note 12 semitones(octave)
 
 **HOLD B + UP** changes note 3 semitones
