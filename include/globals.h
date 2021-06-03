@@ -1,6 +1,7 @@
-//globals
+//Globals
 
-// Zalo key routine
+// Zalo key pad logic
+// https://github.com/Zal0
 extern BYTE keys;
 extern UBYTE previous_keys;
 
@@ -28,12 +29,12 @@ extern int duty_sweep;
 extern int duty_square;
 
 struct fader {
-   UINT8 x;
-   UINT8 y;
-   UINT8 upper_bound;
-   UINT8 lower_bound;
-   UINT8 step;
-   UINT8 fader_position;
+  UINT8 x;
+  UINT8 y;
+  UINT8 upper_bound;
+  UINT8 lower_bound;
+  UINT8 step;
+  UINT8 fader_position;
 };
 
 extern struct fader fader_group[4];
@@ -43,9 +44,9 @@ extern int frequency_mode;
 
 struct NoiseyStruct {
   //NR43 0xFF22
-    UINT16 dividing_ratio  ;//: 3;
-    UINT16 counter_step ;//: 1;
-    UINT16 clock_freq ;//: 4 bits;
+  UINT16 dividing_ratio  ;//: 3;
+  UINT16 counter_step ;//: 1;
+  UINT16 clock_freq ;//: 4 bits;
 } ;
 
 extern struct NoiseyStruct noiseStruct;

@@ -1,4 +1,3 @@
-
 /* Bank of tiles. */
 #define frequencytilesBank 0
 /* Start of tile array. */
@@ -29,9 +28,7 @@ extern unsigned char notetext[];
 /* Start of tile array. */
 extern unsigned char icons[];
 
-
 //Backgrounds
-
 #define splashbackgroundWidth 20
 #define splashbackgroundHeight 18
 #define splashbackgroundBank 0

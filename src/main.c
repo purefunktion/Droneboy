@@ -71,171 +71,171 @@ const UBYTE volumeFaderPosition[16] = {119, 114, 109, 104, 98, 93, 89, 85, 80, 7
 // Main 
 void main() {
 
-	intro(); // comment this out if enoying
-	init();
-	
-	// Main loop
-	while(1) {
-		// Change control page
-		if (KEY_PRESSED(J_SELECT)) {
-			if (active_control_page == num_control_pages-1) {
-				active_control_page = 0;
-			} else {
-				active_control_page = active_control_page + 1;
-			}
-			changeControlPage(active_control_page);
-			waitpadup();
-		}
-		// Switch depending on which control page we are on
-		switch(active_control_page)
-		{
-			case 0: {
-				num_faders = 4;
-				volumeKeypadController();
-				break;
-			}
-			case 1: {
-				num_faders = 2;
-				dutyKeypadController();
-				break;
-			}
-			case 2: {
-				num_faders = 4;
-				frequencyKeypadController();
-				break;
-			}
-		}
-		wait_vbl_done();
-		UPDATE_KEYS();
-	}
+  intro(); // comment this out if enoying
+  init();
+  
+  // Main loop
+  while(1) {
+    // Change control page
+    if (KEY_PRESSED(J_SELECT)) {
+      if (active_control_page == num_control_pages-1) {
+        active_control_page = 0;
+      } else {
+        active_control_page = active_control_page + 1;
+      }
+      changeControlPage(active_control_page);
+      waitpadup();
+    }
+    // Switch depending on which control page we are on
+    switch(active_control_page)
+    {
+      case 0: {
+        num_faders = 4;
+        volumeKeypadController();
+        break;
+      }
+      case 1: {
+        num_faders = 2;
+        dutyKeypadController();
+        break;
+      }
+      case 2: {
+        num_faders = 4;
+        frequencyKeypadController();
+        break;
+      }
+    }
+    wait_vbl_done();
+    UPDATE_KEYS();
+  }
 }
 
 /*
 * Flip between pages in the app
 */
 void changeControlPage(int to_page) {
-	if (to_page == 0) {
-		changeToVolumeBackground();
-	} else if (to_page == 1) {
-		changeToDutyBackground();
-	} else {
-		changeToFrequencyBackground();
-	}
+  if (to_page == 0) {
+    changeToVolumeBackground();
+  } else if (to_page == 1) {
+    changeToDutyBackground();
+  } else {
+    changeToFrequencyBackground();
+  }
 }
 
 /*
 * Changes to the frequency background
 */
 void changeToFrequencyBackground() {
-	wait_vbl_done();
-	DISPLAY_OFF;
-	set_bkg_data(0,4, fadertile); // setup fader tiles
-	set_bkg_tiles(0x00, 0x00, 20, 18, frequencybackground); // the bakground
-	SHOW_BKG;
-	DISPLAY_ON;
-	setUpFrequencySprites();
-	// this hides the sprites from duty page
-	for (int i = 0; i <= max_faders-1; i++) 
-	{
-		move_sprite(i, 1, 168);
-	}
-	current_channel = 0;
-	updateFaderMarker();
+  wait_vbl_done();
+  DISPLAY_OFF;
+  set_bkg_data(0,4, fadertile); // setup fader tiles
+  set_bkg_tiles(0x00, 0x00, 20, 18, frequencybackground); // the bakground
+  SHOW_BKG;
+  DISPLAY_ON;
+  setUpFrequencySprites();
+  // this hides the sprites from duty page
+  for (int i = 0; i <= max_faders-1; i++) 
+  {
+    move_sprite(i, 1, 168);
+  }
+  current_channel = 0;
+  updateFaderMarker();
 }
 
 /*
 * This could use some work but is left as is for clarity(hopefully)
 */
 void setUpFrequencySprites() {
-	// First the sweep channel
-	current_channel = 0;
-	int value = sweep_freq;
-	int position = 4;
-	setCounterSprites(position, value); // setup the frequency tiles
-	clearCounterValues(position); // clear if needed
-	setNoteSprites(position+16, sweep_note); // set the note tiles
+  // First the sweep channel
+  current_channel = 0;
+  int value = sweep_freq;
+  int position = 4;
+  setCounterSprites(position, value); // setup the frequency tiles
+  clearCounterValues(position); // clear if needed
+  setNoteSprites(position+16, sweep_note); // set the note tiles
 
-	// square
-	current_channel = 1;
-	value = square_freq;
-	position = 8;
-	setCounterSprites(position, value);
-	clearCounterValues(position);
-	setNoteSprites(position+16, square_note);
+  // square
+  current_channel = 1;
+  value = square_freq;
+  position = 8;
+  setCounterSprites(position, value);
+  clearCounterValues(position);
+  setNoteSprites(position+16, square_note);
 
-	//wave
-	current_channel = 2;
-	value = wave_freq;
-	position = 12;
-	setCounterSprites(position, value);
-	clearCounterValues(position);
-	setNoteSprites(position+16, wave_note);
+  //wave
+  current_channel = 2;
+  value = wave_freq;
+  position = 12;
+  setCounterSprites(position, value);
+  clearCounterValues(position);
+  setNoteSprites(position+16, wave_note);
 
-	//noise
-	current_channel = 3;
-	value = noise_freq;
-	position = 16;
-	setCounterSprites(position, value);
-	clearCounterValues(position);
-	setNoteSprites(position+16, noise_note);
+  //noise
+  current_channel = 3;
+  value = noise_freq;
+  position = 16;
+  setCounterSprites(position, value);
+  clearCounterValues(position);
+  setNoteSprites(position+16, noise_note);
 
-	current_channel = 0;
+  current_channel = 0;
 
-	// This section positions the tiles used to display
-	// notes or frequencies.
-	// sweep
-	int sweep_x = 51; // coordinates
-	int sweep_y = 57;
-	// numbers
-	move_sprite(4, sweep_x, sweep_y); // 1
-	move_sprite(5, sweep_x-8, sweep_y); // 10
-	move_sprite(6, sweep_x-16, sweep_y); // 100
-	move_sprite(7, sweep_x-24, sweep_y); // 1000
-	// notes
-	sweep_y = sweep_y + 10; // 10 pixels under the freq tiles
-	move_sprite(20, sweep_x, sweep_y); 
-	move_sprite(21, sweep_x-8, sweep_y); // decrese by 8 to move left
-	move_sprite(22, sweep_x-16, sweep_y);
-	move_sprite(23, sweep_x-24, sweep_y);
+  // This section positions the tiles used to display
+  // notes or frequencies.
+  // sweep
+  int sweep_x = 51; // coordinates
+  int sweep_y = 57;
+  // numbers
+  move_sprite(4, sweep_x, sweep_y); // 1
+  move_sprite(5, sweep_x-8, sweep_y); // 10
+  move_sprite(6, sweep_x-16, sweep_y); // 100
+  move_sprite(7, sweep_x-24, sweep_y); // 1000
+  // notes
+  sweep_y = sweep_y + 10; // 10 pixels under the freq tiles
+  move_sprite(20, sweep_x, sweep_y); 
+  move_sprite(21, sweep_x-8, sweep_y); // decrese by 8 to move left
+  move_sprite(22, sweep_x-16, sweep_y);
+  move_sprite(23, sweep_x-24, sweep_y);
 
-	// square
-	int square_x = 130;
-	int square_y = 57;
-	move_sprite(8,  square_x, square_y); 
-	move_sprite(9,  square_x-8, square_y); 
-	move_sprite(10, square_x-16, square_y); 
-	move_sprite(11, square_x-24, square_y); 
-	//notes
-	square_y = square_y + 10;
-	move_sprite(24, square_x, square_y); 
-	move_sprite(25, square_x-8, square_y);
-	move_sprite(26, square_x-16, square_y);
-	move_sprite(27, square_x-24, square_y);
+  // square
+  int square_x = 130;
+  int square_y = 57;
+  move_sprite(8,  square_x, square_y); 
+  move_sprite(9,  square_x-8, square_y); 
+  move_sprite(10, square_x-16, square_y); 
+  move_sprite(11, square_x-24, square_y); 
+  //notes
+  square_y = square_y + 10;
+  move_sprite(24, square_x, square_y); 
+  move_sprite(25, square_x-8, square_y);
+  move_sprite(26, square_x-16, square_y);
+  move_sprite(27, square_x-24, square_y);
 
-	// wave
-	int wave_x = 51;
-	int wave_y = 121;
-	//numbers
-	move_sprite(12, wave_x, wave_y); 
-	move_sprite(13, wave_x-8, wave_y); 
-	move_sprite(14, wave_x-16, wave_y); 
-	move_sprite(15, wave_x-24, wave_y); 
-	//notes
-	wave_y = wave_y + 10;
-	move_sprite(28, wave_x, wave_y); 
-	move_sprite(29, wave_x-8, wave_y);
-	move_sprite(30, wave_x-16, wave_y);
-	move_sprite(31, wave_x-24, wave_y);
-	
-	// noise
-	int noise_x = 130;
-	int noise_y = 121;
-	//numbers
-	move_sprite(16, noise_x, noise_y);
-	move_sprite(17, noise_x-8, noise_y); 
-	move_sprite(18, noise_x-16, noise_y); 
-	move_sprite(19, noise_x-24, noise_y); 
-	//noise notes exluded
+  // wave
+  int wave_x = 51;
+  int wave_y = 121;
+  //numbers
+  move_sprite(12, wave_x, wave_y); 
+  move_sprite(13, wave_x-8, wave_y); 
+  move_sprite(14, wave_x-16, wave_y); 
+  move_sprite(15, wave_x-24, wave_y); 
+  //notes
+  wave_y = wave_y + 10;
+  move_sprite(28, wave_x, wave_y); 
+  move_sprite(29, wave_x-8, wave_y);
+  move_sprite(30, wave_x-16, wave_y);
+  move_sprite(31, wave_x-24, wave_y);
+  
+  // noise
+  int noise_x = 130;
+  int noise_y = 121;
+  //numbers
+  move_sprite(16, noise_x, noise_y);
+  move_sprite(17, noise_x-8, noise_y); 
+  move_sprite(18, noise_x-16, noise_y); 
+  move_sprite(19, noise_x-24, noise_y); 
+  //noise notes exluded
 }
 
 /*
@@ -243,102 +243,102 @@ void setUpFrequencySprites() {
 * Duty is only available for sweep and square
 */
 void changeToDutyBackground() {
-	wait_vbl_done();
-	DISPLAY_OFF;
-	set_bkg_data(0,4, fadertile);
-	set_bkg_tiles(0x00, 0x00, 20, 18, dutyfaderbackground);
-	SHOW_BKG;
-	DISPLAY_ON;
-	// move the duty faders on screen
-	move_sprite(0, duty_fader_group[0].x, duty_fader_group[0].y);
-	move_sprite(1, duty_fader_group[1].x, duty_fader_group[1].y);
-	// move the other two(from volume) off screen
-	for (int i = 2; i <= max_faders-1; i++) {
-		move_sprite(i, 1, 168);
-	}
-	current_channel = 0; // set to sweep
-	updateFaderMarker();
+  wait_vbl_done();
+  DISPLAY_OFF;
+  set_bkg_data(0,4, fadertile);
+  set_bkg_tiles(0x00, 0x00, 20, 18, dutyfaderbackground);
+  SHOW_BKG;
+  DISPLAY_ON;
+  // move the duty faders on screen
+  move_sprite(0, duty_fader_group[0].x, duty_fader_group[0].y);
+  move_sprite(1, duty_fader_group[1].x, duty_fader_group[1].y);
+  // move the other two(from volume) off screen
+  for (int i = 2; i <= max_faders-1; i++) {
+    move_sprite(i, 1, 168);
+  }
+  current_channel = 0; // set to sweep
+  updateFaderMarker();
 }
 
 /*
 * Change to the volume background.
 */
 void changeToVolumeBackground() {
-	wait_vbl_done();
-	DISPLAY_OFF;
-	set_bkg_data(0,4, fadertile);
-	set_bkg_tiles(0x00, 0x00, 20, 18, volumefaderbackground);
-	SHOW_BKG;
-	DISPLAY_ON;
-	hideSprites(4, 36); // hide tiles from frequency page
-	for (int i = 0; i <= max_faders-1; i++) {
-		move_sprite(i, fader_group[i].x, fader_group[i].y);
-	}
-	current_channel = 0;
-	updateFaderMarker();
+  wait_vbl_done();
+  DISPLAY_OFF;
+  set_bkg_data(0,4, fadertile);
+  set_bkg_tiles(0x00, 0x00, 20, 18, volumefaderbackground);
+  SHOW_BKG;
+  DISPLAY_ON;
+  hideSprites(4, 36); // hide tiles from frequency page
+  for (int i = 0; i <= max_faders-1; i++) {
+    move_sprite(i, fader_group[i].x, fader_group[i].y);
+  }
+  current_channel = 0;
+  updateFaderMarker();
 }
 
 /*
 * Moves sprites off screen in the range from sprite id up til num
 */
 void hideSprites(int sprite_id, int num) {
-	for (int i = sprite_id; i <= num-1; i++) {
-		move_sprite(i, 1, 169+i);
-	}
+  for (int i = sprite_id; i <= num-1; i++) {
+    move_sprite(i, 1, 169+i);
+  }
 }
 
 /**
 * Flip between faders(channels) left/right 
 */
 void change_fader(BYTE direction) {
-	if (direction == J_RIGHT) {
-		if (current_channel == num_faders - 1) {
-			current_channel = 0;
-		} else {
-			current_channel += 1;
-		}
-	} else { //left
-		if (current_channel == 0) {
-			current_channel = num_faders - 1;
-		} else {
-			current_channel -= 1;
-		}
-	}
-	updateFaderMarker();
+  if (direction == J_RIGHT) {
+    if (current_channel == num_faders - 1) {
+      current_channel = 0;
+    } else {
+      current_channel += 1;
+    }
+  } else { //left
+    if (current_channel == 0) {
+      current_channel = num_faders - 1;
+    } else {
+      current_channel -= 1;
+    }
+  }
+  updateFaderMarker();
 }
 
 /*
 * This will move the fader marker to show the active channel.
 */
 void updateFaderMarker() {
-	if (active_control_page == 0) { // Volume
-		move_sprite(37, fader_group[current_channel].x, 128);
-		move_sprite(38, fader_group[current_channel].x, 136);
-	} else if(active_control_page == 1) { // Duty
-		move_sprite(37, fader_group[current_channel].x, 120);
-		move_sprite(38, fader_group[current_channel].x, 128);	
-	} else if(active_control_page == 2) { // Frequency
-		if (frequency_mode == 0) { // Frequency number mode
-			move_sprite(37, faderMarkerFreqx[0][current_channel], faderMarkerFreqy[0][current_channel]);
-			move_sprite(38, faderMarkerFreqx[0][current_channel], faderMarkerFreqy[0][current_channel]+8);
-		} else { // Note mode
-			move_sprite(37, faderMarkerFreqx[0][current_channel], faderMarkerFreqy[0][current_channel]+10);
-			move_sprite(38, faderMarkerFreqx[0][current_channel], faderMarkerFreqy[0][current_channel]+18);
-		}
-	}
+  if (active_control_page == 0) { // Volume
+    move_sprite(37, fader_group[current_channel].x, 128);
+    move_sprite(38, fader_group[current_channel].x, 136);
+  } else if(active_control_page == 1) { // Duty
+    move_sprite(37, fader_group[current_channel].x, 120);
+    move_sprite(38, fader_group[current_channel].x, 128); 
+  } else if(active_control_page == 2) { // Frequency
+    if (frequency_mode == 0) { // Frequency number mode
+      move_sprite(37, faderMarkerFreqx[0][current_channel], faderMarkerFreqy[0][current_channel]);
+      move_sprite(38, faderMarkerFreqx[0][current_channel], faderMarkerFreqy[0][current_channel]+8);
+    } else { // Note mode
+      move_sprite(37, faderMarkerFreqx[0][current_channel], faderMarkerFreqy[0][current_channel]+10);
+      move_sprite(38, faderMarkerFreqx[0][current_channel], faderMarkerFreqy[0][current_channel]+18);
+    }
+  }
 }
 
 /*
 * This will move the fader up/down(y axis), values from volumeFaderPosition
 */
 void moveFader() {
-	if (active_control_page == 0) {
-		fader_group[current_channel].y = volumeFaderPosition[fader_group[current_channel].fader_position];
-		move_sprite(current_channel, fader_group[current_channel].x, fader_group[current_channel].y);
-	} else if (active_control_page == 1 ) {
-		duty_fader_group[current_channel].y = dutyFaderPosition[duty_fader_group[current_channel].fader_position];
-		move_sprite(current_channel, duty_fader_group[current_channel].x, duty_fader_group[current_channel].y);
-	}
+  if (active_control_page == 0) {
+    fader_group[current_channel].y = volumeFaderPosition[fader_group[current_channel].fader_position];
+    move_sprite(current_channel, fader_group[current_channel].x, fader_group[current_channel].y);
+  } else if (active_control_page == 1 ) {
+    duty_fader_group[current_channel].y = dutyFaderPosition[duty_fader_group[current_channel].fader_position];
+    move_sprite(current_channel, duty_fader_group[current_channel].x, duty_fader_group[current_channel].y);
+  }
 }
 
 /*
@@ -349,126 +349,126 @@ void moveFader() {
 * https://blog.gg8.se/wordpress/2013/02/11/gameboy-project-week-6-can-i-have-an-a-men/
 */
 void loadWave(int wave) {
-	UWORD freq;
-	UBYTE freqlow, freqhigh;
-	NR51_REG = 0b10111011;
-	NR30_REG = 0x00; 
-	unsigned char *dst = (unsigned char *)(0xFF30u); // Create pointer to the wave RAM.
-    unsigned char *src = &samples[wave]; // Create pointer to the waveform.
-    unsigned char length = 16; // Number of bytes to copy.
+  UWORD freq;
+  UBYTE freqlow, freqhigh;
+  NR51_REG = 0b10111011;
+  NR30_REG = 0x00; 
+  unsigned char *dst = (unsigned char *)(0xFF30u); // Create pointer to the wave RAM.
+  unsigned char *src = &samples[wave]; // Create pointer to the waveform.
+  unsigned char length = 16; // Number of bytes to copy.
 
-    while (length--) {
-      *dst++ = *src++;
-    }
-    freq = (frequency_mode == 0) ? wave_freq : frequencies[wave_note]; // note or frequency
-    freqlow = (UBYTE)wave_freq & 0xFF; // lower byte of frquency
-	freqhigh = (UBYTE)((wave_freq & 0x0700)>>8); // higher bits
-    NR30_REG |= 0x80; // Enable wave channel.
-    NR51_REG = 0b11111111;
-    NR33_REG = freqlow; // Set lower byte of frequency.
-    NR34_REG = 0x80 | freqhigh; // 0xC0 // Set higher byte of frequency and start playback.
+  while (length--) {
+    *dst++ = *src++;
+  }
+  freq = (frequency_mode == 0) ? wave_freq : frequencies[wave_note]; // note or frequency
+  freqlow = (UBYTE)wave_freq & 0xFF; // lower byte of frquency
+  freqhigh = (UBYTE)((wave_freq & 0x0700)>>8); // higher bits
+  NR30_REG |= 0x80; // Enable wave channel.
+  NR51_REG = 0b11111111;
+  NR33_REG = freqlow; // Set lower byte of frequency.
+  NR34_REG = 0x80 | freqhigh; // 0xC0 // Set higher byte of frequency and start playback.
 }
 
 /*
 * Setup when starting the app
 */
 void init() {
-	// IMPORTANT! NR52_REG must always be set first
-	// otherwise there will be no sound.
-	// https://gbdev.io/pandocs/Sound_Controller.html#sound-control-registers
-	NR52_REG = 0x80; // Bit 7 all sounds on
-	NR50_REG = 0x77; // don't need Vin	
-	NR51_REG = 0xFF; // output all channels to S01 and SO2
+  // IMPORTANT! NR52_REG must always be set first
+  // otherwise there will be no sound.
+  // https://gbdev.io/pandocs/Sound_Controller.html#sound-control-registers
+  NR52_REG = 0x80; // Bit 7 all sounds on
+  NR50_REG = 0x77; // don't need Vin  
+  NR51_REG = 0xFF; // output all channels to S01 and SO2
 
-	// sweep channel 
-	// https://gbdev.io/pandocs/Sound_Controller.html#sound-channel-1---tone--sweep
-	// Volume envelope
-	NR12_REG = 0x00; //0x00	// 0=min volume, length ignored
-	// Duty
-	NR11_REG = 0x80; //0x80	// 50% square wave
-	// Frequency
-	updateSweepFreq(sweep_freq);
+  // sweep channel 
+  // https://gbdev.io/pandocs/Sound_Controller.html#sound-channel-1---tone--sweep
+  // Volume envelope
+  NR12_REG = 0x00; //0x00 // 0=min volume, length ignored
+  // Duty
+  NR11_REG = 0x80; //0x80 // 50% square wave
+  // Frequency
+  updateSweepFreq(sweep_freq);
 
-	// square channel
-	// https://gbdev.io/pandocs/Sound_Controller.html#sound-channel-2---tone
-	NR22_REG = 0x00;
-	NR21_REG = 0x80;
-	updateSquareFreq(square_freq);
+  // square channel
+  // https://gbdev.io/pandocs/Sound_Controller.html#sound-channel-2---tone
+  NR22_REG = 0x00;
+  NR21_REG = 0x80;
+  updateSquareFreq(square_freq);
 
-	// wave channel
-	// https://gbdev.io/pandocs/Sound_Controller.html#sound-channel-3---wave-output
-	loadWave(0);
+  // wave channel
+  // https://gbdev.io/pandocs/Sound_Controller.html#sound-channel-3---wave-output
+  loadWave(0);
 
-	// noise channel
-	// https://gbdev.io/pandocs/Sound_Controller.html#sound-channel-4---noise
-	noiseStruct.dividing_ratio = 7;//: 3;
-	noiseStruct.counter_step = 1;//: 1;
-	noiseStruct.clock_freq = noise_freq;//: 4 bits;
-	NR42_REG = 0x00;
-	NR41_REG = 0;
-	updateNoiseFreq(noise_freq);
-	NR44_REG = 0x80;
-	
-	// setup the background data
-	set_bkg_data(0,4, fadertile); 
-	set_bkg_data(4,1, blank);
-	set_bkg_data(5,16, pageheadertext);
-	set_bkg_data(21,10, frequencytiles);
-	set_bkg_data(31,8, icons);
-	set_bkg_tiles(0,0,20,18, volumefaderbackground);
+  // noise channel
+  // https://gbdev.io/pandocs/Sound_Controller.html#sound-channel-4---noise
+  noiseStruct.dividing_ratio = 7;//: 3;
+  noiseStruct.counter_step = 1;//: 1;
+  noiseStruct.clock_freq = noise_freq;//: 4 bits;
+  NR42_REG = 0x00;
+  NR41_REG = 0;
+  updateNoiseFreq(noise_freq);
+  NR44_REG = 0x80;
+  
+  // setup the background data
+  set_bkg_data(0,4, fadertile); 
+  set_bkg_data(4,1, blank);
+  set_bkg_data(5,16, pageheadertext);
+  set_bkg_data(21,10, frequencytiles);
+  set_bkg_data(31,8, icons);
+  set_bkg_tiles(0,0,20,18, volumefaderbackground);
 
-	SHOW_BKG;
-	DISPLAY_ON;
-	SPRITES_8x8;
-	set_sprite_data(0, 4, fadertile);
-	for (int i = 0; i < 4; ++i){
-		set_sprite_tile(i, 0);
-	}
+  SHOW_BKG;
+  DISPLAY_ON;
+  SPRITES_8x8;
+  set_sprite_data(0, 4, fadertile);
+  for (int i = 0; i < 4; ++i){
+    set_sprite_tile(i, 0);
+  }
 
-	set_sprite_data(4, 20, frequencytiles);
+  set_sprite_data(4, 20, frequencytiles);
 
-	//frequency numbers
-	for (int i = 4; i < 24; i++) {
-		set_sprite_tile(i, i-4);
-	}
-	// icons used on frequency page
-	set_sprite_data(22, 8, icons);
-	// frequency notes
-	set_sprite_data(30, 16, notetext);
-	for (int i = 20; i < 36; i++) {
-		set_sprite_tile(i, 30);
-	}
-	// fader marker
-	set_sprite_tile(37, 24);
-	set_sprite_tile(38, 25);
+  //frequency numbers
+  for (int i = 4; i < 24; i++) {
+    set_sprite_tile(i, i-4);
+  }
+  // icons used on frequency page
+  set_sprite_data(22, 8, icons);
+  // frequency notes
+  set_sprite_data(30, 16, notetext);
+  for (int i = 20; i < 36; i++) {
+    set_sprite_tile(i, 30);
+  }
+  // fader marker
+  set_sprite_tile(37, 24);
+  set_sprite_tile(38, 25);
 
-	// Volume faders
-	for (int i = 0; i < 4; ++i) {
-		fader_group[i].y = 119; // they start at the bottom
-		fader_group[i].fader_position = 0; // volume starts at zero
-	}
-	// from left to right 
-	fader_group[0].x = 32; // sweep 
-	fader_group[1].x = 72; // square
-	fader_group[2].x = 112; // wave
-	fader_group[3].x = 152; // noise
+  // Volume faders
+  for (int i = 0; i < 4; ++i) {
+    fader_group[i].y = 119; // they start at the bottom
+    fader_group[i].fader_position = 0; // volume starts at zero
+  }
+  // from left to right 
+  fader_group[0].x = 32; // sweep 
+  fader_group[1].x = 72; // square
+  fader_group[2].x = 112; // wave
+  fader_group[3].x = 152; // noise
 
-	// Duty faders
-	// sweep
-	duty_fader_group[0].x = 32; 
-	duty_fader_group[0].y = 65;
-	duty_fader_group[0].fader_position = 2;
-	// square
-	duty_fader_group[1].x = 72;
-	duty_fader_group[1].y = 65;
-	duty_fader_group[1].fader_position = 2;
+  // Duty faders
+  // sweep
+  duty_fader_group[0].x = 32; 
+  duty_fader_group[0].y = 65;
+  duty_fader_group[0].fader_position = 2;
+  // square
+  duty_fader_group[1].x = 72;
+  duty_fader_group[1].y = 65;
+  duty_fader_group[1].fader_position = 2;
 
-	// x first higher value ->
-	// y second higher value down
-	for (int i = 0; i < 4; ++i) {
-		move_sprite(i, fader_group[i].x, fader_group[i].y);
-	}
+  // x first higher value ->
+  // y second higher value down
+  for (int i = 0; i < 4; ++i) {
+    move_sprite(i, fader_group[i].x, fader_group[i].y);
+  }
 
-	updateFaderMarker();
-	SHOW_SPRITES;
+  updateFaderMarker();
+  SHOW_SPRITES;
 }
