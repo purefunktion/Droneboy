@@ -1,5 +1,6 @@
 # Droneboy
-Drone music application for Gameboy
+Drone music application for Gameboy. 
+This little app creates endless tones or drones on the Gameboys four channels. You can manipulate volume, duty and frequency. 
 # How to use
 The Droneboy is made up of three control pages volume, duty and frequency
 
@@ -14,8 +15,8 @@ The channels are from left to right sweep, square, wave and noise
 
 On the duty page:
 
-**RIGHT/LEFT** change sound channel 
-Channels left to right sweep and square
+**RIGHT/LEFT** change sound channel.  
+Channels(left to right) sweep and square
 
 **UP/DOWN** to increase/decrease duty 
 
@@ -25,7 +26,7 @@ On frequency page:
 
 In frequency mode:
 
-**RIGHT/LEFT** change channel 
+**RIGHT/LEFT** change channel.  
 Top sweep and square, bottom wave and noise
 
 **UP** changes the frquency 1 step
