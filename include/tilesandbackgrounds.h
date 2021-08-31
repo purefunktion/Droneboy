@@ -53,3 +53,6 @@ extern unsigned char dutyfaderbackground[];
 #define frequencybackgroundBank 0
 
 extern unsigned char frequencybackground[];
+
+extern unsigned char noteFreqText[];
+extern unsigned char freqFreqText[];

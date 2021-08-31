@@ -6,8 +6,10 @@ void frequencyKeypadController() {
         if(KEY_PRESSED(J_A)) {
             if (frequency_mode == 0) {
                 frequency_mode = 1;
+                flippy();
             } else {
                 frequency_mode = 0;
+                flippy();
             }
             updateFaderMarker();
             waitpadup();
@@ -24,6 +26,18 @@ void frequencyKeypadController() {
                 break;
         }
     }
+}
+
+void flippy() {
+
+    DISPLAY_OFF;
+    if (frequency_mode == 1) {
+        set_bkg_tiles(0x00, 0x00, 9, 1, noteFreqText);
+    } else {
+        set_bkg_tiles(0x00, 0x00, 9, 1, freqFreqText);
+    }
+    SHOW_BKG;
+    DISPLAY_ON;
 }
 
 // when flipping through notes

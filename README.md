@@ -16,13 +16,13 @@ The channels are from left to right sweep, square, wave and noise
 On the duty page:
 
 **RIGHT/LEFT** change sound channel.  
-Channels(left to right) sweep and square
+Channels(left to right) sweep, square and wave
 
 **UP/DOWN** to cycle through duty settings 
 
 On frequency page:
 
-**A+B** changes the mode between notes and frequency
+**HOLD A + B** changes the mode between notes and frequency
 
 In frequency mode:
 

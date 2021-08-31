@@ -31,10 +31,11 @@ int active_control_page = 0;
 struct NoiseyStruct noiseStruct;
 
 struct fader fader_group[4];
-struct fader duty_fader_group[2];
+struct fader duty_fader_group[3];
 
 int duty_sweep = 2;
 int duty_square = 2;
+int duty_wave = 2;
 const UBYTE dutyValues[4] = {0x00, 0x40, 0x80, 0xC0};
 const UBYTE dutyFaderPosition[4] = {111, 89, 65, 41};
 
@@ -57,13 +58,15 @@ const UWORD frequencies[] = {
   1923, 1930, 1936, 1943, 1949, 1954, 1959, 1964, 1969, 1974, 1978, 1982,
   1985, 1988, 1992, 1995, 1998, 2001, 2004, 2006, 2009, 2011, 2013, 2015
 };
-// only 0-15 used but you can try out the others(have to fix volume)
+// Wave table. Different square duties to match other square channels 12.5%, 25%, 50% and 75%.
 const UBYTE samples[] = {
-  0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00,
-  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-  0xAA, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55,
-  0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF, 0xFE, 0xDC, 0xBA, 0x98, 0x76, 0x54, 0x32, 0x10,
-  0xAA, 0x13, 0xBD, 0xFF, 0x01, 0x54, 0x6A, 0xEF, 0x1E, 0x2C, 0x3A, 0x48, 0x56, 0xA4, 0x3B, 0x11
+  0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, //fiddy fiddy
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00,
+  // triangle wave, set duty_wave to 4 to try
+  0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF, 0xFE, 0xDC, 0xBA, 0x98, 0x76, 0x54, 0x32, 0x10
+
 };
 // y coordinates for the volume fader(16 steps)
 const UBYTE volumeFaderPosition[16] = {119, 114, 109, 104, 98, 93, 89, 85, 80, 76, 71, 67, 58, 54, 49, 41};
@@ -89,17 +92,17 @@ void main() {
     // Switch depending on which control page we are on
     switch(active_control_page)
     {
-      case 0: {
+      case 0: { // volume
         num_faders = 4;
         volumeKeypadController();
         break;
       }
-      case 1: {
-        num_faders = 2;
+      case 1: { // duty
+        num_faders = 3;
         dutyKeypadController();
         break;
       }
-      case 2: {
+      case 2: { // freq/note
         num_faders = 4;
         frequencyKeypadController();
         break;
@@ -252,8 +255,9 @@ void changeToDutyBackground() {
   // move the duty faders on screen
   move_sprite(0, duty_fader_group[0].x, duty_fader_group[0].y);
   move_sprite(1, duty_fader_group[1].x, duty_fader_group[1].y);
-  // move the other two(from volume) off screen
-  for (int i = 2; i <= max_faders-1; i++) {
+  move_sprite(2, duty_fader_group[2].x, duty_fader_group[2].y);
+  // move noise off screen
+  for (int i = 3; i <= max_faders-1; i++) {
     move_sprite(i, 1, 168);
   }
   current_channel = 0; // set to sweep
@@ -349,18 +353,15 @@ void moveFader() {
 * https://blog.gg8.se/wordpress/2013/02/11/gameboy-project-week-6-can-i-have-an-a-men/
 */
 void loadWave(int wave) {
-  UWORD freq;
   UBYTE freqlow, freqhigh;
   NR51_REG = 0b10111011;
   NR30_REG = 0x00; 
   unsigned char *dst = (unsigned char *)(0xFF30u); // Create pointer to the wave RAM.
   unsigned char *src = &samples[wave]; // Create pointer to the waveform.
   unsigned char length = 16; // Number of bytes to copy.
-
   while (length--) {
     *dst++ = *src++;
   }
-  freq = (frequency_mode == 0) ? wave_freq : frequencies[wave_note]; // note or frequency
   freqlow = (UBYTE)wave_freq & 0xFF; // lower byte of frquency
   freqhigh = (UBYTE)((wave_freq & 0x0700)>>8); // higher bits
   NR30_REG |= 0x80; // Enable wave channel.
@@ -397,7 +398,7 @@ void init() {
 
   // wave channel
   // https://gbdev.io/pandocs/Sound_Controller.html#sound-channel-3---wave-output
-  loadWave(0);
+  loadWave(duty_wave*16);
 
   // noise channel
   // https://gbdev.io/pandocs/Sound_Controller.html#sound-channel-4---noise
@@ -462,6 +463,10 @@ void init() {
   duty_fader_group[1].x = 72;
   duty_fader_group[1].y = 65;
   duty_fader_group[1].fader_position = 2;
+  //wave
+  duty_fader_group[2].x = 112;
+  duty_fader_group[2].y = 65;
+  duty_fader_group[2].fader_position = 2;
 
   // x first higher value ->
   // y second higher value down

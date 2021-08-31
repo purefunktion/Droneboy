@@ -25,8 +25,10 @@ extern int noise_note; // this should be handled
 
 extern int current_channel;
 
+// duty
 extern int duty_sweep;
 extern int duty_square;
+extern int duty_wave; // sample index nums
 
 struct fader {
   UINT8 x;
@@ -38,7 +40,7 @@ struct fader {
 };
 
 extern struct fader fader_group[4];
-extern struct fader duty_fader_group[2];
+extern struct fader duty_fader_group[3];
 
 extern int frequency_mode;
 

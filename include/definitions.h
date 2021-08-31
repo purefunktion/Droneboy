@@ -16,3 +16,4 @@ void updateNoiseFreq(UBYTE new_freq);
 
 void clearCounterValues(UINT8 position);
 void setCounterSprites(UINT8 position, int value);
+void updateWaveVolume(int volume, int sample_index);

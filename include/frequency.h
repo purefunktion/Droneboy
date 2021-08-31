@@ -1,8 +1,10 @@
 #include <gb/gb.h>
 #include "definitions.h"
+#include "tilesandbackgrounds.h"
 #include "globals.h"
 
 void printCurrentChannelNote();
+void flippy();
 
 void increaseCurrentFreq(int amount);
 void decreaseCurrentFreq(int amount);

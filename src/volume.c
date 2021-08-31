@@ -56,7 +56,7 @@ void increaseVolume() {
       }
       //From highest to lowest the values are 0x20, 0x40, 0x60, 0x00.
       wave_volume = wave_volume + 1;
-      updateWaveVolume(wave_volume);
+      updateWaveVolume(wave_volume, duty_wave*16);
       fader_group[current_channel].fader_position = wave_volume;
       break;
     }
@@ -99,7 +99,7 @@ void decreaseVolume() {
         break;
       }
       wave_volume = wave_volume - 1;
-      updateWaveVolume(wave_volume);
+      updateWaveVolume(wave_volume, duty_wave*16);
       fader_group[current_channel].fader_position = wave_volume;
       break;
     }
@@ -137,8 +137,7 @@ void updateSquareVolume(int volume) {
 }
 
 // this function lowers the amplitude the 4 bit samples in the wave pattern RAM
-// this is a very static function made for the square wave in the samples[0]
-void updateWaveVolume(int volume) {
+void updateWaveVolume(int volume, int sample_index) {
     UWORD freq;
     UBYTE freqlow, freqhigh;
     if (volume == 0) {
@@ -149,23 +148,18 @@ void updateWaveVolume(int volume) {
     }
     
     NR51_REG = 0b10111011;
-  NR30_REG = 0x00; 
-  unsigned char *dst = (unsigned char *)(0xFF30u);
-    unsigned char *src = &samples[0];
-    //set the amplitude of the wave pattern
-    // high and low nibble of the byte by the volume(0-15)
-    UBYTE higher = (UBYTE) ((volume & 0x0F) | ((volume & 0x0F)<<4));
+    NR30_REG = 0x00;
+    unsigned char *dst = (unsigned char *)(0xFF30u);
+    unsigned char *src = &samples[sample_index];
+
     for(int i = 0; i < 16; i++) {
-      // to fit the wave pattern llllhhhhllllhhhh (l=low,h=high)
-      if ((i > 3 && i < 8) || (i > 11 && i < 16)) {
-        *dst++ = higher;
-      } else {
-        *dst++ = 0x00;
-      }
+      unsigned char tmp = *src;
+      *dst++ = (UBYTE) ((volume & tmp) | ((volume & tmp)<<4));
+      *src++;
     }
-  freq = (frequency_mode == 0) ? wave_freq : frequencies[wave_note];
-  freqlow = (UBYTE)freq & 0xFF;
-  freqhigh = (UBYTE)((freq & 0x0700)>>8);
+    freq = (frequency_mode == 0) ? wave_freq : frequencies[wave_note];
+    freqlow = (UBYTE)freq & 0xFF;
+    freqhigh = (UBYTE)((freq & 0x0700)>>8);
     NR30_REG |= 0x80; // Enable wave channel.
     NR51_REG = 0b11111111;
     NR33_REG = freqlow; // Set lower byte of frequency.

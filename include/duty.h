@@ -5,6 +5,7 @@
 void increaseDuty();
 void decreaseDuty();
 void updateDuty(UBYTE duty);
+void updateWaveDuty(int duty);
 
 extern const UBYTE dutyValues[4];
 extern const UBYTE dutyFaderPosition[4];

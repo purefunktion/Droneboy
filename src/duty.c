@@ -44,6 +44,15 @@ void increaseDuty() {
       duty_fader_group[current_channel].fader_position = duty_square;
       break;
     }
+    case 2: {
+      if(duty_wave == 3) {
+        break;
+      }
+      duty_wave = duty_wave + 1;
+      updateWaveDuty(duty_wave);
+      duty_fader_group[current_channel].fader_position = duty_wave;
+      break;
+    }
   }
 }
 
@@ -67,6 +76,14 @@ void decreaseDuty() {
       }
       break;
     }
+    case 2: {
+      if(duty_wave != 0) {
+        duty_wave = duty_wave - 1;
+        updateWaveDuty(duty_wave);
+        duty_fader_group[current_channel].fader_position = duty_wave;
+      }
+      break;
+    }
   }
 }
 
@@ -77,4 +94,8 @@ void updateDuty(UBYTE duty) {
   } else if (current_channel == 1) {
     NR21_REG = duty;
   }
+}
+
+void updateWaveDuty(int duty) {
+    updateWaveVolume(wave_volume, duty*16);
 }

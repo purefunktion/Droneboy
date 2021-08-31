@@ -1,0 +1,15 @@
+# Changelog
+
+## [1.01] - 2021-08-31
+### Addition
+	- Duty on wave channel
+	- Show correct header when in note or frequency mode on frequency page
+### Fix
+	- Wave volume refactoring
+
+## [1.0] - 2021-06-03
+### Addition
+	- Initial commit 
+	- Volume on all channels
+	- Duty on Sweep and Wave
+	- Freq/Notes on all channels(noise only has freq)
