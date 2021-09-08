@@ -33,11 +33,16 @@ struct NoiseyStruct noiseStruct;
 struct fader fader_group[4];
 struct fader duty_fader_group[3];
 
+// duty 
 int duty_sweep = 2;
 int duty_square = 2;
 int duty_wave = 2;
 const UBYTE dutyValues[4] = {0x00, 0x40, 0x80, 0xC0};
 const UBYTE dutyFaderPosition[4] = {111, 89, 65, 41};
+
+// Macro markers
+struct MacroStatus volumeMacroStatus;
+struct MacroStatus dutyMacroStatus;
 
 // Note names to display
 const char noteNames[72][5] = {
@@ -74,7 +79,7 @@ const UBYTE volumeFaderPosition[16] = {119, 114, 109, 104, 98, 93, 89, 85, 80, 7
 // Main 
 void main() {
 
-  intro(); // comment this out if enoying
+  //intro(); // comment this out if enoying
   init();
   
   // Main loop
@@ -262,6 +267,7 @@ void changeToDutyBackground() {
   }
   current_channel = 0; // set to sweep
   updateFaderMarker();
+  setAllDutyMacroMarkers();
 }
 
 /*
@@ -280,6 +286,7 @@ void changeToVolumeBackground() {
   }
   current_channel = 0;
   updateFaderMarker();
+  setAllVolumeMacroMarkers();
 }
 
 /*
@@ -335,13 +342,13 @@ void updateFaderMarker() {
 /*
 * This will move the fader up/down(y axis), values from volumeFaderPosition
 */
-void moveFader() {
+void moveFader(int channel) {
   if (active_control_page == 0) {
-    fader_group[current_channel].y = volumeFaderPosition[fader_group[current_channel].fader_position];
-    move_sprite(current_channel, fader_group[current_channel].x, fader_group[current_channel].y);
+    fader_group[channel].y = volumeFaderPosition[fader_group[channel].fader_position];
+    move_sprite(channel, fader_group[channel].x, fader_group[channel].y);
   } else if (active_control_page == 1 ) {
-    duty_fader_group[current_channel].y = dutyFaderPosition[duty_fader_group[current_channel].fader_position];
-    move_sprite(current_channel, duty_fader_group[current_channel].x, duty_fader_group[current_channel].y);
+    duty_fader_group[channel].y = dutyFaderPosition[duty_fader_group[channel].fader_position];
+    move_sprite(channel, duty_fader_group[channel].x, duty_fader_group[channel].y);
   }
 }
 
@@ -402,9 +409,9 @@ void init() {
 
   // noise channel
   // https://gbdev.io/pandocs/Sound_Controller.html#sound-channel-4---noise
-  noiseStruct.dividing_ratio = 7;//: 3;
-  noiseStruct.counter_step = 1;//: 1;
-  noiseStruct.clock_freq = noise_freq;//: 4 bits;
+  noiseStruct.dividing_ratio = 7; // 3 bits
+  noiseStruct.counter_step = 1; // 1 = 7bits, 0 = 15 bits
+  noiseStruct.clock_freq = noise_freq; // 4 bits
   NR42_REG = 0x00;
   NR41_REG = 0;
   updateNoiseFreq(noise_freq);
@@ -416,6 +423,7 @@ void init() {
   set_bkg_data(5,16, pageheadertext);
   set_bkg_data(21,10, frequencytiles);
   set_bkg_data(31,8, icons);
+  set_bkg_data(39,2, macroMarker);
   set_bkg_tiles(0,0,20,18, volumefaderbackground);
 
   SHOW_BKG;
@@ -467,6 +475,16 @@ void init() {
   duty_fader_group[2].x = 112;
   duty_fader_group[2].y = 65;
   duty_fader_group[2].fader_position = 2;
+
+  // Macro markers
+  volumeMacroStatus.sweep = 0;
+  volumeMacroStatus.square = 0;
+  volumeMacroStatus.wave = 0;
+  volumeMacroStatus.noise = 0;
+  dutyMacroStatus.sweep = 0;
+  dutyMacroStatus.square = 0;
+  dutyMacroStatus.wave = 0;
+  dutyMacroStatus.noise = 0;
 
   // x first higher value ->
   // y second higher value down

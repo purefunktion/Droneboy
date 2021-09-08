@@ -11,5 +11,5 @@
 ### Addition
 	- Initial commit 
 	- Volume on all channels
-	- Duty on Sweep and Wave
+	- Duty on Sweep and Square
 	- Freq/Notes on all channels(noise only has freq)

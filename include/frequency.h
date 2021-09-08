@@ -4,7 +4,7 @@
 #include "globals.h"
 
 void printCurrentChannelNote();
-void flippy();
+void flipHeader();
 
 void increaseCurrentFreq(int amount);
 void decreaseCurrentFreq(int amount);

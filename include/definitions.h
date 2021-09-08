@@ -5,7 +5,7 @@
 #define KEY_TICKED(K) ((keys & (K)) && !(previous_keys & (K)))
 
 // fader stuff
-void moveFader();
+void moveFader(int channel);
 void change_fader(BYTE direction);
 void updateFaderMarker();
 
@@ -17,3 +17,7 @@ void updateNoiseFreq(UBYTE new_freq);
 void clearCounterValues(UINT8 position);
 void setCounterSprites(UINT8 position, int value);
 void updateWaveVolume(int volume, int sample_index);
+
+void placeMacroMarker();
+void setAllVolumeMacroMarkers();
+void setAllDutyMacroMarkers();

@@ -67,3 +67,14 @@ extern const char noteNames[72][5];
 extern const UWORD frequencies[72];
 extern const UBYTE samples[80] ;
 extern const UBYTE volumeFaderPosition[16];
+
+// Macro marker
+struct MacroStatus {
+  int sweep;
+  int square;
+  int wave;
+  int noise;
+};
+
+extern struct MacroStatus volumeMacroStatus;
+extern struct MacroStatus dutyMacroStatus;

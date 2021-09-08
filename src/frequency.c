@@ -6,10 +6,10 @@ void frequencyKeypadController() {
         if(KEY_PRESSED(J_A)) {
             if (frequency_mode == 0) {
                 frequency_mode = 1;
-                flippy();
+                flipHeader();
             } else {
                 frequency_mode = 0;
-                flippy();
+                flipHeader();
             }
             updateFaderMarker();
             waitpadup();
@@ -28,7 +28,7 @@ void frequencyKeypadController() {
     }
 }
 
-void flippy() {
+void flipHeader() {
 
     DISPLAY_OFF;
     if (frequency_mode == 1) {
