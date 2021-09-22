@@ -3,8 +3,8 @@
 #include "tilesandbackgrounds.h"
 #include "common.h"
 
-void increaseVolume();
-void decreaseVolume();
+void increaseVolume(int number);
+void decreaseVolume(int number);
 
 void updateSweepVolume(int volume);
 void updateSquareVolume(int volume);

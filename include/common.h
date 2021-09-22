@@ -5,3 +5,4 @@
 
 void placeVolumeMacroMarker();
 void placeDutyMacroMarker();
+void placeFreqMacroMarker();

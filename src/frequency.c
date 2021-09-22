@@ -7,9 +7,11 @@ void frequencyKeypadController() {
             if (frequency_mode == 0) {
                 frequency_mode = 1;
                 flipHeader();
+                domacro = 0;
             } else {
                 frequency_mode = 0;
                 flipHeader();
+                domacro = 0;
             }
             updateFaderMarker();
             waitpadup();
@@ -28,8 +30,8 @@ void frequencyKeypadController() {
     }
 }
 
+// show/hide frequency/note
 void flipHeader() {
-
     DISPLAY_OFF;
     if (frequency_mode == 1) {
         set_bkg_tiles(0x00, 0x00, 9, 1, noteFreqText);
@@ -42,60 +44,79 @@ void flipHeader() {
 
 // when flipping through notes
 void noteMode() {
+
+    if (KEY_RELEASED(J_A) && domacro == 1) {
+        placeMacroMarker();
+        domacro = 0;
+    }
+
     if (KEY_TICKED(J_UP)) {
         if(KEY_PRESSED(J_A)) {
             increaseCurrentNote(12);
+            domacro = 0;
         } else if(KEY_PRESSED(J_B)) {
             increaseCurrentNote(3);
         } else {    
             increaseCurrentNote(1);
         }
-        printCurrentChannelNote();  
+        printChannelNote(current_channel);  
     } else if (KEY_TICKED(J_DOWN)){
         if(KEY_PRESSED(J_A)) {
             decreaseCurrentNote(12);
+            domacro = 0;
         } else if (KEY_PRESSED(J_B)) {
             decreaseCurrentNote(3);
         }  else {
             decreaseCurrentNote(1);
         }
-        printCurrentChannelNote();
-    }
-    else if (KEY_PRESSED(J_RIGHT)) {
-        change_fader(J_RIGHT);
-        waitpadup();
-    } else if (KEY_PRESSED(J_LEFT)) {
-        change_fader(J_LEFT);
-        waitpadup();
-    }
-}
-
-// when flipping through freqs
-void frequencyMode() {
-    if (KEY_TICKED(J_UP)) {
-        if(KEY_PRESSED(J_A)) {
-            increaseCurrentFreq(100);
-        } else if(KEY_PRESSED(J_B)) {
-            increaseCurrentFreq(10);
-        } else {    
-            increaseCurrentFreq(1);
-        }
-        printCurrentChannelFrequency(); 
-    } else if (KEY_TICKED(J_DOWN)){
-        if(KEY_PRESSED(J_A)) {
-            decreaseCurrentFreq(100);
-        } else if (KEY_PRESSED(J_B)) {
-            decreaseCurrentFreq(10);
-        }  else {
-            decreaseCurrentFreq(1);
-        }
-        printCurrentChannelFrequency();
+        printChannelNote(current_channel);
     } else if (KEY_PRESSED(J_RIGHT)) {
         change_fader(J_RIGHT);
         waitpadup();
     } else if (KEY_PRESSED(J_LEFT)) {
         change_fader(J_LEFT);
         waitpadup();
+    } else if (KEY_TICKED(J_A)) {
+        domacro = 1;
+    }
+}
+
+// when flipping through freqs
+void frequencyMode() {
+
+    if (KEY_RELEASED(J_A) && domacro == 1) {
+        placeMacroMarker();
+        domacro = 0;
+    }
+
+    if (KEY_TICKED(J_UP)) {
+        if(KEY_PRESSED(J_A)) {
+            increaseCurrentFreq(100);
+            domacro = 0;
+        } else if(KEY_PRESSED(J_B)) {
+            increaseCurrentFreq(10);
+        } else {    
+            increaseCurrentFreq(1);
+        }
+        printChannelFrequency(current_channel);
+    } else if (KEY_TICKED(J_DOWN)){
+        if(KEY_PRESSED(J_A)) {
+            decreaseCurrentFreq(100);
+            domacro = 0;
+        } else if (KEY_PRESSED(J_B)) {
+            decreaseCurrentFreq(10);
+        }  else {
+            decreaseCurrentFreq(1);
+        }
+        printChannelFrequency(current_channel);
+    } else if (KEY_PRESSED(J_RIGHT)) {
+        change_fader(J_RIGHT);
+        waitpadup();
+    } else if (KEY_PRESSED(J_LEFT)) {
+        change_fader(J_LEFT);
+        waitpadup();
+    } else if (KEY_TICKED(J_A)) {
+        domacro = 1;
     }
 }
 
@@ -108,7 +129,8 @@ void increaseCurrentFreq(int amount) {
                 sweep_freq = 2047;
             } else {
                 sweep_freq = sweep_freq + amount;
-            }       
+            }
+            increaseMacroFreq(amount);  
             updateSweepFreq(sweep_freq);
             break;
         }
@@ -118,6 +140,7 @@ void increaseCurrentFreq(int amount) {
             } else {
                 square_freq = square_freq + amount;
             }
+            increaseMacroFreq(amount);
             updateSquareFreq(square_freq);
             break;
         }
@@ -127,6 +150,7 @@ void increaseCurrentFreq(int amount) {
             } else {
                 wave_freq = wave_freq + amount;
             }
+            increaseMacroFreq(amount);
             updateWaveFreq(wave_freq);
             break;
         }
@@ -136,6 +160,7 @@ void increaseCurrentFreq(int amount) {
             } else {
                 noise_freq = noise_freq + amount;
             }
+            increaseMacroFreq(amount);
             updateNoiseFreq(noise_freq);
             break;
         }
@@ -160,6 +185,7 @@ void decreaseCurrentFreq(int amount) {
             } else {
                 sweep_freq = sweep_freq - amount;
             }
+            decreaseMacroFreq(amount);
             updateSweepFreq(sweep_freq);
             break;
         }
@@ -169,6 +195,7 @@ void decreaseCurrentFreq(int amount) {
             } else {
                 square_freq = square_freq - amount;
             }
+            decreaseMacroFreq(amount);
             updateSquareFreq(square_freq);
             break;
         }
@@ -178,6 +205,7 @@ void decreaseCurrentFreq(int amount) {
             } else {
                 wave_freq = wave_freq - amount;
             }
+            decreaseMacroFreq(amount);
             updateWaveFreq(wave_freq);
             break;
         }
@@ -187,6 +215,7 @@ void decreaseCurrentFreq(int amount) {
             } else {
                 noise_freq = noise_freq - amount;
             }
+            decreaseMacroFreq(amount);
             updateNoiseFreq(noise_freq);
             break;
         }
@@ -224,35 +253,35 @@ void updateNoiseFreq(UBYTE new_freq) {
 }
 
 // print function for frequency mode
-void printCurrentChannelFrequency() {
-    switch(current_channel)
+void printChannelFrequency(int channel) {
+    switch(channel)
     {
         case 0: {
             int value = sweep_freq;
             UINT8 position = 4;
             setCounterSprites(position, value);
-            clearCounterValues(position);
+            clearCounterValues(position, channel);
             break;
         }
         case 1: {
             int value = square_freq;
             UINT8 position = 8;
             setCounterSprites(position, value);
-            clearCounterValues(position);
+            clearCounterValues(position, channel);
             break;
         }
         case 2: {
             int value = wave_freq;
             UINT8 position = 12;
             setCounterSprites(position, value);
-            clearCounterValues(position);
+            clearCounterValues(position, channel);
             break;
         }
         case 3: {
             int value = noise_freq;
             UINT8 position = 16;
             setCounterSprites(position, value);
-            clearCounterValues(position);
+            clearCounterValues(position, channel);
             break;
         }
     }
@@ -337,13 +366,13 @@ void setNoteSprites(int position, int note_value) {
 /*
 * This sets a blank tile where there is no number. 
 */
-void clearCounterValues(UINT8 position) {
+void clearCounterValues(UINT8 position, int channel) {
     int val;
-    if (current_channel == 0) {
+    if (channel == 0) {
         val = sweep_freq;
-    } else if (current_channel == 1) {
+    } else if (channel == 1) {
         val = square_freq;
-    } else if (current_channel == 2) {
+    } else if (channel == 2) {
         val = wave_freq;
     } else {
         val = noise_freq;
@@ -370,7 +399,8 @@ void increaseCurrentNote(int amount) {
                 sweep_note = 71;
             } else {
                 sweep_note = sweep_note + amount;
-            }       
+            }    
+            increaseMacroNote(amount);   
             updateSweepFreq(frequencies[sweep_note]);
             break;
         }
@@ -380,6 +410,7 @@ void increaseCurrentNote(int amount) {
             } else {
                 square_note = square_note + amount;
             }
+            increaseMacroNote(amount);
             updateSquareFreq(frequencies[square_note]);
             break;
         }
@@ -389,6 +420,7 @@ void increaseCurrentNote(int amount) {
             } else {
                 wave_note = wave_note + amount;
             }
+            increaseMacroNote(amount);
             updateWaveFreq(frequencies[wave_note]);
             break;
         }
@@ -407,7 +439,8 @@ void decreaseCurrentNote(int amount) {
                 sweep_note = 0;
             } else {
                 sweep_note = sweep_note - amount;
-            }       
+            }
+            decreaseMacroNote(amount);
             updateSweepFreq(frequencies[sweep_note]);
             break;
         }
@@ -417,6 +450,7 @@ void decreaseCurrentNote(int amount) {
             } else {
                 square_note = square_note - amount;
             }
+            decreaseMacroNote(amount);
             updateSquareFreq(frequencies[square_note]);
             break;
         }
@@ -426,6 +460,7 @@ void decreaseCurrentNote(int amount) {
             } else {
                 wave_note = wave_note - amount;
             }
+            decreaseMacroNote(amount);
             updateWaveFreq(frequencies[wave_note]);
             break;
         }
@@ -435,20 +470,240 @@ void decreaseCurrentNote(int amount) {
 /*
 * Print function for notes
 */
-void printCurrentChannelNote() {
-    switch(current_channel)
-    {
-        case 0: {
-            setNoteSprites(20, sweep_note);
-            break;
-        }
-        case 1: {
-            setNoteSprites(24, square_note);
-            break;
-        }
-        case 2: {
-            setNoteSprites(28, wave_note);
-            break;
+void printChannelNote(int channel) {
+  switch(channel)
+  {
+    case 0: {
+        setNoteSprites(20, sweep_note);
+        break;
+    }
+    case 1: {
+        setNoteSprites(24, square_note);
+        break;
+    }
+    case 2: {
+        setNoteSprites(28, wave_note);
+        break;
+    }
+  }
+}
+
+// Increase the macro enabled channels freq
+void increaseMacroNote(int number) {
+  if(current_channel != 0 && freqMacroStatus.sweep != 0) {
+    if (freqMacroStatus.sweep == 1 ) { // regular macro marker
+      if ((sweep_note + number) >= 71) {
+            sweep_note = 71;
+        } else {
+            sweep_note = sweep_note + number;
+        }       
+    } else if (freqMacroStatus.sweep == 2) { // inverted macro
+      if ((sweep_note - number) <= 0) {
+            sweep_note = 0;
+        } else {
+            sweep_note = sweep_note - number;
+        }  
+    }
+    updateSweepFreq(frequencies[sweep_note]);
+    printChannelNote(0);
+  }
+  if(current_channel != 1 && freqMacroStatus.square != 0) {
+    if (freqMacroStatus.square == 1 ) { // regular macro marker
+      if ((square_note + number) >= 71) {
+            square_note = 71;
+        } else {
+            square_note = square_note + number;
+        }       
+    } else if (freqMacroStatus.square == 2) { // inverted macro
+      if ((square_note - number) <= 0) {
+            square_note = 0;
+        } else {
+            square_note = square_note - number;
+        }  
+    }
+    updateSquareFreq(frequencies[square_note]);
+    printChannelNote(1);
+  }
+  if(current_channel != 2 && freqMacroStatus.wave != 0) {
+    if (freqMacroStatus.wave == 1 ) { // regular macro marker
+      if ((wave_note + number) >= 71) {
+            wave_note = 71;
+        } else {
+            wave_note = wave_note + number;
+        }       
+    } else if (freqMacroStatus.wave == 2) { // inverted macro
+      if ((wave_note - number) <= 0) {
+            wave_note = 0;
+        } else {
+            wave_note = wave_note - number;
+        }  
+    }
+    updateWaveFreq(frequencies[wave_note]);
+    printChannelNote(2);
+  }
+}
+
+// Increase the macro enabled channels freq
+void decreaseMacroNote(int number) {
+  if(current_channel != 0 && freqMacroStatus.sweep != 0) {
+    if (freqMacroStatus.sweep == 1 ) { // regular macro marker
+      if ((sweep_note - number) <= 0) {
+            sweep_note = 0;
+        } else {
+            sweep_note = sweep_note - number;
+        }       
+    } else if (freqMacroStatus.sweep == 2) { // inverted macro    
+      if ((sweep_note + number) >= 71) {
+            sweep_note = 71;
+        } else {
+            sweep_note = sweep_note + number;
+        } 
+    }
+    updateSweepFreq(frequencies[sweep_note]);
+    printChannelNote(0);
+  }
+  if(current_channel != 1 && freqMacroStatus.square != 0) {
+    if (freqMacroStatus.square == 1 ) { // regular macro marker
+       if ((square_note - number) <= 0) {
+            square_note = 0;
+        } else {
+            square_note = square_note - number;
+        }     
+    } else if (freqMacroStatus.square == 2) { // inverted macro
+        if ((square_note + number) >= 71) {
+            square_note = 71;
+        } else {
+            square_note = square_note + number;
+        } 
+    }
+    updateSquareFreq(frequencies[square_note]);
+    printChannelNote(1);
+  }
+  if(current_channel != 2 && freqMacroStatus.wave != 0) {
+    if (freqMacroStatus.wave == 1 ) { // regular macro marker   
+      if ((wave_note - number) <= 0) {
+            wave_note = 0;
+        } else {
+            wave_note = wave_note - number;
+        }     
+    } else if (freqMacroStatus.wave == 2) { // inverted macro
+      if ((wave_note + number) >= 71) {
+            wave_note = 71;
+        } else {
+            wave_note = wave_note + number;
         }
     }
+    updateWaveFreq(frequencies[wave_note]);
+    printChannelNote(2);
+  }
+}
+
+// Increase the macro enabled channels freq
+void increaseMacroFreq(int number) {
+  if(current_channel != 0 && freqMacroStatus.sweep != 0) {
+    if (freqMacroStatus.sweep == 1 ) { // regular macro marker
+      if ((sweep_freq + number) >= 2047) {
+            sweep_freq = 2047;
+        } else {
+            sweep_freq = sweep_freq + number;
+        }
+    } else if (freqMacroStatus.sweep == 2) { // inverted macro
+      if ((uwti(sweep_freq) - number) <= 0) {
+            sweep_freq = 0;
+        } else {
+            sweep_freq = sweep_freq - number;
+        }
+    }
+    updateSweepFreq(sweep_freq);
+    printChannelFrequency(0);
+  }
+  if(current_channel != 1 && freqMacroStatus.square != 0) {
+    if (freqMacroStatus.square == 1 ) { // regular macro marker
+      if ((square_freq + number) >= 2047) {
+            square_freq = 2047;
+        } else {
+            square_freq = square_freq + number;
+        }
+    } else if (freqMacroStatus.square == 2) { // inverted macro
+      if ((uwti(square_freq) - number) <= 0) {
+            square_freq = 0;
+        } else {
+            square_freq = square_freq - number;
+        }
+    }
+    updateSquareFreq(square_freq);
+    printChannelFrequency(1);
+  }
+  if(current_channel != 2 && freqMacroStatus.wave != 0) {
+    if (freqMacroStatus.wave == 1 ) { // regular macro marker
+      if ((wave_freq + number) >= 2047) {
+            wave_freq = 2047;
+        } else {
+            wave_freq = wave_freq + number;
+        }
+    } else if (freqMacroStatus.wave == 2) { // inverted macro
+      if ((uwti(wave_freq) - number) <= 0) {
+            wave_freq = 0;
+        } else {
+            wave_freq = wave_freq - number;
+        }
+    }
+    updateWaveFreq(wave_freq);
+    printChannelFrequency(2);
+  }
+}
+
+// Decrease the macro enabled channels freq
+void decreaseMacroFreq(int number) {
+  if(current_channel != 0 && freqMacroStatus.sweep != 0) {
+    if (freqMacroStatus.sweep == 1 ) { // regular macro marker
+      if ((uwti(sweep_freq) - number) <= 0) {
+        sweep_freq = 0;
+      } else {
+        sweep_freq = sweep_freq - number;
+      }
+    } else if (freqMacroStatus.sweep == 2) { // inverted macro
+      if ((sweep_freq + number) >= 2047) {
+        sweep_freq = 2047;
+      } else {
+        sweep_freq = sweep_freq + number;
+      }
+    }
+    updateSweepFreq(sweep_freq);
+    printChannelFrequency(0);
+  }
+  if(current_channel != 1 && freqMacroStatus.square != 0) {
+    if (freqMacroStatus.square == 1 ) { // regular macro marker
+      if ((uwti(square_freq) - number) <= 0) {
+         square_freq = 0;
+      } else {
+        square_freq = square_freq - number;
+      }
+    } else if (freqMacroStatus.square == 2) { // inverted macro
+      if ((square_freq + number) >= 2047) {
+        square_freq = 2047;
+      } else {
+        square_freq = square_freq + number;
+      }
+    }
+    updateSquareFreq(square_freq);
+    printChannelFrequency(1);
+  }
+  if(current_channel != 2 && freqMacroStatus.wave != 0) {
+    if (freqMacroStatus.wave == 1 ) { // regular macro marker
+      if ((uwti(wave_freq) - number) <= 0) {
+        wave_freq = 0;
+      } else {
+        wave_freq = wave_freq - number;
+      }
+    } else if (freqMacroStatus.wave == 2) { // inverted macro
+      if ((wave_freq + number) >= 2047) {
+        wave_freq = 2047;
+      } else {
+        wave_freq = wave_freq + number;
+      }
+    }
+    updateWaveFreq(wave_freq);
+    printChannelFrequency(2);
+  }
 }

@@ -43,7 +43,8 @@ const UBYTE dutyFaderPosition[4] = {111, 89, 65, 41};
 // Macro markers
 struct MacroStatus volumeMacroStatus;
 struct MacroStatus dutyMacroStatus;
-
+struct MacroStatus freqMacroStatus;
+int domacro = 0;
 // Note names to display
 const char noteNames[72][5] = {
   " C 3", "C# 3", " D 3", "D# 3", " E 3", " F 3", "F# 3", " G 3", "G# 3", " A 3", "A# 3", " B 3",
@@ -149,6 +150,7 @@ void changeToFrequencyBackground() {
   }
   current_channel = 0;
   updateFaderMarker();
+  setAllFreqMacroMarkers();
 }
 
 /*
@@ -160,7 +162,7 @@ void setUpFrequencySprites() {
   int value = sweep_freq;
   int position = 4;
   setCounterSprites(position, value); // setup the frequency tiles
-  clearCounterValues(position); // clear if needed
+  clearCounterValues(position, 0); // clear if needed
   setNoteSprites(position+16, sweep_note); // set the note tiles
 
   // square
@@ -168,7 +170,7 @@ void setUpFrequencySprites() {
   value = square_freq;
   position = 8;
   setCounterSprites(position, value);
-  clearCounterValues(position);
+  clearCounterValues(position, 1);
   setNoteSprites(position+16, square_note);
 
   //wave
@@ -176,7 +178,7 @@ void setUpFrequencySprites() {
   value = wave_freq;
   position = 12;
   setCounterSprites(position, value);
-  clearCounterValues(position);
+  clearCounterValues(position, 2);
   setNoteSprites(position+16, wave_note);
 
   //noise
@@ -184,7 +186,7 @@ void setUpFrequencySprites() {
   value = noise_freq;
   position = 16;
   setCounterSprites(position, value);
-  clearCounterValues(position);
+  clearCounterValues(position, 3);
   setNoteSprites(position+16, noise_note);
 
   current_channel = 0;
@@ -287,6 +289,7 @@ void changeToVolumeBackground() {
   current_channel = 0;
   updateFaderMarker();
   setAllVolumeMacroMarkers();
+  domacro = 0;
 }
 
 /*
@@ -485,7 +488,10 @@ void init() {
   dutyMacroStatus.square = 0;
   dutyMacroStatus.wave = 0;
   dutyMacroStatus.noise = 0;
-
+  freqMacroStatus.sweep = 0;
+  freqMacroStatus.square = 0;
+  freqMacroStatus.wave = 0;
+  freqMacroStatus.noise = 0;
   // x first higher value ->
   // y second higher value down
   for (int i = 0; i < 4; ++i) {

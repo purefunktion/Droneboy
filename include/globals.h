@@ -78,3 +78,5 @@ struct MacroStatus {
 
 extern struct MacroStatus volumeMacroStatus;
 extern struct MacroStatus dutyMacroStatus;
+extern struct MacroStatus freqMacroStatus;
+extern int domacro;
