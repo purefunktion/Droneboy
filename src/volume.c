@@ -6,17 +6,23 @@ void volumeKeypadController() {
   if (KEY_PRESSED(J_A)) {
     placeMacroMarker();
     waitpadup();  // Wait until the button is released
-  } else if (KEY_PRESSED(J_B)) {
-    //mute?
-    waitpadup();
-  } else if (KEY_PRESSED(J_UP)) {
-    increaseVolume();
-    moveFader(current_channel);
-    waitpadup();
+  } else if (KEY_TICKED(J_UP)) {
+    if(KEY_PRESSED(J_B)) {
+      increaseVolume(15);
+      moveFader(current_channel);
+    } else {
+      increaseVolume(1);
+      moveFader(current_channel);
+    }
   } else if (KEY_PRESSED(J_DOWN)) {
-    decreaseVolume();
-    moveFader(current_channel);
-    waitpadup();
+    if(KEY_PRESSED(J_B)) {
+      decreaseVolume(15);
+      moveFader(current_channel);
+    } else {
+      decreaseVolume(1);
+      moveFader(current_channel);
+      waitpadup(); // hmm 
+    }
   } else if (KEY_PRESSED(J_RIGHT)) {
     change_fader(J_RIGHT);
     waitpadup();
@@ -29,52 +35,51 @@ void volumeKeypadController() {
 }
 
 // Increase volume 1 step at the time
-void increaseVolume() {
+void increaseVolume(int number) {
   switch(current_channel)
   {
     case 0: {
-      if (sweep_volume == 15) {
-        increaseMacroVolume(1); // make macros follow up even if max is reached for master
-        break;
+      if ((sweep_volume + number) >= 15) {
+        sweep_volume = 15;
+      } else {
+        sweep_volume += number;
       }
-      sweep_volume = sweep_volume + 1;
       updateSweepVolume(volumeValues[sweep_volume]);
       fader_group[current_channel].fader_position = sweep_volume;
-      increaseMacroVolume(1);
+      increaseMacroVolume(number);
       break;
     }
     case 1: {
-      if (square_volume == 15) {
-        increaseMacroVolume(1);
-        break;
+      if ((square_volume + number) >= 15) {
+        square_volume = 15;
+      } else {
+        square_volume += number;
       }
-      square_volume = square_volume + 1;
       updateSquareVolume(volumeValues[square_volume]);
       fader_group[current_channel].fader_position = square_volume;
-      increaseMacroVolume(1);
+      increaseMacroVolume(number);
       break;
     }
     case 2: {
-      if (wave_volume == 15) {
-        increaseMacroVolume(1);
-        break;
+      if ((wave_volume + number) >= 15) {
+        wave_volume = 15;
+      } else {
+        wave_volume += number;
       }
-      //From highest to lowest the values are 0x20, 0x40, 0x60, 0x00.
-      wave_volume = wave_volume + 1;
       updateWaveVolume(wave_volume, duty_wave*16);
       fader_group[current_channel].fader_position = wave_volume;
-      increaseMacroVolume(1);
+      increaseMacroVolume(number);
       break;
     }
     case 3: {
-      if (noise_volume == 15) {
-        increaseMacroVolume(1);
-        break;
+      if ((noise_volume + number) >= 15) {
+        noise_volume = 15;
+      } else {
+        noise_volume += number;
       }
-      noise_volume = noise_volume + 1;
       updateNoiseVolume(volumeValues[noise_volume]);
       fader_group[current_channel].fader_position = noise_volume;
-      increaseMacroVolume(1);
+      increaseMacroVolume(number);
       break;
     }
   }
@@ -85,7 +90,6 @@ void increaseVolume() {
 * Increase the macro marked channels volume with number.
 **/
 void increaseMacroVolume(int number) {
-
   // not current fader used and macro marker set
   if(current_channel != 0 && volumeMacroStatus.sweep != 0) {
     if (volumeMacroStatus.sweep == 1 ) { // regular macro marker
@@ -166,52 +170,51 @@ void increaseMacroVolume(int number) {
 }
 
 // ..and decrease
-void decreaseVolume() {
+void decreaseVolume(int number) {
   switch(current_channel)
   {
     case 0: {
-      if (sweep_volume == 0b0000) {
-        decreaseMacroVolume(1);
-        break;
+      if ((sweep_volume - number) <= 0) {
+        sweep_volume = 0;
+      } else {
+        sweep_volume -= number;
       }
-      sweep_volume = sweep_volume - 1;
       updateSweepVolume(volumeValues[sweep_volume]);
       fader_group[current_channel].fader_position = sweep_volume;
-      decreaseMacroVolume(1);
+      decreaseMacroVolume(number);
       break;
     }
     case 1: {
-      if (square_volume == 0) {
-        decreaseMacroVolume(1);
-        break;
+      if ((square_volume - number) <= 0) {
+        square_volume = 0;
+      } else {
+        square_volume -= number;
       }
-      square_volume = square_volume - 1;
       updateSquareVolume(volumeValues[square_volume]);
       fader_group[current_channel].fader_position = square_volume;
-      decreaseMacroVolume(1);
+      decreaseMacroVolume(number);
       break;
     }
     case 2: {
-      if (wave_volume == 0) {
-        decreaseMacroVolume(1);
-        break;
+      if ((wave_volume - number) <= 0) {
+        wave_volume = 0;
+      } else {
+        wave_volume -= number;
       }
-      wave_volume = wave_volume - 1;
       updateWaveVolume(wave_volume, duty_wave*16);
       fader_group[current_channel].fader_position = wave_volume;
-      decreaseMacroVolume(1);
+      decreaseMacroVolume(number);
       break;
     }
     case 3: {
-      if (noise_volume == 0) {
-        updateNoiseVolume(noise_volume);
-        decreaseMacroVolume(1);
-        break;
+      if ((noise_volume - number) <= 0) {
+        noise_volume = 0;
+      } else {
+        noise_volume -= number;
       }
-      noise_volume = noise_volume - 1;
       updateNoiseVolume(volumeValues[noise_volume]);
       fader_group[current_channel].fader_position = noise_volume;
-      decreaseMacroVolume(1);
+      decreaseMacroVolume(number);
       break;
     }
   }
