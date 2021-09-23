@@ -62,6 +62,17 @@ void increaseDuty() {
       increaseMacroDuty(1);
       break;
     }
+    case 3: {
+      if(dividing_ratio_noise == 7) {
+        increaseMacroDuty(1);
+        break;
+      }
+      dividing_ratio_noise += 1;
+      updateNoiseDividingRatio(dividing_ratio_noise);
+      duty_fader_group[current_channel].fader_position = dividing_ratio_noise;
+      increaseMacroDuty(1);
+      break;
+    }
   }
 }
 
@@ -96,6 +107,15 @@ void decreaseDuty() {
       decreaseMacroDuty(1);
       break;
     }
+    case 3: {
+      if(dividing_ratio_noise != 0) {
+        dividing_ratio_noise = dividing_ratio_noise - 1;
+        updateNoiseDividingRatio(dividing_ratio_noise);
+        duty_fader_group[current_channel].fader_position = dividing_ratio_noise;
+      }
+      decreaseMacroDuty(1);
+      break;
+    }
   }
 }
 
@@ -111,6 +131,12 @@ void updateSquareDuty(UBYTE duty) {
 // Wave channel has no duty register but has corresponding waves in table
 void updateWaveDuty(int duty) {
     updateWaveVolume(wave_volume, duty*16);
+}
+
+// noise "duty". ut the controll for dividing ratio here because reasons.
+void updateNoiseDividingRatio(int number) {
+  noiseStruct.dividing_ratio = number;
+  updateNoiseFreq(noise_freq);
 }
 
 // Increase the macro enabled channels, decrease the inverted ones.
@@ -169,6 +195,24 @@ void increaseMacroDuty(int number) {
     duty_fader_group[2].fader_position = duty_wave;
     moveFader(2);
   }
+  if(current_channel != 3 && dutyMacroStatus.noise != 0) {
+    if (dutyMacroStatus.noise == 1 ) { // regular macro marker
+      if(dividing_ratio_noise + number > 7) { // if not highest add one
+        dividing_ratio_noise = 7;
+      } else {
+        dividing_ratio_noise += number;
+      }
+    } else if (dutyMacroStatus.noise == 2) { // inverted macro
+      if (dividing_ratio_noise - number < 0) {
+        dividing_ratio_noise = 0;
+      } else {
+        dividing_ratio_noise -= number;
+      }
+    }
+    updateNoiseDividingRatio(dividing_ratio_noise);
+    duty_fader_group[3].fader_position = dividing_ratio_noise;
+    moveFader(3);
+  }
 }
 
 // Decrease the macro enabled channels, increase the inverted ones.
@@ -226,5 +270,23 @@ void decreaseMacroDuty(int number) {
     updateWaveDuty(duty_wave);
     duty_fader_group[2].fader_position = duty_wave;
     moveFader(2);
+  }
+  if(current_channel != 3 && dutyMacroStatus.noise != 0) {
+    if (dutyMacroStatus.noise == 1 ) { // regular macro marker
+      if (dividing_ratio_noise - number < 0) {
+        dividing_ratio_noise = 0;
+      } else {
+        dividing_ratio_noise -= number;
+      }
+    } else if (dutyMacroStatus.noise == 2) { // inverted macro
+      if(dividing_ratio_noise + number > 7) { // if not highest add one
+        dividing_ratio_noise = 7;
+      } else {
+        dividing_ratio_noise += number;
+      }
+    }
+    updateNoiseDividingRatio(dividing_ratio_noise);
+    duty_fader_group[3].fader_position = dividing_ratio_noise;
+    moveFader(3);
   }
 }

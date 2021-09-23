@@ -31,14 +31,17 @@ int active_control_page = 0;
 struct NoiseyStruct noiseStruct;
 
 struct fader fader_group[4];
-struct fader duty_fader_group[3];
+struct fader duty_fader_group[4];
 
 // duty 
 int duty_sweep = 2;
 int duty_square = 2;
 int duty_wave = 2;
+int dividing_ratio_noise = 7; // not reallt duty but controlles on duty page
+
 const UBYTE dutyValues[4] = {0x00, 0x40, 0x80, 0xC0};
 const UBYTE dutyFaderPosition[4] = {111, 89, 65, 41};
+const UBYTE dutyFaderPositionNoise[8] = {111, 100, 89, 80, 73, 65, 53, 41};
 
 // Macro markers
 struct MacroStatus volumeMacroStatus;
@@ -104,7 +107,7 @@ void main() {
         break;
       }
       case 1: { // duty
-        num_faders = 3;
+        num_faders = 4;
         dutyKeypadController();
         break;
       }
@@ -260,12 +263,8 @@ void changeToDutyBackground() {
   SHOW_BKG;
   DISPLAY_ON;
   // move the duty faders on screen
-  move_sprite(0, duty_fader_group[0].x, duty_fader_group[0].y);
-  move_sprite(1, duty_fader_group[1].x, duty_fader_group[1].y);
-  move_sprite(2, duty_fader_group[2].x, duty_fader_group[2].y);
-  // move noise off screen
-  for (int i = 3; i <= max_faders-1; i++) {
-    move_sprite(i, 1, 168);
+  for (int i = 0; i <= max_faders-1; i++) {
+    move_sprite(i, duty_fader_group[i].x, duty_fader_group[i].y);
   }
   current_channel = 0; // set to sweep
   updateFaderMarker();
@@ -350,8 +349,13 @@ void moveFader(int channel) {
     fader_group[channel].y = volumeFaderPosition[fader_group[channel].fader_position];
     move_sprite(channel, fader_group[channel].x, fader_group[channel].y);
   } else if (active_control_page == 1 ) {
-    duty_fader_group[channel].y = dutyFaderPosition[duty_fader_group[channel].fader_position];
-    move_sprite(channel, duty_fader_group[channel].x, duty_fader_group[channel].y);
+    if (channel == 3) {
+      duty_fader_group[channel].y = dutyFaderPositionNoise[duty_fader_group[channel].fader_position];
+      move_sprite(channel, duty_fader_group[channel].x, duty_fader_group[channel].y);
+    } else {
+      duty_fader_group[channel].y = dutyFaderPosition[duty_fader_group[channel].fader_position];
+      move_sprite(channel, duty_fader_group[channel].x, duty_fader_group[channel].y);
+    }
   }
 }
 
@@ -478,6 +482,10 @@ void init() {
   duty_fader_group[2].x = 112;
   duty_fader_group[2].y = 65;
   duty_fader_group[2].fader_position = 2;
+  //noise
+  duty_fader_group[3].x = 152;
+  duty_fader_group[3].y = 41;
+  duty_fader_group[3].fader_position = 7;
 
   // Macro markers
   volumeMacroStatus.sweep = 0;
