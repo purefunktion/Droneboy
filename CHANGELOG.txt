@@ -1,6 +1,11 @@
 # Changelog
 
 ## [1.02] - 2021-09-28
+### Fix
+	- Fixed blinking backgrounds
+	- Note/frequancy indicator on freq page shown correctly
+
+## [1.02] - 2021-09-28
 ### Addition
 	- Macro and inverted macro markers
 	- Dividing ratio of frequencies fader for Noise channel on duty page

@@ -23,3 +23,5 @@ void placeMacroMarker();
 void setAllVolumeMacroMarkers();
 void setAllDutyMacroMarkers();
 void setAllFreqMacroMarkers();
+
+void flipHeader();

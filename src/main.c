@@ -83,7 +83,7 @@ const UBYTE volumeFaderPosition[16] = {119, 114, 109, 104, 98, 93, 89, 85, 80, 7
 // Main 
 void main() {
 
-  //intro(); // comment this out if enoying
+  intro(); // comment this out if enoying
   init();
   
   // Main loop
@@ -113,6 +113,7 @@ void main() {
       }
       case 2: { // freq/note
         num_faders = 4;
+        flipHeader();
         frequencyKeypadController();
         break;
       }
@@ -139,12 +140,8 @@ void changeControlPage(int to_page) {
 * Changes to the frequency background
 */
 void changeToFrequencyBackground() {
-  wait_vbl_done();
-  DISPLAY_OFF;
   set_bkg_data(0,4, fadertile); // setup fader tiles
   set_bkg_tiles(0x00, 0x00, 20, 18, frequencybackground); // the bakground
-  SHOW_BKG;
-  DISPLAY_ON;
   setUpFrequencySprites();
   // this hides the sprites from duty page
   for (int i = 0; i <= max_faders-1; i++) 
@@ -256,12 +253,8 @@ void setUpFrequencySprites() {
 * Duty is only available for sweep and square
 */
 void changeToDutyBackground() {
-  wait_vbl_done();
-  DISPLAY_OFF;
   set_bkg_data(0,4, fadertile);
   set_bkg_tiles(0x00, 0x00, 20, 18, dutyfaderbackground);
-  SHOW_BKG;
-  DISPLAY_ON;
   // move the duty faders on screen
   for (int i = 0; i <= max_faders-1; i++) {
     move_sprite(i, duty_fader_group[i].x, duty_fader_group[i].y);
@@ -275,12 +268,8 @@ void changeToDutyBackground() {
 * Change to the volume background.
 */
 void changeToVolumeBackground() {
-  wait_vbl_done();
-  DISPLAY_OFF;
-  set_bkg_data(0,4, fadertile);
+  set_bkg_data(0,4, fadertile); // all functions are "VRAM safe" albeit slow
   set_bkg_tiles(0x00, 0x00, 20, 18, volumefaderbackground);
-  SHOW_BKG;
-  DISPLAY_ON;
   hideSprites(4, 36); // hide tiles from frequency page
   for (int i = 0; i <= max_faders-1; i++) {
     move_sprite(i, fader_group[i].x, fader_group[i].y);

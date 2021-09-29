@@ -29,7 +29,6 @@ void placeVolumeMacroMarker() {
   		} else {
   			volumeMacroStatus.sweep++;
   		}
-			DISPLAY_OFF;
 	    if (volumeMacroStatus.sweep == 0) {
 	    	set_bkg_tiles(0x03, 0x10, 1, 1, blankTileBkg);
 	    } else if (volumeMacroStatus.sweep == 1) {
@@ -37,8 +36,6 @@ void placeVolumeMacroMarker() {
 	    } else {
 	      set_bkg_tiles(0x03, 0x10, 1, 1, iconInvertedMacroMarkerBkg);
 	    }
-	    SHOW_BKG;
-	    DISPLAY_ON;
 	    break;
 		}
 		case 1: { // square
@@ -47,7 +44,6 @@ void placeVolumeMacroMarker() {
   		} else {
   			volumeMacroStatus.square++;
   		}
-			DISPLAY_OFF;
 	    if (volumeMacroStatus.square == 0) {
 	    	set_bkg_tiles(0x08, 0x10, 1, 1, blankTileBkg);
 	    } else if (volumeMacroStatus.square == 1) {
@@ -55,8 +51,6 @@ void placeVolumeMacroMarker() {
 	    } else {	      
 	    	set_bkg_tiles(0x08, 0x10, 1, 1, iconInvertedMacroMarkerBkg);
 	    }
-	    SHOW_BKG;
-	    DISPLAY_ON;
 	    break;
 		}
 		case 2: { // wave
@@ -65,7 +59,6 @@ void placeVolumeMacroMarker() {
   		} else {
   			volumeMacroStatus.wave++;
   		}
-			DISPLAY_OFF;
 	    if (volumeMacroStatus.wave == 0) {
 	    	set_bkg_tiles(0x0D, 0x10, 1, 1, blankTileBkg);
 	    } else if (volumeMacroStatus.wave == 1) {
@@ -73,8 +66,6 @@ void placeVolumeMacroMarker() {
 	    } else {
 	    	set_bkg_tiles(0x0D, 0x10, 1, 1, iconInvertedMacroMarkerBkg);
 	    }
-	    SHOW_BKG;
-	    DISPLAY_ON;
 	    break;
 		}
 		case 3: { // noise
@@ -83,7 +74,6 @@ void placeVolumeMacroMarker() {
   		} else {
   			volumeMacroStatus.noise++;
   		}
-			DISPLAY_OFF;
 	    if (volumeMacroStatus.noise == 0) {
 	    	set_bkg_tiles(0x12, 0x10, 1, 1, blankTileBkg);
 	    } else if (volumeMacroStatus.noise == 1) {
@@ -91,8 +81,6 @@ void placeVolumeMacroMarker() {
 	    } else {
 	    	set_bkg_tiles(0x12, 0x10, 1, 1, iconInvertedMacroMarkerBkg);
 	    }
-	    SHOW_BKG;
-	    DISPLAY_ON;
 	    break;
 		}
 	}
@@ -102,7 +90,6 @@ void placeVolumeMacroMarker() {
 This is used when coming back to the volume control page to set macro markers
 */
 void setAllVolumeMacroMarkers() {
-	DISPLAY_OFF;
   if (volumeMacroStatus.sweep == 0) {
   	set_bkg_tiles(0x03, 0x10, 1, 1, blankTileBkg);
   } else if (volumeMacroStatus.sweep == 1) {
@@ -131,8 +118,6 @@ void setAllVolumeMacroMarkers() {
   } else {
   	set_bkg_tiles(0x12, 0x10, 1, 1, iconInvertedMacroMarkerBkg);
   }
-  SHOW_BKG;
-  DISPLAY_ON;
 }
 
 // Place the duty macro markers
@@ -145,7 +130,6 @@ void placeDutyMacroMarker() {
       } else {
         dutyMacroStatus.sweep++;
       }
-      DISPLAY_OFF;
       if (dutyMacroStatus.sweep == 0) {
         set_bkg_tiles(0x03, 0x10, 1, 1, blankTileBkg);
       } else if (dutyMacroStatus.sweep == 1) {
@@ -153,8 +137,6 @@ void placeDutyMacroMarker() {
       } else {
         set_bkg_tiles(0x03, 0x10, 1, 1, iconInvertedMacroMarkerBkg);
       }
-      SHOW_BKG;
-      DISPLAY_ON;
       break;
     }
     case 1: { // square
@@ -163,7 +145,6 @@ void placeDutyMacroMarker() {
       } else {
         dutyMacroStatus.square++;
       }
-      DISPLAY_OFF;
       if (dutyMacroStatus.square == 0) {
         set_bkg_tiles(0x08, 0x10, 1, 1, blankTileBkg);
       } else if (dutyMacroStatus.square == 1) {
@@ -171,8 +152,6 @@ void placeDutyMacroMarker() {
       } else {        
         set_bkg_tiles(0x08, 0x10, 1, 1, iconInvertedMacroMarkerBkg);
       }
-      SHOW_BKG;
-      DISPLAY_ON;
       break;
     }
     case 2: { // wave
@@ -181,7 +160,6 @@ void placeDutyMacroMarker() {
       } else {
         dutyMacroStatus.wave++;
       }
-      DISPLAY_OFF;
       if (dutyMacroStatus.wave == 0) {
         set_bkg_tiles(0x0D, 0x10, 1, 1, blankTileBkg);
       } else if (dutyMacroStatus.wave == 1) {
@@ -189,8 +167,6 @@ void placeDutyMacroMarker() {
       } else {
         set_bkg_tiles(0x0D, 0x10, 1, 1, iconInvertedMacroMarkerBkg);
       }
-      SHOW_BKG;
-      DISPLAY_ON;
       break;
     }
     case 3: { // noise
@@ -199,7 +175,6 @@ void placeDutyMacroMarker() {
       } else {
         dutyMacroStatus.noise++;
       }
-      DISPLAY_OFF;
       if (dutyMacroStatus.noise == 0) {
         set_bkg_tiles(0x12, 0x10, 1, 1, blankTileBkg);
       } else if (dutyMacroStatus.noise == 1) {
@@ -207,8 +182,6 @@ void placeDutyMacroMarker() {
       } else {
         set_bkg_tiles(0x12, 0x10, 1, 1, iconInvertedMacroMarkerBkg);
       }
-      SHOW_BKG;
-      DISPLAY_ON;
       break;
     }
   }
@@ -219,7 +192,6 @@ This is used when coming back to the duty control page
 to set already set macro markers
 */
 void setAllDutyMacroMarkers() {
-  DISPLAY_OFF;
   if (dutyMacroStatus.sweep == 0) {
     set_bkg_tiles(0x03, 0x10, 1, 1, blankTileBkg);
   } else if (dutyMacroStatus.sweep == 1) {
@@ -248,8 +220,6 @@ void setAllDutyMacroMarkers() {
   } else {
     set_bkg_tiles(0x12, 0x10, 1, 1, iconInvertedMacroMarkerBkg);
   }
-  SHOW_BKG;
-  DISPLAY_ON;
 }
 
 // Place the duty macro markers
@@ -262,7 +232,6 @@ void placeFreqMacroMarker() {
       } else {
         freqMacroStatus.sweep++;
       }
-      DISPLAY_OFF;
       if (freqMacroStatus.sweep == 0) {
         set_bkg_tiles(0x05, 0x08, 1, 1, blankTileBkg);
       } else if (freqMacroStatus.sweep == 1) {
@@ -270,8 +239,6 @@ void placeFreqMacroMarker() {
       } else {
         set_bkg_tiles(0x05, 0x08, 1, 1, iconInvertedMacroMarkerBkg);
       }
-      SHOW_BKG;
-      DISPLAY_ON;
       break;
     }
     case 1: { // square
@@ -280,7 +247,6 @@ void placeFreqMacroMarker() {
       } else {
         freqMacroStatus.square++;
       }
-      DISPLAY_OFF;
       if (freqMacroStatus.square == 0) {
         set_bkg_tiles(0x0F, 0x08, 1, 1, blankTileBkg);
       } else if (freqMacroStatus.square == 1) {
@@ -288,8 +254,6 @@ void placeFreqMacroMarker() {
       } else {
         set_bkg_tiles(0x0F, 0x08, 1, 1, iconInvertedMacroMarkerBkg);
       }
-      SHOW_BKG;
-      DISPLAY_ON;
       break;
     }
     case 2: { // wave
@@ -298,7 +262,6 @@ void placeFreqMacroMarker() {
       } else {
         freqMacroStatus.wave++;
       }
-      DISPLAY_OFF;
       if (freqMacroStatus.wave == 0) {
         set_bkg_tiles(0x05, 0x10, 1, 1, blankTileBkg);
       } else if (freqMacroStatus.wave == 1) {
@@ -306,8 +269,6 @@ void placeFreqMacroMarker() {
       } else {
         set_bkg_tiles(0x05, 0x10, 1, 1, iconInvertedMacroMarkerBkg);
       }
-      SHOW_BKG;
-      DISPLAY_ON;
       break;
     }
     case 3: { // noise
@@ -316,7 +277,6 @@ void placeFreqMacroMarker() {
       } else {
         freqMacroStatus.noise++;
       }
-      DISPLAY_OFF;
       if (freqMacroStatus.noise == 0) {
         set_bkg_tiles(0x0F, 0x10, 1, 1, blankTileBkg);
       } else if (freqMacroStatus.noise == 1) {
@@ -324,8 +284,6 @@ void placeFreqMacroMarker() {
       } else {
         set_bkg_tiles(0x0F, 0x10, 1, 1, iconInvertedMacroMarkerBkg);
       }
-      SHOW_BKG;
-      DISPLAY_ON;
       break;
     }
  	}
@@ -336,7 +294,6 @@ This is used when coming back to the duty control page
 to set already set macro markers
 */
 void setAllFreqMacroMarkers() {
-  DISPLAY_OFF;
   if (freqMacroStatus.sweep == 0) {
     set_bkg_tiles(0x05, 0x08, 1, 1, blankTileBkg);
   } else if (freqMacroStatus.sweep == 1) {
@@ -365,6 +322,4 @@ void setAllFreqMacroMarkers() {
   } else {
     set_bkg_tiles(0x0F, 0x10, 1, 1, iconInvertedMacroMarkerBkg);
   }
-  SHOW_BKG;
-  DISPLAY_ON;
 }

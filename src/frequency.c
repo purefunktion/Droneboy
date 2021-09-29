@@ -32,14 +32,11 @@ void frequencyKeypadController() {
 
 // show/hide frequency/note
 void flipHeader() {
-    DISPLAY_OFF;
     if (frequency_mode == 1) {
         set_bkg_tiles(0x00, 0x00, 9, 1, noteFreqText);
     } else {
         set_bkg_tiles(0x00, 0x00, 9, 1, freqFreqText);
     }
-    SHOW_BKG;
-    DISPLAY_ON;
 }
 
 // when flipping through notes

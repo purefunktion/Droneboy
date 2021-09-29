@@ -3,8 +3,6 @@
 #include "tilesandbackgrounds.h"
 #include "common.h"
 
-void flipHeader();
-
 void increaseCurrentFreq(int amount);
 void decreaseCurrentFreq(int amount);
 void printChannelFrequency(int channel);
