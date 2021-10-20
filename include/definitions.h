@@ -1,3 +1,6 @@
+#ifndef DEFINITIONS_H
+#define DEFINITIONS_H
+
 // credit Zalo for keypad logic
 // https://github.com/Zal0
 #define UPDATE_KEYS() previous_keys = keys; keys = joypad()
@@ -14,6 +17,7 @@ void updateSweepFreq(UWORD new_freq);
 void updateSquareFreq(UWORD new_freq);
 void updateWaveFreq(UWORD new_freq);
 void updateNoiseFreq(UBYTE new_freq);
+void updateNoiseNoteFreq(UBYTE new_freq);
 
 void clearCounterValues(UINT8 position, int channel);
 void setCounterSprites(UINT8 position, int value);
@@ -25,3 +29,5 @@ void setAllDutyMacroMarkers();
 void setAllFreqMacroMarkers();
 
 void flipHeader();
+
+#endif

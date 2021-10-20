@@ -19,6 +19,9 @@ void dutyKeypadController() {
   } else if (KEY_PRESSED(J_A)) {
     placeMacroMarker();
     waitpadup();  // Wait until the button is released
+  } else if (KEY_PRESSED(J_B)) {
+    changNoiseCounterStep();
+    waitpadup();
   }
   //wait_vbl_done();
   //UPDATE_KEYS();
@@ -63,13 +66,13 @@ void increaseDuty() {
       break;
     }
     case 3: {
-      if(dividing_ratio_noise == 7) {
+      if(noiseStruct.dividing_ratio == 7) {
         increaseMacroDuty(1);
         break;
       }
-      dividing_ratio_noise += 1;
-      updateNoiseDividingRatio(dividing_ratio_noise);
-      duty_fader_group[current_channel].fader_position = dividing_ratio_noise;
+      noiseStruct.dividing_ratio += 1;
+      updateNoiseDividingRatio(noiseStruct.dividing_ratio);
+      duty_fader_group[current_channel].fader_position = noiseStruct.dividing_ratio;
       increaseMacroDuty(1);
       break;
     }
@@ -108,10 +111,10 @@ void decreaseDuty() {
       break;
     }
     case 3: {
-      if(dividing_ratio_noise != 0) {
-        dividing_ratio_noise = dividing_ratio_noise - 1;
-        updateNoiseDividingRatio(dividing_ratio_noise);
-        duty_fader_group[current_channel].fader_position = dividing_ratio_noise;
+      if(noiseStruct.dividing_ratio != 0) {
+        noiseStruct.dividing_ratio = noiseStruct.dividing_ratio - 1;
+        updateNoiseDividingRatio(noiseStruct.dividing_ratio);
+        duty_fader_group[current_channel].fader_position = noiseStruct.dividing_ratio;
       }
       decreaseMacroDuty(1);
       break;
@@ -197,20 +200,20 @@ void increaseMacroDuty(int number) {
   }
   if(current_channel != 3 && dutyMacroStatus.noise != 0) {
     if (dutyMacroStatus.noise == 1 ) { // regular macro marker
-      if(dividing_ratio_noise + number > 7) { // if not highest add one
-        dividing_ratio_noise = 7;
+      if(noiseStruct.dividing_ratio + number > 7) { // if not highest add one
+        noiseStruct.dividing_ratio = 7;
       } else {
-        dividing_ratio_noise += number;
+        noiseStruct.dividing_ratio += number;
       }
     } else if (dutyMacroStatus.noise == 2) { // inverted macro
-      if (dividing_ratio_noise - number < 0) {
-        dividing_ratio_noise = 0;
+      if (noiseStruct.dividing_ratio - number < 0) {
+        noiseStruct.dividing_ratio = 0;
       } else {
-        dividing_ratio_noise -= number;
+        noiseStruct.dividing_ratio -= number;
       }
     }
-    updateNoiseDividingRatio(dividing_ratio_noise);
-    duty_fader_group[3].fader_position = dividing_ratio_noise;
+    updateNoiseDividingRatio(noiseStruct.dividing_ratio);
+    duty_fader_group[3].fader_position = noiseStruct.dividing_ratio;
     moveFader(3);
   }
 }
@@ -273,20 +276,40 @@ void decreaseMacroDuty(int number) {
   }
   if(current_channel != 3 && dutyMacroStatus.noise != 0) {
     if (dutyMacroStatus.noise == 1 ) { // regular macro marker
-      if (dividing_ratio_noise - number < 0) {
-        dividing_ratio_noise = 0;
+      if (noiseStruct.dividing_ratio - number < 0) {
+        noiseStruct.dividing_ratio = 0;
       } else {
-        dividing_ratio_noise -= number;
+        noiseStruct.dividing_ratio -= number;
       }
     } else if (dutyMacroStatus.noise == 2) { // inverted macro
-      if(dividing_ratio_noise + number > 7) { // if not highest add one
-        dividing_ratio_noise = 7;
+      if(noiseStruct.dividing_ratio + number > 7) { // if not highest add one
+        noiseStruct.dividing_ratio = 7;
       } else {
-        dividing_ratio_noise += number;
+        noiseStruct.dividing_ratio += number;
       }
     }
-    updateNoiseDividingRatio(dividing_ratio_noise);
-    duty_fader_group[3].fader_position = dividing_ratio_noise;
+    updateNoiseDividingRatio(noiseStruct.dividing_ratio);
+    duty_fader_group[3].fader_position = noiseStruct.dividing_ratio;
     moveFader(3);
+  }
+}
+
+// Change the counter step of Polynomial Counter in the noise channel
+// 1 = 7bit and 0 = 15bits
+void changNoiseCounterStep() {
+  if (current_channel == 3) { // only on noise
+    if (noiseStruct.counter_step == 1) {
+      noiseStruct.counter_step = 0;
+      NR43_REG = noiseStruct.dividing_ratio | (noiseStruct.counter_step << 3) | (noiseStruct.clock_freq << 4);
+      NR44_REG = 0x80; // restart channel
+      set_bkg_tile_xy(0x11, 0x0F, 0x35); // left flip area
+      set_bkg_tile_xy(0x12, 0x0F, 0x38); // right flip area
+    } else {
+      noiseStruct.counter_step = 1;
+      NR43_REG = noiseStruct.dividing_ratio | (noiseStruct.counter_step << 3) | (noiseStruct.clock_freq << 4);
+      NR44_REG = 0x80;
+      set_bkg_tile_xy(0x11, 0x0F, 0x36);
+      set_bkg_tile_xy(0x12, 0x0F, 0x37);
+    }
   }
 }

@@ -1,3 +1,6 @@
+#ifndef TILESANDBACKGROUNDS_H
+#define TILESANDBACKGROUNDS_H
+
 /* Bank of tiles. */
 #define frequencytilesBank 0
 /* Start of tile array. */
@@ -31,6 +34,10 @@ extern unsigned char icons[];
 #define macroMarkerBank 0
 extern unsigned char macroMarker[];
 
+extern unsigned char creditPageText[];
+extern unsigned char noiseCounterStepFlip[];
+
+
 //Backgrounds
 #define splashbackgroundWidth 20
 #define splashbackgroundHeight 18
@@ -63,3 +70,10 @@ extern unsigned char freqFreqText[];
 extern unsigned char iconMacroMarkerBkg[];
 extern unsigned char iconInvertedMacroMarkerBkg[];
 extern unsigned char blankTileBkg[];
+
+#define creditPageBackgroundWidth 20
+#define creditPageBackgroundHeight 18
+#define creditPageBackgroundBank 0
+extern unsigned char creditPageBackground[];
+
+#endif

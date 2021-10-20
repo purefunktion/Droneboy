@@ -25,7 +25,9 @@ On the duty page:
 **RIGHT/LEFT** change sound channel.  
 Channels(left to right) sweep, square, wave, noise. The noise channel has no duty so the fader will instead control the "dividing ratio of frequencies" in the polynomial counter.
 
-**UP/DOWN** to cycle through duty settings 
+**UP/DOWN** to cycle through duty settings
+
+**B** on noise channel will toggle the counter step of the polynomal counter. 
 
 On frequency page:
 
@@ -44,7 +46,7 @@ Top sweep and square, bottom wave and noise
 
 In note mode:
 
-**RIGHT/LEFT** change channel(noise disabled)
+**RIGHT/LEFT** change channel
 
 **UP/DOWN** changes note 1 semitone
 
@@ -52,4 +54,11 @@ In note mode:
 
 **HOLD B + UP** changes note 3 semitones
 
-The noise channel has note mode atm and the freq mode controls the Shift Clock Frequency. The counter step is hard coded to 1(=7bits).
+The noise channel freq mode controls the Shift Clock Frequency. The note mode has two notes that are "close enough" to authors ears of a D and G#.  
+
+**START** will display the credit page
+
+# Made with
+GBDK-2020(gbdk-4.0.5) https://github.com/gbdk-2020/gbdk-2020  
+Emulator used in development BGB https://bgb.bircd.org/  
+Sprites and maps made with GBTD/GBMB http://www.devrs.com/gb/hmgd/intro.html  

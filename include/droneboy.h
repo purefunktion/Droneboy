@@ -1,3 +1,6 @@
+#ifndef DRONEBOY_H
+#define DRONEBOY_H
+
 void intro();
 void init();
 
@@ -35,5 +38,14 @@ void changeToDutyBackground();
 void changeToVolumeBackground();
 void changeToFrequencyBackground();
 
+// goto credit page
+void goToCreditPage();
+void leaveCreditPage();
+
 // blank tile
 const unsigned char blank[] = {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
+
+// duty page
+void setCounterStepSwitch();
+
+#endif

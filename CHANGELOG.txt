@@ -1,6 +1,15 @@
 # Changelog
 
-## [1.02] - 2021-09-28
+## [1.04] - 2021-10-20
+### Addition
+	- Credit page
+	- Edit counter step of noise channel on duty page
+	- Tones on noise channel on freq/note page
+	- Macro markers on noise freq/noise
+### Fix
+	- Noise channel macro and state handling
+
+## [1.03] - 2021-09-28
 ### Fix
 	- Fixed blinking backgrounds
 	- Note/frequancy indicator on freq page shown correctly

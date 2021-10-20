@@ -25,6 +25,7 @@ int wave_volume = 0;
 int noise_volume = 0;
 
 int current_channel = 0;
+int credit_page = 0;
 int frequency_mode = 0;
 UINT8 num_control_pages = 3;
 int active_control_page = 0;
@@ -37,7 +38,6 @@ struct fader duty_fader_group[4];
 int duty_sweep = 2;
 int duty_square = 2;
 int duty_wave = 2;
-int dividing_ratio_noise = 7; // not reallt duty but controlles on duty page
 
 const UBYTE dutyValues[4] = {0x00, 0x40, 0x80, 0xC0};
 const UBYTE dutyFaderPosition[4] = {111, 89, 65, 41};
@@ -57,6 +57,16 @@ const char noteNames[72][5] = {
   " C 7", "C# 7", " D 7", "D# 7", " E 7", " F 7", "F# 7", " G 7", "G# 7", " A 7", "A# 7", " B 7",
   " C 8", "C# 8", " D 8", "D# 8", " E 8", " F 8", "F# 8", " G 8", "G# 8", " A 8", "A# 8", " B 8"
 };
+// the UBYTE for polynomial counter when doing notes on noise channel
+const UBYTE noiseNotesFrequencies[] = {
+   0X2F, 0x1F, 0x2D, 0x0F, 0x1D, 0x0D
+ };
+//  0x0B, 0x0A
+// noise note name, index in the noteName array above
+const int noiseNoteNameIndex[] = {
+   2, 14, 20, 26, 32, 44
+};
+// 53, 60
 // GB frequencies matching notes in noteNames
 // taken from http://www.devrs.com/gb/files/sndtab.html
 const UWORD frequencies[] = {
@@ -77,6 +87,7 @@ const UBYTE samples[] = {
   0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF, 0xFE, 0xDC, 0xBA, 0x98, 0x76, 0x54, 0x32, 0x10
 
 };
+
 // y coordinates for the volume fader(16 steps)
 const UBYTE volumeFaderPosition[16] = {119, 114, 109, 104, 98, 93, 89, 85, 80, 76, 71, 67, 58, 54, 49, 41};
 
@@ -89,6 +100,15 @@ void main() {
   // Main loop
   while(1) {
     // Change control page
+    if (KEY_PRESSED(J_START)) {
+      credit_page = (credit_page == 1) ? 0 : 1;
+      if (credit_page == 1) {
+        goToCreditPage();
+      } else {
+        leaveCreditPage();
+      }
+      waitpadup();
+    }
     if (KEY_PRESSED(J_SELECT)) {
       if (active_control_page == num_control_pages-1) {
         active_control_page = 0;
@@ -98,26 +118,28 @@ void main() {
       changeControlPage(active_control_page);
       waitpadup();
     }
-    // Switch depending on which control page we are on
-    switch(active_control_page)
-    {
-      case 0: { // volume
-        num_faders = 4;
-        volumeKeypadController();
-        break;
-      }
-      case 1: { // duty
-        num_faders = 4;
-        dutyKeypadController();
-        break;
-      }
-      case 2: { // freq/note
-        num_faders = 4;
-        flipHeader();
-        frequencyKeypadController();
-        break;
+    if (credit_page != 1) {
+      switch(active_control_page)
+      {
+        case 0: { // volume
+          num_faders = 4;
+          volumeKeypadController();
+          break;
+        }
+        case 1: { // duty
+          num_faders = 4;
+          dutyKeypadController();
+          break;
+        }
+        case 2: { // freq/note
+          num_faders = 4;
+          flipHeader();
+          frequencyKeypadController();
+          break;
+        }
       }
     }
+    // Switch depending on which control page we are on
     wait_vbl_done();
     UPDATE_KEYS();
   }
@@ -134,6 +156,26 @@ void changeControlPage(int to_page) {
   } else {
     changeToFrequencyBackground();
   }
+}
+
+// credit page flipper
+void goToCreditPage() {
+  set_bkg_data(0,4, fadertile); // setup fader tiles
+  set_bkg_tiles(0x00, 0x00, 20, 18, creditPageBackground);
+  // move the duty faders on screen
+
+  for (int i = 0; i <= max_faders-1; i++)
+  {
+    move_sprite(i, 1, 168);
+  }
+  move_sprite(37, 2, 168);
+  move_sprite(38, 2, 168);
+  hideSprites(0, 36);
+}
+
+// leave credit page
+void leaveCreditPage() {
+  changeControlPage(active_control_page);
 }
 
 /*
@@ -187,7 +229,8 @@ void setUpFrequencySprites() {
   position = 16;
   setCounterSprites(position, value);
   clearCounterValues(position, 3);
-  setNoteSprites(position+16, noise_note);
+  // only a few "notes" available on the noise channel
+  setNoteSprites(position+16, noiseNoteNameIndex[noise_note]);
 
   current_channel = 0;
 
@@ -203,7 +246,7 @@ void setUpFrequencySprites() {
   move_sprite(7, sweep_x-24, sweep_y); // 1000
   // notes
   sweep_y = sweep_y + 10; // 10 pixels under the freq tiles
-  move_sprite(20, sweep_x, sweep_y); 
+  move_sprite(20, sweep_x, sweep_y);
   move_sprite(21, sweep_x-8, sweep_y); // decrese by 8 to move left
   move_sprite(22, sweep_x-16, sweep_y);
   move_sprite(23, sweep_x-24, sweep_y);
@@ -211,13 +254,13 @@ void setUpFrequencySprites() {
   // square
   int square_x = 130;
   int square_y = 57;
-  move_sprite(8,  square_x, square_y); 
+  move_sprite(8,  square_x, square_y);
   move_sprite(9,  square_x-8, square_y); 
   move_sprite(10, square_x-16, square_y); 
   move_sprite(11, square_x-24, square_y); 
   //notes
   square_y = square_y + 10;
-  move_sprite(24, square_x, square_y); 
+  move_sprite(24, square_x, square_y);
   move_sprite(25, square_x-8, square_y);
   move_sprite(26, square_x-16, square_y);
   move_sprite(27, square_x-24, square_y);
@@ -226,13 +269,13 @@ void setUpFrequencySprites() {
   int wave_x = 51;
   int wave_y = 121;
   //numbers
-  move_sprite(12, wave_x, wave_y); 
+  move_sprite(12, wave_x, wave_y);
   move_sprite(13, wave_x-8, wave_y); 
   move_sprite(14, wave_x-16, wave_y); 
   move_sprite(15, wave_x-24, wave_y); 
   //notes
   wave_y = wave_y + 10;
-  move_sprite(28, wave_x, wave_y); 
+  move_sprite(28, wave_x, wave_y);
   move_sprite(29, wave_x-8, wave_y);
   move_sprite(30, wave_x-16, wave_y);
   move_sprite(31, wave_x-24, wave_y);
@@ -245,7 +288,12 @@ void setUpFrequencySprites() {
   move_sprite(17, noise_x-8, noise_y); 
   move_sprite(18, noise_x-16, noise_y); 
   move_sprite(19, noise_x-24, noise_y); 
-  //noise notes exluded
+  //notes
+  noise_y = noise_y + 10;
+  move_sprite(32, noise_x, noise_y);
+  move_sprite(33, noise_x-8, noise_y);
+  move_sprite(34, noise_x-16, noise_y);
+  move_sprite(35, noise_x-24, noise_y);
 }
 
 /*
@@ -257,11 +305,25 @@ void changeToDutyBackground() {
   set_bkg_tiles(0x00, 0x00, 20, 18, dutyfaderbackground);
   // move the duty faders on screen
   for (int i = 0; i <= max_faders-1; i++) {
+    if (i == 3) {
+      duty_fader_group[i].y = dutyFaderPositionNoise[duty_fader_group[i].fader_position];
+    }
     move_sprite(i, duty_fader_group[i].x, duty_fader_group[i].y);
   }
   current_channel = 0; // set to sweep
   updateFaderMarker();
   setAllDutyMacroMarkers();
+  setCounterStepSwitch();
+}
+
+void setCounterStepSwitch() {
+  if (noiseStruct.counter_step == 1) {
+      set_bkg_tile_xy(0x11, 0x0F, 0x36);
+      set_bkg_tile_xy(0x12, 0x0F, 0x37);
+    } else {
+      set_bkg_tile_xy(0x11, 0x0F, 0x35); // left flip area
+      set_bkg_tile_xy(0x12, 0x0F, 0x38); // right flip area
+    }
 }
 
 /*
@@ -420,6 +482,8 @@ void init() {
   set_bkg_data(21,10, frequencytiles);
   set_bkg_data(31,8, icons);
   set_bkg_data(39,2, macroMarker);
+  set_bkg_data(41,12, creditPageText);
+  set_bkg_data(53, 4, noiseCounterStepFlip);
   set_bkg_tiles(0,0,20,18, volumefaderbackground);
 
   SHOW_BKG;

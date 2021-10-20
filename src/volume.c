@@ -354,9 +354,9 @@ void updateWaveVolume(int volume, int sample_index) {
     NR34_REG = 0x80 | freqhigh;// 0xC0 // Set higher byte of frequency and start playback.
 }
 
-// updae the noise
+// update the noise
 void updateNoiseVolume(UBYTE volume) {
   NR42_REG = volume;
-  NR43_REG = noiseStruct.dividing_ratio | (noiseStruct.counter_step << 3) | (noiseStruct.clock_freq << 4);
+  //NR43_REG = noiseStruct.dividing_ratio | (noiseStruct.counter_step << 3) | (noiseStruct.clock_freq << 4);
   NR44_REG = 0x80;
 }

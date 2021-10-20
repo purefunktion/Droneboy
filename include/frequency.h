@@ -1,3 +1,6 @@
+#ifndef FREQUENCY_H
+#define FREQUENCY_H
+
 #include <gb/gb.h>
 #include "definitions.h"
 #include "tilesandbackgrounds.h"
@@ -20,3 +23,5 @@ void increaseMacroNote(int number);
 void decreaseMacroNote(int number);
 
 int uwti(UWORD num);
+
+#endif
