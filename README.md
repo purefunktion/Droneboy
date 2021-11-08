@@ -63,7 +63,7 @@ The noise channel freq mode controls the Shift Clock Frequency. The note mode ha
 # Made with
 GBDK-2020(version gbdk-4.0.5) https://github.com/gbdk-2020/gbdk-2020  
 Emulator used in development BGB https://bgb.bircd.org/  
-Sameboy also used in development, very good for examining wave ram https://sameboy.github.io/ 
-Sprites and maps made with GBTD/GBMB http://www.devrs.com/gb/hmgd/intro.html
-Invaluable reference document for Gameboy https://gbdev.io/pandocs/
-Sound table reference for Gameboy sound frequency/note/hz/MIDI http://www.devrs.com/gb/files/sndtab.html 
+Sameboy also used in development, very good for examining wave ram https://sameboy.github.io/  
+Sprites and maps made with GBTD/GBMB http://www.devrs.com/gb/hmgd/intro.html  
+Invaluable reference document for Gameboy https://gbdev.io/pandocs/  
+Sound table reference for Gameboy sound frequency/note/hz/MIDI http://www.devrs.com/gb/files/sndtab.html  
