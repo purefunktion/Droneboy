@@ -8,6 +8,9 @@
 #define KEY_TICKED(K) ((keys & (K)) && !(previous_keys & (K)))
 #define KEY_RELEASED(K) (!(keys & (K)) && (previous_keys & (K)))
 
+// load the wave register pattern data
+void loadWave();
+
 // fader stuff
 void moveFader(int channel);
 void change_fader(BYTE direction);

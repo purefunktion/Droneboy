@@ -4,16 +4,6 @@
 void intro();
 void init();
 
-// wave tables, not really used
-typedef enum {
-  SQUARE,
-  TRIANGLE,
-  TEST
-} instrument;
-
-// load the wave register pattern data
-void loadWave(int wave);
-
 // keypad functions
 void dutyKeypadController();
 void volumeKeypadController();
@@ -46,6 +36,6 @@ void leaveCreditPage();
 const unsigned char blank[] = {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
 
 // duty page
-void setCounterStepSwitch();
+void setUpSwitches();
 
 #endif

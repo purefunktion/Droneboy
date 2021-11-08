@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.05] - 2021-11-08
+### Addition
+	- New waves in wave channel, saw, ramp, triangle and sine
+
 ## [1.04] - 2021-10-20
 ### Addition
 	- Credit page

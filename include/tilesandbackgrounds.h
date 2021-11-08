@@ -36,7 +36,7 @@ extern unsigned char macroMarker[];
 
 extern unsigned char creditPageText[];
 extern unsigned char noiseCounterStepFlip[];
-
+extern unsigned char waveforms[];
 
 //Backgrounds
 #define splashbackgroundWidth 20

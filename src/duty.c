@@ -20,7 +20,7 @@ void dutyKeypadController() {
     placeMacroMarker();
     waitpadup();  // Wait until the button is released
   } else if (KEY_PRESSED(J_B)) {
-    changNoiseCounterStep();
+    bPressedHandler();
     waitpadup();
   }
   //wait_vbl_done();
@@ -60,7 +60,7 @@ void increaseDuty() {
         break;
       }
       duty_wave = duty_wave + 1;
-      updateWaveDuty(duty_wave);
+      updateWaveDuty();
       duty_fader_group[current_channel].fader_position = duty_wave;
       increaseMacroDuty(1);
       break;
@@ -104,7 +104,7 @@ void decreaseDuty() {
     case 2: {
       if(duty_wave != 0) {
         duty_wave = duty_wave - 1;
-        updateWaveDuty(duty_wave);
+        updateWaveDuty();
         duty_fader_group[current_channel].fader_position = duty_wave;
       }
       decreaseMacroDuty(1);
@@ -132,8 +132,8 @@ void updateSquareDuty(UBYTE duty) {
 }
 
 // Wave channel has no duty register but has corresponding waves in table
-void updateWaveDuty(int duty) {
-    updateWaveVolume(wave_volume, duty*16);
+void updateWaveDuty() {
+    updateWaveVolume(wave_volume, duty_wave);
 }
 
 // noise "duty". ut the controll for dividing ratio here because reasons.
@@ -194,7 +194,7 @@ void increaseMacroDuty(int number) {
         duty_wave -= number;
       }
     }
-    updateWaveDuty(duty_wave);
+    updateWaveDuty();
     duty_fader_group[2].fader_position = duty_wave;
     moveFader(2);
   }
@@ -270,7 +270,7 @@ void decreaseMacroDuty(int number) {
         duty_wave += number;
       }
     }
-    updateWaveDuty(duty_wave);
+    updateWaveDuty();
     duty_fader_group[2].fader_position = duty_wave;
     moveFader(2);
   }
@@ -294,22 +294,61 @@ void decreaseMacroDuty(int number) {
   }
 }
 
+void bPressedHandler() {
+  if (current_channel == 3) { // noise
+    changNoiseCounterStep();
+  } else if (current_channel == 2) { // wave
+    changeWaveType();
+  }
+}
+
 // Change the counter step of Polynomial Counter in the noise channel
 // 1 = 7bit and 0 = 15bits
 void changNoiseCounterStep() {
-  if (current_channel == 3) { // only on noise
-    if (noiseStruct.counter_step == 1) {
-      noiseStruct.counter_step = 0;
-      NR43_REG = noiseStruct.dividing_ratio | (noiseStruct.counter_step << 3) | (noiseStruct.clock_freq << 4);
-      NR44_REG = 0x80; // restart channel
-      set_bkg_tile_xy(0x11, 0x0F, 0x35); // left flip area
-      set_bkg_tile_xy(0x12, 0x0F, 0x38); // right flip area
-    } else {
-      noiseStruct.counter_step = 1;
-      NR43_REG = noiseStruct.dividing_ratio | (noiseStruct.counter_step << 3) | (noiseStruct.clock_freq << 4);
-      NR44_REG = 0x80;
-      set_bkg_tile_xy(0x11, 0x0F, 0x36);
-      set_bkg_tile_xy(0x12, 0x0F, 0x37);
+  if (noiseStruct.counter_step == 1) {
+    noiseStruct.counter_step = 0;
+    NR43_REG = noiseStruct.dividing_ratio | (noiseStruct.counter_step << 3) | (noiseStruct.clock_freq << 4);
+    NR44_REG = 0x80; // restart channel
+    set_bkg_tile_xy(0x11, 0x0F, 0x35); // left flip area
+    set_bkg_tile_xy(0x12, 0x0F, 0x38); // right flip area
+  } else {
+    noiseStruct.counter_step = 1;
+    NR43_REG = noiseStruct.dividing_ratio | (noiseStruct.counter_step << 3) | (noiseStruct.clock_freq << 4);
+    NR44_REG = 0x80;
+    set_bkg_tile_xy(0x11, 0x0F, 0x36);
+    set_bkg_tile_xy(0x12, 0x0F, 0x37);
+  }
+}
+
+// icon flippety flip
+void changeWaveType() {
+  switch(wave_type)
+  {
+    case SQUARE: {
+      wave_type = SAW;
+      set_bkg_tile_xy(0x0D, 0x0F, 0x3A);
+      break;
+    }
+    case SAW: {
+      wave_type = RAMP;
+      set_bkg_tile_xy(0x0D, 0x0F, 0x3D);
+      break;
+    }
+    case RAMP: {
+      wave_type = TRIANGLE;
+      set_bkg_tile_xy(0x0D, 0x0F, 0x3B);
+      break;
+    }
+    case TRIANGLE: {
+      wave_type = SINE;
+      set_bkg_tile_xy(0x0D, 0x0F, 0x3C);
+      break;
+    }
+    case SINE: {
+      wave_type = SQUARE;
+      set_bkg_tile_xy(0x0D, 0x0F, 0x39);
+      break;
     }
   }
+  updateWaveDuty();
 }

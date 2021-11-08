@@ -237,9 +237,11 @@ void updateSquareFreq(UWORD new_freq) {
 }
 
 void updateWaveFreq(UWORD new_freq) {
+    NR30_REG = 0x00; // this must be done before retriggering ...
     UBYTE freqlow, freqhigh;
     freqlow = (UBYTE)new_freq & 0xFF;
     freqhigh = (UBYTE)((new_freq & 0x0700)>>8);
+    NR30_REG |= 0x80; // ... or the wave ram will overwrite itself 
     NR33_REG = freqlow; // Set lower byte of frequency.
     NR34_REG = 0x80 | freqhigh; // Set higher byte of frequency and start playback.
 }

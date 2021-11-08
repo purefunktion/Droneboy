@@ -29,6 +29,8 @@ Channels(left to right) sweep, square, wave, noise. The noise channel has no dut
 
 **B** on noise channel will toggle the counter step of the polynomal counter. 
 
+**A** on wave channel will change wave type. There is a square, saw, ramp, triangle and sine wave to choose from. These use half the wave ram period(to follow the sweep/square channels frequency), so the sample rate is very limited(aka lofi charm). 
+
 On frequency page:
 
 **HOLD A and press B** changes the mode between notes and frequency
@@ -59,6 +61,9 @@ The noise channel freq mode controls the Shift Clock Frequency. The note mode ha
 **START** will display the credit page
 
 # Made with
-GBDK-2020(gbdk-4.0.5) https://github.com/gbdk-2020/gbdk-2020  
+GBDK-2020(version gbdk-4.0.5) https://github.com/gbdk-2020/gbdk-2020  
 Emulator used in development BGB https://bgb.bircd.org/  
-Sprites and maps made with GBTD/GBMB http://www.devrs.com/gb/hmgd/intro.html  
+Sameboy also used in development, very good for examining wave ram https://sameboy.github.io/ 
+Sprites and maps made with GBTD/GBMB http://www.devrs.com/gb/hmgd/intro.html
+Invaluable reference document for Gameboy https://gbdev.io/pandocs/
+Sound table reference for Gameboy sound frequency/note/hz/MIDI http://www.devrs.com/gb/files/sndtab.html 

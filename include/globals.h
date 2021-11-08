@@ -31,7 +31,12 @@ extern int current_channel;
 // duty
 extern int duty_sweep;
 extern int duty_square;
-extern int duty_wave; // sample index nums
+extern int duty_wave; // sample index nums for square wave in wave channel
+
+//wave type in wave cahnnel
+
+enum WAVES {SQUARE, SAW, RAMP, TRIANGLE, SINE};
+extern enum WAVES wave_type;
 
 struct fader {
   UINT8 x;
@@ -59,20 +64,18 @@ extern struct NoiseyStruct noiseStruct;
 extern UINT8 num_control_pages;
 extern int active_control_page;
 extern int credit_page;
-const enum notes {
-  C0, Cd0, D0, Dd0, E0, F0, Fd0, G0, Gd0, A0, Ad0, B0,
-  C1, Cd1, D1, Dd1, E1, F1, Fd1, G1, Gd1, A1, Ad1, B1,
-  C2, Cd2, D2, Dd2, E2, F2, Fd2, G2, Gd2, A2, Ad2, B2,
-  C3, Cd3, D3, Dd3, E3, F3, Fd3, G3, Gd3, A3, Ad3, B3,
-  C4, Cd4, D4, Dd4, E4, F4, Fd4, G4, Gd4, A4, Ad4, B4,
-  C5, Cd5, D5, Dd5, E5, F5, Fd5, G5, Gd5, A5, Ad5, B5
-};
+
 extern const char noteNames[72][5];
 extern const UWORD frequencies[72];
-extern const UBYTE samples[80];
+extern const UBYTE squareSamples[32];
+extern const UBYTE sawSamples[128];
+extern const UBYTE triangleSamples[128];
+extern const UBYTE sineSamples[128];
 extern const UBYTE noiseNotesFrequencies[6]; // this is the UBYTE for FF22 - NR43 - Polynomial Counter
 extern const int noiseNoteNameIndex[6]; // this is the index in noteNames
 extern const UBYTE volumeFaderPosition[16];
+extern UBYTE waveToBeLoaded[16]; // this is the arae where waves are manipulated
+
 
 // Macro marker
 struct MacroStatus {

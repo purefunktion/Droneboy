@@ -12,6 +12,12 @@ void decreaseVolume(int number);
 void updateSweepVolume(int volume);
 void updateSquareVolume(int volume);
 void updateNoiseVolume(UBYTE volume);
+void updateWaveToBeLoaded(int volume, int sample_index);
+void loadSquareWave(int volume, int sample_index);
+void loadSawWave(int volume);
+void loadTriangleWave(int volume);
+void loadSineWave(int volume);
+void loadRampWave(int volume);
 
 void increaseMacroVolume(int number);
 void decreaseMacroVolume(int number);
