@@ -19,10 +19,6 @@ CFLAGS     := -Wp-Iinclude
 
 all:    $(BINS)
 
-compile.bat: Makefile
-	@echo "REM Automatically generated from Makefile" > compile.bat
-	@make -sn | sed y/\\//\\\\/ | grep -v make >> compile.bat
-
 # Compile and link all source files in a single call to LCC
 ${PROJECTNAME}.gb: $(CSOURCES)
 	$(LCC) $(CFLAGS) -o $@ $(CSOURCES)
