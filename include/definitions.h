@@ -15,10 +15,11 @@ void loadWave();
 void moveFader(int channel);
 void change_fader(BYTE direction);
 void updateFaderMarker();
+void updateRecordMarker();
 
-void updateSweepFreq(UWORD new_freq);
-void updateSquareFreq(UWORD new_freq);
-void updateWaveFreq(UWORD new_freq);
+void updateSweepFreq(int retrigger);
+void updateSquareFreq( int retrigger);
+void updateWaveFreq(int retrigger);
 void updateNoiseFreq(UBYTE new_freq);
 void updateNoiseNoteFreq(UBYTE new_freq);
 
@@ -32,5 +33,18 @@ void setAllDutyMacroMarkers();
 void setAllFreqMacroMarkers();
 
 void flipHeader();
+
+// frequency page, notes
+void setNoteSprites(int position, int note_value);
+
+// chord page, called from main when switching
+void printChordParts();
+void setOnOffSprites();
+void playChordStep();
+void playNextChord();
+void printCurrentSeq();
+
+// bpm 
+void blinkBPM();
 
 #endif

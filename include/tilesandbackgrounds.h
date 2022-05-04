@@ -76,4 +76,9 @@ extern unsigned char blankTileBkg[];
 #define creditPageBackgroundBank 0
 extern unsigned char creditPageBackground[];
 
+#define chordbackgroundWidth 20
+#define chordbackgroundHeight 18
+#define chordbackgroundBank 0
+extern unsigned char chordbackground[];
+
 #endif

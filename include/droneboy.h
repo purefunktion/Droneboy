@@ -1,6 +1,7 @@
 #ifndef DRONEBOY_H
 #define DRONEBOY_H
 
+void tim();
 void intro();
 void init();
 
@@ -9,6 +10,7 @@ void dutyKeypadController();
 void volumeKeypadController();
 void frequencyKeypadController();
 void volumeKeypadController();
+void chordKeypadController();
 
 // placement of the fader marker on freq page
 const UBYTE faderMarkerFreqx[2][4] = {{13, 93, 13, 93},{1,1,1,1}};
@@ -16,8 +18,8 @@ const UBYTE faderMarkerFreqy[2][4] = {{53, 53, 117, 117},{1,1,1,1}};
 
 // frequency page, numbers
 void setUpFrequencySprites();
-// frequency page, notes
-void setNoteSprites(int position, int note_value);
+// chord page setup sprites to visulize chords
+void setupChordSprites();
 
 // hide sprites you don't like
 void hideSprites(int sprite_id, int num);
@@ -27,6 +29,7 @@ void changeControlPage(int to_page);
 void changeToDutyBackground();
 void changeToVolumeBackground();
 void changeToFrequencyBackground();
+void changeToChordBackground();
 
 // goto credit page
 void goToCreditPage();

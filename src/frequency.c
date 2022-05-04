@@ -128,7 +128,7 @@ void increaseCurrentFreq(int amount) {
                 sweep_freq = sweep_freq + amount;
             }
             increaseMacroFreq(amount);  
-            updateSweepFreq(sweep_freq);
+            updateSweepFreq(0);
             break;
         }
         case 1: {
@@ -138,7 +138,7 @@ void increaseCurrentFreq(int amount) {
                 square_freq = square_freq + amount;
             }
             increaseMacroFreq(amount);
-            updateSquareFreq(square_freq);
+            updateSquareFreq( 0);
             break;
         }
         case 2: {
@@ -148,7 +148,7 @@ void increaseCurrentFreq(int amount) {
                 wave_freq = wave_freq + amount;
             }
             increaseMacroFreq(amount);
-            updateWaveFreq(wave_freq);
+            updateWaveFreq(0);
             break;
         }
         case 3: {
@@ -183,7 +183,7 @@ void decreaseCurrentFreq(int amount) {
                 sweep_freq = sweep_freq - amount;
             }
             decreaseMacroFreq(amount);
-            updateSweepFreq(sweep_freq);
+            updateSweepFreq(0);
             break;
         }
         case 1: {
@@ -193,7 +193,7 @@ void decreaseCurrentFreq(int amount) {
                 square_freq = square_freq - amount;
             }
             decreaseMacroFreq(amount);
-            updateSquareFreq(square_freq);
+            updateSquareFreq(0);
             break;
         }
         case 2: {
@@ -203,7 +203,7 @@ void decreaseCurrentFreq(int amount) {
                 wave_freq = wave_freq - amount;
             }
             decreaseMacroFreq(amount);
-            updateWaveFreq(wave_freq);
+            updateWaveFreq(0);
             break;
         }
         case 3: {
@@ -220,30 +220,58 @@ void decreaseCurrentFreq(int amount) {
 }
 
 // update frequency 
-void updateSweepFreq(UWORD new_freq) { 
+// you dont have to retrigger to update frequency
+void updateSweepFreq(int retrigger) { 
     UBYTE freqlow, freqhigh;
-    freqlow = (UBYTE)new_freq & 0xFF;
-    freqhigh = (UBYTE)((new_freq & 0x0700)>>8);
+    if (frequency_mode == 0) {
+        freqlow = (UBYTE)sweep_freq & 0xFF;
+        freqhigh = (UBYTE)((sweep_freq & 0x0700)>>8);
+    } else {
+        freqlow = (UBYTE)frequencies[sweep_note] & 0xFF;
+        freqhigh = (UBYTE)((frequencies[sweep_note] & 0x0700)>>8); 
+    }
     NR13_REG = freqlow;
-    NR14_REG = 0x80 | freqhigh;
+    if (retrigger == 1) {
+        NR14_REG = 0x80 | freqhigh;
+    } else {
+        NR14_REG = freqhigh;
+    }
 }
 
-void updateSquareFreq(UWORD new_freq) {
+void updateSquareFreq(int retrigger) {
     UBYTE freqlow, freqhigh;
-    freqlow = (UBYTE)new_freq & 0xFF;
-    freqhigh = (UBYTE)((new_freq & 0x0700)>>8);
+    if (frequency_mode == 0) {
+        freqlow = (UBYTE)square_freq & 0xFF;
+        freqhigh = (UBYTE)((square_freq & 0x0700)>>8);
+    } else {
+        freqlow = (UBYTE)frequencies[square_note] & 0xFF;
+        freqhigh = (UBYTE)((frequencies[square_note] & 0x0700)>>8); 
+    }
     NR23_REG = freqlow;
-    NR24_REG = 0x80 | freqhigh;
+    if (retrigger == 1) {
+        NR24_REG = 0x80 | freqhigh;
+    } else {
+        NR24_REG = freqhigh;
+    }
 }
 
-void updateWaveFreq(UWORD new_freq) {
-    NR30_REG = 0x00; // this must be done before retriggering ...
+void updateWaveFreq(int retrigger) {
+    //NR30_REG = 0x00; // this must be done before retriggering ...
     UBYTE freqlow, freqhigh;
-    freqlow = (UBYTE)new_freq & 0xFF;
-    freqhigh = (UBYTE)((new_freq & 0x0700)>>8);
-    NR30_REG |= 0x80; // ... or the wave ram will overwrite itself 
+    if (frequency_mode == 0) {
+        freqlow = (UBYTE)wave_freq & 0xFF;
+        freqhigh = (UBYTE)((wave_freq & 0x0700)>>8);
+    } else {
+        freqlow = (UBYTE)frequencies[wave_note] & 0xFF;
+        freqhigh = (UBYTE)((frequencies[wave_note] & 0x0700)>>8); 
+    }
+    //NR30_REG |= 0x80; // ... or the wave ram will overwrite itself 
     NR33_REG = freqlow; // Set lower byte of frequency.
-    NR34_REG = 0x80 | freqhigh; // Set higher byte of frequency and start playback.
+    if (retrigger == 1) {
+        NR34_REG = 0x80 | freqhigh;
+    } else {
+        NR34_REG = freqhigh; // Set higher byte of frequency and start playback.
+    }
 }
 
 void updateNoiseFreq(UBYTE new_freq) {
@@ -434,7 +462,7 @@ void increaseCurrentNote(int amount) {
                 sweep_note = sweep_note + amount;
             }    
             increaseMacroNote(amount);   
-            updateSweepFreq(frequencies[sweep_note]);
+            updateSweepFreq(0);
             break;
         }
         case 1: {
@@ -444,7 +472,7 @@ void increaseCurrentNote(int amount) {
                 square_note = square_note + amount;
             }
             increaseMacroNote(amount);
-            updateSquareFreq(frequencies[square_note]);
+            updateSquareFreq(0);
             break;
         }
         case 2: {
@@ -454,7 +482,7 @@ void increaseCurrentNote(int amount) {
                 wave_note = wave_note + amount;
             }
             increaseMacroNote(amount);
-            updateWaveFreq(frequencies[wave_note]);
+            updateWaveFreq(0);
             break;
         }
         case 3: {
@@ -484,7 +512,7 @@ void decreaseCurrentNote(int amount) {
                 sweep_note = sweep_note - amount;
             }
             decreaseMacroNote(amount);
-            updateSweepFreq(frequencies[sweep_note]);
+            updateSweepFreq(0);
             break;
         }
         case 1: {
@@ -494,7 +522,7 @@ void decreaseCurrentNote(int amount) {
                 square_note = square_note - amount;
             }
             decreaseMacroNote(amount);
-            updateSquareFreq(frequencies[square_note]);
+            updateSquareFreq(0);
             break;
         }
         case 2: {
@@ -504,7 +532,7 @@ void decreaseCurrentNote(int amount) {
                 wave_note = wave_note - amount;
             }
             decreaseMacroNote(amount);
-            updateWaveFreq(frequencies[wave_note]);
+            updateWaveFreq(0);
             break;
         }
         case 3: {
@@ -536,7 +564,7 @@ void increaseMacroNote(int number) {
             sweep_note = sweep_note - number;
         }
     }
-    updateSweepFreq(frequencies[sweep_note]);
+    updateSweepFreq(0);
     printChannelNote(0);
   }
   if(current_channel != 1 && freqMacroStatus.square != 0) {
@@ -553,7 +581,7 @@ void increaseMacroNote(int number) {
             square_note = square_note - number;
         }
     }
-    updateSquareFreq(frequencies[square_note]);
+    updateSquareFreq(0);
     printChannelNote(1);
   }
   if(current_channel != 2 && freqMacroStatus.wave != 0) {
@@ -570,7 +598,7 @@ void increaseMacroNote(int number) {
             wave_note = wave_note - number;
         }
     }
-    updateWaveFreq(frequencies[wave_note]);
+    updateWaveFreq(0);
     printChannelNote(2);
   }
   if(current_channel != 3 && freqMacroStatus.noise != 0) {
@@ -608,7 +636,7 @@ void decreaseMacroNote(int number) {
             sweep_note = sweep_note + number;
         } 
     }
-    updateSweepFreq(frequencies[sweep_note]);
+    updateSweepFreq(0);
     printChannelNote(0);
   }
   if(current_channel != 1 && freqMacroStatus.square != 0) {
@@ -625,7 +653,7 @@ void decreaseMacroNote(int number) {
             square_note = square_note + number;
         }
     }
-    updateSquareFreq(frequencies[square_note]);
+    updateSquareFreq( 0);
     printChannelNote(1);
   }
   if(current_channel != 2 && freqMacroStatus.wave != 0) {
@@ -642,7 +670,7 @@ void decreaseMacroNote(int number) {
             wave_note = wave_note + number;
         }
     }
-    updateWaveFreq(frequencies[wave_note]);
+    updateWaveFreq(0);
     printChannelNote(2);
   }
   if(current_channel != 3 && freqMacroStatus.noise != 0) {
@@ -680,7 +708,7 @@ void increaseMacroFreq(int number) {
             sweep_freq = sweep_freq - number;
         }
     }
-    updateSweepFreq(sweep_freq);
+    updateSweepFreq(0);
     printChannelFrequency(0);
   }
   if(current_channel != 1 && freqMacroStatus.square != 0) {
@@ -697,7 +725,7 @@ void increaseMacroFreq(int number) {
             square_freq = square_freq - number;
         }
     }
-    updateSquareFreq(square_freq);
+    updateSquareFreq( 0);
     printChannelFrequency(1);
   }
   if(current_channel != 2 && freqMacroStatus.wave != 0) {
@@ -714,7 +742,7 @@ void increaseMacroFreq(int number) {
             wave_freq = wave_freq - number;
         }
     }
-    updateWaveFreq(wave_freq);
+    updateWaveFreq(0);
     printChannelFrequency(2);
   }
   if(current_channel != 3 && freqMacroStatus.noise != 0) {
@@ -752,7 +780,7 @@ void decreaseMacroFreq(int number) {
         sweep_freq = sweep_freq + number;
       }
     }
-    updateSweepFreq(sweep_freq);
+    updateSweepFreq(0);
     printChannelFrequency(0);
   }
   if(current_channel != 1 && freqMacroStatus.square != 0) {
@@ -769,7 +797,7 @@ void decreaseMacroFreq(int number) {
         square_freq = square_freq + number;
       }
     }
-    updateSquareFreq(square_freq);
+    updateSquareFreq(0);
     printChannelFrequency(1);
   }
   if(current_channel != 2 && freqMacroStatus.wave != 0) {
@@ -786,7 +814,7 @@ void decreaseMacroFreq(int number) {
         wave_freq = wave_freq + number;
       }
     }
-    updateWaveFreq(wave_freq);
+    updateWaveFreq(0);
     printChannelFrequency(2);
   }
   if(current_channel != 3 && freqMacroStatus.noise != 0) {

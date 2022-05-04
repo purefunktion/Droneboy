@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.06] - 2022-05-04
+### Addition
+	- Chord page
+	- Play and change chords
+	- Chord step sequence
+### Fix
+	- Changing frequency no longer retriggers channel, aka less poppin
+
 ## [1.05] - 2021-11-08
 ### Addition
 	- New waves in wave channel, saw, ramp, triangle and sine
@@ -16,7 +24,7 @@
 ## [1.03] - 2021-09-28
 ### Fix
 	- Fixed blinking backgrounds
-	- Note/frequancy indicator on freq page shown correctly
+	- Note/frequency indicator on freq page shown correctly
 
 ## [1.02] - 2021-09-28
 ### Addition

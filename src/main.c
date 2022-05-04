@@ -27,12 +27,19 @@ int noise_volume = 0;
 int current_channel = 0;
 int credit_page = 0;
 int frequency_mode = 0;
-UINT8 num_control_pages = 3;
+UINT8 chord_mode = 0;
+UINT8 num_control_pages = 4;
 int active_control_page = 0;
 struct NoiseyStruct noiseStruct;
+int current_chord_step = 0;
+int current_chord_steppa_step = 0;
+int current_record_steppa_step = 0;
 
+// this are marker positions
 struct fader fader_group[4];
 struct fader duty_fader_group[4];
+struct fader chord_part_step[4];
+struct fader chord_steppa_step[8];
 
 // duty 
 int duty_sweep = 2;
@@ -50,6 +57,27 @@ struct MacroStatus volumeMacroStatus;
 struct MacroStatus dutyMacroStatus;
 struct MacroStatus freqMacroStatus;
 int domacro = 0;
+
+// chord page A-button state
+int doPlayCurrentChord = 0;
+// chord page B-button state
+int doSetCurrentStep = 0;
+
+// the chord steppa init
+struct ChordStep chordsteppa[8];
+// play the chord step sequencer, 0=off,1=on
+BYTE play_chord_step = 0;
+// number of beats per step in sequencer
+UINT8 beats_per_step = 1;
+UINT8 beats_counter = 0;
+int current_seq_chord = 0;
+
+// BPM globals
+unsigned int tim_cnt = 0;
+int bpm_in_cycles = 2048;
+int bpm = 120;
+
+
 // Note names to display
 const char noteNames[72][5] = {
   " C 3", "C# 3", " D 3", "D# 3", " E 3", " F 3", "F# 3", " G 3", "G# 3", " A 3", "A# 3", " B 3",
@@ -72,12 +100,12 @@ const int noiseNoteNameIndex[] = {
 // GB frequencies matching notes in noteNames
 // taken from http://www.devrs.com/gb/files/sndtab.html
 const UWORD frequencies[] = {
-  44, 156, 262, 363, 457, 547, 631, 710, 786, 854, 923, 986,
-  1046, 1102, 1155, 1205, 1253, 1297, 1339, 1379, 1417, 1452, 1486, 1517,
-  1546, 1575, 1602, 1627, 1650, 1673, 1694, 1714, 1732, 1750, 1767, 1783,
-  1798, 1812, 1825, 1837, 1849, 1860, 1871, 1881, 1890, 1899, 1907, 1915,
-  1923, 1930, 1936, 1943, 1949, 1954, 1959, 1964, 1969, 1974, 1978, 1982,
-  1985, 1988, 1992, 1995, 1998, 2001, 2004, 2006, 2009, 2011, 2013, 2015
+  44, 156, 262, 363, 457, 547, 631, 710, 786, 854, 923, 986,
+  1046, 1102, 1155, 1205, 1253, 1297, 1339, 1379, 1417, 1452, 1486, 1517,
+  1546, 1575, 1602, 1627, 1650, 1673, 1694, 1714, 1732, 1750, 1767, 1783,
+  1798, 1812, 1825, 1837, 1849, 1860, 1871, 1881, 1890, 1899, 1907, 1915,
+  1923, 1930, 1936, 1943, 1949, 1954, 1959, 1964, 1969, 1974, 1978, 1982,
+  1985, 1988, 1992, 1995, 1998, 2001, 2004, 2006, 2009, 2011, 2013, 2015
 };
 // Wave table. Different square duties to match other square channels 12.5%, 25%, 50% and 75%.
 const UBYTE squareSamples[] = {
@@ -159,13 +187,25 @@ const UBYTE volumeFaderPosition[16] = {119, 114, 109, 104, 98, 93, 89, 85, 80, 7
 void main() {
 
   intro(); // comment this out if enoying
+  
+  CRITICAL {
+      tim_cnt = 0;
+      add_TIM(tim);
+  }
+
+   // Set TMA to divide clock by 0x100
+  TMA_REG = 0xFFU;
+  // Set clock to 4096 Hertz 
+  TAC_REG = 0x04U;
+  // Handle VBL and TIM interrupts
+  set_interrupts(VBL_IFLAG | TIM_IFLAG);
   init();
   
   // Main loop
   while(1) {
     // Change control page
     if (KEY_PRESSED(J_START)) {
-      credit_page = (credit_page == 1) ? 0 : 1;
+      credit_page = (credit_page == 1) ? 0 : 1; // credit page flipper
       if (credit_page == 1) {
         goToCreditPage();
       } else {
@@ -201,6 +241,11 @@ void main() {
           frequencyKeypadController();
           break;
         }
+        case 3: { // chord
+          num_faders = 1;
+          chordKeypadController();
+          break;
+        }
       }
     }
     // Switch depending on which control page we are on
@@ -209,16 +254,43 @@ void main() {
   }
 }
 
+void tim()
+{
+  tim_cnt++;  
+  if (tim_cnt == bpm_in_cycles) {
+    blinkBPM();
+    if (play_chord_step == 1) {
+      playChordStep();
+    }
+    tim_cnt = 0;
+  }
+}
+
+void setBpm() {
+  bpm_in_cycles = 409600/((bpm*100)/60);
+}
+
 /*
 * Flip between pages in the app
 */
 void changeControlPage(int to_page) {
-  if (to_page == 0) {
-    changeToVolumeBackground();
-  } else if (to_page == 1) {
-    changeToDutyBackground();
-  } else {
-    changeToFrequencyBackground();
+  switch(to_page) {
+    case 0: { // volume
+      changeToVolumeBackground();
+      break;
+    }
+    case 1: {
+      changeToDutyBackground();
+      break;
+    }
+    case 2: {
+      changeToFrequencyBackground();
+      break;
+    }
+    case 3: {
+      changeToChordBackground();
+      break;
+    }
   }
 }
 
@@ -426,10 +498,48 @@ void changeToVolumeBackground() {
   for (int i = 0; i <= max_faders-1; i++) {
     move_sprite(i, fader_group[i].x, fader_group[i].y);
   }
-  current_channel = 0;
+  // hide record marker from chord page
+  move_sprite(39, 0, 0);
+  current_channel = 0; // not really needed
   updateFaderMarker();
   setAllVolumeMacroMarkers();
   domacro = 0;
+}
+
+/*
+* Change to the chord background.
+*/
+void changeToChordBackground() {
+  set_bkg_data(0,4, fadertile);
+  set_bkg_tiles(0x00, 0x00, 20, 18, chordbackground);
+  hideSprites(4, 36); // hide tiles from frequency page
+  setupChordSprites();
+  printCurrentSeq();
+  current_channel = 0;
+  updateFaderMarker();
+  updateRecordMarker(); // record sprite 
+  doPlayCurrentChord = 0;
+  doSetCurrentStep = 0;
+}
+
+// set up the chord tiles to use
+void setupChordSprites() {
+  int x = 48; // coordinates
+  int y = 56;
+  //y = y + 10; // 10 pixels under the freq tiles
+  move_sprite(20, x, y);
+  move_sprite(21, x-8, y); // decrese by 8 to move left
+  move_sprite(22, x-16, y);
+  move_sprite(23, x-24, y);
+
+  // record sprite for chord stepper
+  move_sprite(39,16,152);
+
+  // as these sprites are borrowed from frequency
+  // we update them here once 
+  printChordParts();
+  // and when changing set the correct on/off indicator
+  setOnOffSprites();
 }
 
 /*
@@ -479,6 +589,14 @@ void updateFaderMarker() {
       move_sprite(37, faderMarkerFreqx[0][current_channel], faderMarkerFreqy[0][current_channel]+10);
       move_sprite(38, faderMarkerFreqx[0][current_channel], faderMarkerFreqy[0][current_channel]+18);
     }
+  } else if(active_control_page == 3) { // chord
+    if (chord_mode == 0) { // Chord mode, steppa och chord change
+      move_sprite(37, chord_part_step[current_chord_step].x, chord_part_step[current_chord_step].y);
+      move_sprite(38, chord_part_step[current_chord_step].x, chord_part_step[current_chord_step].y + 8);
+    } else { // chord steppa
+      move_sprite(37, chord_steppa_step[current_chord_steppa_step].x, chord_steppa_step[current_chord_steppa_step].y);
+      move_sprite(38, chord_steppa_step[current_chord_steppa_step].x, chord_steppa_step[current_chord_steppa_step].y + 8);
+    }
   }
 }
 
@@ -518,8 +636,8 @@ void loadWave() {
     freqlow = (UBYTE) frequencies[wave_note] & 0xFF;
     freqhigh = (UBYTE) ((frequencies[wave_note] & 0x0700)>>8);
   }
-  NR51_REG = 0b10111011;
-  // This next line must be done or wave ram will act wierd see:
+  NR51_REG = 0b10111011; // antispike
+  // This next line must be done or wave ram will act weird see:
   // https://gbdev.gg8.se/wiki/articles/Gameboy_sound_hardware#Obscure_Behavior
   NR30_REG = 0x00; 
   unsigned char *dst = (unsigned char *)(0xFF30u); // Create pointer to the wave RAM.
@@ -530,15 +648,16 @@ void loadWave() {
   }
 
   NR30_REG |= 0x80; // Enable wave channel.
-  NR51_REG = 0b11111111;
+  NR51_REG = 0b11111111; // antispike
   NR33_REG = freqlow; // Set lower byte of frequency.
   NR34_REG = 0x80 | freqhigh; // 0xC0 // Set higher byte of frequency and start playback.
 }
 
 /*
-* Setup when starting the app
+* Setup when starting the app.
 */
 void init() {
+  int csx = 0x01;
   // IMPORTANT! NR52_REG must always be set first
   // otherwise there will be no sound.
   // https://gbdev.io/pandocs/Sound_Controller.html#sound-control-registers
@@ -549,17 +668,17 @@ void init() {
   // sweep channel 
   // https://gbdev.io/pandocs/Sound_Controller.html#sound-channel-1---tone--sweep
   // Volume envelope
-  NR12_REG = 0x00; //0x00 // 0=min volume, length ignored
+  NR12_REG = 0x08; //0x00 // 0=min volume, length ignored
   // Duty
   NR11_REG = 0x80; //0x80 // 50% square wave
   // Frequency
-  updateSweepFreq(sweep_freq);
+  updateSweepFreq(1);
 
   // square channel
   // https://gbdev.io/pandocs/Sound_Controller.html#sound-channel-2---tone
   NR22_REG = 0x00;
   NR21_REG = 0x80;
-  updateSquareFreq(square_freq);
+  updateSquareFreq( 1);
 
   // wave channel
   // https://gbdev.io/pandocs/Sound_Controller.html#sound-channel-3---wave-output
@@ -584,7 +703,7 @@ void init() {
   set_bkg_data(39,2, macroMarker);
   set_bkg_data(41,12, creditPageText);
   set_bkg_data(53, 4, noiseCounterStepFlip);
-  set_bkg_data(57, 5, waveforms);
+  set_bkg_data(57,17, waveforms);
   set_bkg_tiles(0,0,20,18, volumefaderbackground);
 
   SHOW_BKG;
@@ -596,7 +715,7 @@ void init() {
   }
 
   set_sprite_data(4, 20, frequencytiles);
-
+  //set_sprite_data(1, 14, )
   //frequency numbers
   for (int i = 4; i < 24; i++) {
     set_sprite_tile(i, i-4);
@@ -612,16 +731,26 @@ void init() {
   set_sprite_tile(37, 24);
   set_sprite_tile(38, 25);
 
+  set_sprite_tile(39, 0x0E);
+
   // Volume faders
   for (int i = 0; i < 4; ++i) {
     fader_group[i].y = 119; // they start at the bottom
     fader_group[i].fader_position = 0; // volume starts at zero
+    chord_part_step[i].y = 69;
+    chord_part_step[i].fader_position = 0;
   }
   // from left to right 
   fader_group[0].x = 32; // sweep 
   fader_group[1].x = 72; // square
   fader_group[2].x = 112; // wave
   fader_group[3].x = 152; // noise
+
+  // chord step x positions, chord page
+  chord_part_step[0].x = 48;
+  chord_part_step[1].x = 56;
+  chord_part_step[2].x = 64;
+  chord_part_step[3].x = 72;
 
   // Duty faders
   // sweep
@@ -659,6 +788,29 @@ void init() {
   for (int i = 0; i < 4; ++i) {
     move_sprite(i, fader_group[i].x, fader_group[i].y);
   }
+
+  //chord steppa init
+  for (int i = 0; i < 8; ++i) {
+    if (i != 0) {
+      csx += 2;
+    }
+    chordsteppa[i].root = 24;
+    chordsteppa[i].majmin = 0;
+    chordsteppa[i].adn = 0;
+    chordsteppa[i].y = 0x0B;
+    chordsteppa[i].x = csx;
+    chord_steppa_step[i].y = 136;
+  }
+
+  // chord step x positions, chord page
+  chord_steppa_step[0].x = 16;
+  chord_steppa_step[1].x = 32;
+  chord_steppa_step[2].x = 48;
+  chord_steppa_step[3].x = 64;
+  chord_steppa_step[4].x = 80;
+  chord_steppa_step[5].x = 96;
+  chord_steppa_step[6].x = 112;
+  chord_steppa_step[7].x = 128;
 
   updateFaderMarker();
   SHOW_SPRITES;
