@@ -18,6 +18,7 @@ On the volume page:
 The channels are from left to right sweep, square, wave and noise
 
 **UP/DOWN** to increase/decrease volume, or **HOLD UP/DOWN** to continuously in/de-crease volume
+
 **HOLD B + UP/DOWN** will maximize/minimize sound volume
 
 On the duty page:
@@ -58,7 +59,7 @@ In note mode:
 **HOLD B + UP/DOWN** changes note 3 semitones
 
 **HOLD B and press A**
-Copies the frequency of the current note to the frequency section. An easy way to manipulate detuning etc.
+ copies the frequency of the current note to the frequency section. An easy way to manipulate detuning etc.
 
 The noise channel freq mode controls the Shift Clock Frequency. The note mode has two notes that are "close enough" to authors ears of a D and G#.  
 
