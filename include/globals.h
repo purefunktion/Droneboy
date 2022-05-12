@@ -16,6 +16,7 @@ extern UBYTE noise_freq;
 
 // volumes
 extern int sweep_volume;
+extern int sweep_up_down_flag; // 1 up zero down
 extern int square_volume;
 extern int wave_volume;
 extern int noise_volume;
@@ -94,7 +95,18 @@ struct MacroStatus {
 extern struct MacroStatus volumeMacroStatus;
 extern struct MacroStatus dutyMacroStatus;
 extern struct MacroStatus freqMacroStatus;
+// to place the macro marker
 extern int domacro;
+// this is to keep track of v_blanks before doing a continuous sweep on freq
+extern int up_sweep_counter;
+extern int down_sweep_counter;
+
+// track v blanks to continuous 
+extern int up_volume_counter;
+extern int down_volume_counter;
+extern int volume_slide_counter;
+
+
 
 // A-button state, because A is used as semi tone hop as well, on chord page
 extern int doPlayCurrentChord;
@@ -130,5 +142,8 @@ extern BYTE bpm_blink_state;
 extern int chord_root_note; // root note taken from frequencies table
 extern int major_minor; // 0 major, 1 minor
 extern int aug_dim_norm; // 0 norm, 1 augmented, 2 diminished
+
+// volume values 0-15
+extern const UBYTE volumeValues[16];
 
 #endif

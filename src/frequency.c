@@ -8,10 +8,12 @@ void frequencyKeypadController() {
                 frequency_mode = 1;
                 flipHeader();
                 domacro = 0;
+                up_sweep_counter = 0;
             } else {
                 frequency_mode = 0;
                 flipHeader();
                 domacro = 0;
+                up_sweep_counter = 0;
             }
             updateFaderMarker();
             waitpadup();
@@ -74,16 +76,32 @@ void noteMode() {
         change_fader(J_LEFT);
         waitpadup();
     } else if (KEY_TICKED(J_A)) {
-        domacro = 1;
+        if(KEY_PRESSED(J_B)) { // copy over to freq
+            domacro = 0;
+            copyNoteToFreq();
+            printChannelFrequency(current_channel);
+        } else {
+            domacro = 1;
+        }
     }
 }
 
 // when flipping through freqs
 void frequencyMode() {
 
+    // set macro marker
     if (KEY_RELEASED(J_A) && domacro == 1) {
         placeMacroMarker();
         domacro = 0;
+    }
+    // sweep up done
+    if (KEY_RELEASED(J_UP) && up_sweep_counter > 0) {
+        up_sweep_counter = 0;
+    }
+
+    // sweep down done
+    if (KEY_RELEASED(J_DOWN) && down_sweep_counter > 0) {
+        down_sweep_counter = 0;
     }
 
     if (KEY_TICKED(J_UP)) {
@@ -114,6 +132,52 @@ void frequencyMode() {
         waitpadup();
     } else if (KEY_TICKED(J_A)) {
         domacro = 1;
+    }
+
+    // continuous up sweep
+    if (KEY_PRESSED(J_UP)) {
+        // counter to check if just a button press
+        if (up_sweep_counter == 30) {
+            increaseCurrentFreq(1);
+            printChannelFrequency(current_channel);
+        } else {
+            up_sweep_counter++;
+        }
+    }
+
+    // continuous down sweep
+    if (KEY_PRESSED(J_DOWN)) {
+        // counter to check if just a button press
+        if (down_sweep_counter == 30) {
+            decreaseCurrentFreq(1);
+            printChannelFrequency(current_channel);
+        } else {
+            down_sweep_counter++;
+        }
+    }
+}
+
+// this will copy the frequency of the current note
+// to the global freqency variable, for easier manipulation. 
+void copyNoteToFreq() {
+    switch(current_channel)
+    {
+        case 0: {
+            sweep_freq = frequencies[sweep_note];
+            break;
+        }
+        case 1: {
+            square_freq = frequencies[square_note];
+            break;
+        }
+        case 2: {
+            wave_freq = frequencies[wave_note];
+            break;
+        }
+       /* case 3: {
+            noise_freq = noiseNotesFrequencies[noise_note];
+            break;
+        }*/
     }
 }
 
@@ -232,7 +296,8 @@ void updateSweepFreq(int retrigger) {
     }
     NR13_REG = freqlow;
     if (retrigger == 1) {
-        NR14_REG = 0x80 | freqhigh;
+        NR12_REG = volumeValues[sweep_volume]; // set the current volume
+        NR14_REG = 0x80 | freqhigh; // retrigger 
     } else {
         NR14_REG = freqhigh;
     }
@@ -249,6 +314,7 @@ void updateSquareFreq(int retrigger) {
     }
     NR23_REG = freqlow;
     if (retrigger == 1) {
+        NR22_REG = volumeValues[square_volume];
         NR24_REG = 0x80 | freqhigh;
     } else {
         NR24_REG = freqhigh;
@@ -495,7 +561,6 @@ void increaseCurrentNote(int amount) {
             updateNoiseNoteFreq(noiseNotesFrequencies[noise_note]);
             break;
         }
-
     }
 }
 

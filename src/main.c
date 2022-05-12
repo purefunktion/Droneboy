@@ -20,6 +20,7 @@ UWORD square_freq = 850;
 UWORD wave_freq = 1002;
 UBYTE noise_freq = 0;
 int sweep_volume = 0;
+int sweep_up_down_flag = 1; //going up
 int square_volume = 0;
 int wave_volume = 0;
 int noise_volume = 0;
@@ -34,6 +35,13 @@ struct NoiseyStruct noiseStruct;
 int current_chord_step = 0;
 int current_chord_steppa_step = 0;
 int current_record_steppa_step = 0;
+
+// continuous sweep of freq and volume counters
+int up_sweep_counter = 0;
+int down_sweep_counter = 0;
+int up_volume_counter = 0;
+int down_volume_counter = 0;
+int volume_slide_counter = 0;
 
 // this are marker positions
 struct fader fader_group[4];
@@ -180,6 +188,8 @@ const UBYTE sineSamples[] = {
 // intial wave
 UBYTE waveToBeLoaded[16] = {0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00,};
 
+// volume values for the "zombie" mode. https://gbdev.gg8.se/wiki/articles/Gameboy_sound_hardware#Obscure_Behavior
+const UBYTE volumeValues[16] = {0x08, 0x18, 0x28, 0x38, 0x48, 0x58, 0x68, 0x78, 0x78, 0x98, 0xA8, 0xB8, 0xC8, 0xD8, 0xE8, 0xF8};
 // y coordinates for the volume fader(16 steps)
 const UBYTE volumeFaderPosition[16] = {119, 114, 109, 104, 98, 93, 89, 85, 80, 76, 71, 67, 58, 54, 49, 41};
 
@@ -667,6 +677,7 @@ void init() {
 
   // sweep channel 
   // https://gbdev.io/pandocs/Sound_Controller.html#sound-channel-1---tone--sweep
+
   // Volume envelope
   NR12_REG = 0x08; //0x00 // 0=min volume, length ignored
   // Duty
@@ -814,4 +825,12 @@ void init() {
 
   updateFaderMarker();
   SHOW_SPRITES;
+
+  // zombie volume mode init
+  NR12_REG = 0x08;
+  NR13_REG = (UBYTE)sweep_freq & 0xFF;
+  NR14_REG = 0x80 | ((sweep_freq & 0x0700)>>8);
+  NR22_REG = 0x08;
+  NR23_REG = (UBYTE)square_freq & 0xFF;
+  NR24_REG = 0x80 | ((square_freq & 0x0700)>>8);
 }

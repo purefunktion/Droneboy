@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.07] - 2022-05-12
+### Addition
+	- New less clicky volume change
+	- Continuously change volume by holding up or down
+	- Continuously change frequency when in frequency mode by holding up or down
+	- Copy over note frequency to "frequency mode" on frequency page.
+
 ## [1.06] - 2022-05-04
 ### Addition
 	- Chord page

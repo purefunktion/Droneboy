@@ -3,6 +3,18 @@
 
 // Keypad 
 void volumeKeypadController() {
+  // sweep up done
+  if (KEY_RELEASED(J_UP) && up_volume_counter > 0) {
+      up_volume_counter = 0;
+      volume_slide_counter = 0;
+  }
+
+  // volume down done
+  if (KEY_RELEASED(J_DOWN) && down_volume_counter > 0) {
+      down_volume_counter = 0;
+      volume_slide_counter = 0;
+  }
+
   if (KEY_PRESSED(J_A)) {
     placeMacroMarker();
     waitpadup();  // Wait until the button is released
@@ -14,14 +26,13 @@ void volumeKeypadController() {
       increaseVolume(1);
       moveFader(current_channel);
     }
-  } else if (KEY_PRESSED(J_DOWN)) {
+  } else if (KEY_TICKED(J_DOWN)) {
     if(KEY_PRESSED(J_B)) {
       decreaseVolume(15);
       moveFader(current_channel);
     } else {
       decreaseVolume(1);
       moveFader(current_channel);
-      waitpadup(); // hmm 
     }
   } else if (KEY_PRESSED(J_RIGHT)) {
     change_fader(J_RIGHT);
@@ -30,8 +41,37 @@ void volumeKeypadController() {
     change_fader(J_LEFT);
     waitpadup();
   }
-  //wait_vbl_done();
-  //UPDATE_KEYS();
+  // continuous up volle
+  if (KEY_PRESSED(J_UP)) {
+      // counter to check if just a button press
+      if (up_volume_counter == 30) {
+          if (volume_slide_counter == 4) { // give wave and noise some breathing room...
+            increaseVolume(1);
+            moveFader(current_channel);
+            volume_slide_counter = 0;
+          } else {
+            volume_slide_counter++;
+          }
+      } else {
+          up_volume_counter++;
+      }
+  }
+
+  // continuous down volle
+  if (KEY_PRESSED(J_DOWN)) {
+      // counter to check if just a button press
+      if (down_volume_counter == 30) {
+        if (volume_slide_counter == 4) {
+          decreaseVolume(1);
+          moveFader(current_channel);
+          volume_slide_counter = 0;
+        } else {
+          volume_slide_counter++;
+        }
+      } else {
+          down_volume_counter++;
+      }
+  }
 }
 
 // Increase volume 1 step at the time
@@ -40,22 +80,20 @@ void increaseVolume(int number) {
   {
     case 0: {
       if ((sweep_volume + number) >= 15) {
-        sweep_volume = 15;
+        updateSweepVolume(15);
       } else {
-        sweep_volume += number;
-      }
-      updateSweepVolume(volumeValues[sweep_volume]);
+        updateSweepVolume(sweep_volume + number);
+      }  
       fader_group[current_channel].fader_position = sweep_volume;
       increaseMacroVolume(number);
       break;
     }
     case 1: {
       if ((square_volume + number) >= 15) {
-        square_volume = 15;
+        updateSquareVolume(15);
       } else {
-        square_volume += number;
+        updateSquareVolume(square_volume + number);
       }
-      updateSquareVolume(volumeValues[square_volume]);
       fader_group[current_channel].fader_position = square_volume;
       increaseMacroVolume(number);
       break;
@@ -85,7 +123,6 @@ void increaseVolume(int number) {
   }
 }
 
-
 /**
 * Increase the macro marked channels volume with number.
 **/
@@ -94,36 +131,34 @@ void increaseMacroVolume(int number) {
   if(current_channel != 0 && volumeMacroStatus.sweep != 0) {
     if (volumeMacroStatus.sweep == 1 ) { // regular macro marker
       if (sweep_volume + number > 15) {
-        sweep_volume = 15;
+        updateSweepVolume(15);
       } else {
-        sweep_volume += number;
+        updateSweepVolume(sweep_volume + number);
       }
     } else if (volumeMacroStatus.sweep == 2) { // inverted macro
       if (sweep_volume - number < 0) {
-        sweep_volume = 0;
+        updateSweepVolume(0);
       } else {
-        sweep_volume -= number;
+        updateSweepVolume(sweep_volume - number);
       }
     }
-    updateSweepVolume(volumeValues[sweep_volume]);
     fader_group[0].fader_position = sweep_volume;
     moveFader(0);
   }
   if(volumeMacroStatus.square != 0 && current_channel != 1) {
     if (volumeMacroStatus.square == 1 ) {
       if (square_volume + number > 15) {
-        square_volume = 15;
+        updateSquareVolume(15);
       } else {
-        square_volume += number;
+        updateSquareVolume(square_volume + number);
       }
     } else {
       if (square_volume - number < 0) {
-        square_volume = 0;
+        updateSquareVolume(0);
       } else {
-        square_volume -= number;
+        updateSquareVolume(square_volume - number);
       }
     }
-    updateSquareVolume(volumeValues[square_volume]);
     fader_group[1].fader_position = square_volume;
     moveFader(1);
   }
@@ -174,23 +209,25 @@ void decreaseVolume(int number) {
   switch(current_channel)
   {
     case 0: {
+
       if ((sweep_volume - number) <= 0) {
-        sweep_volume = 0;
+        updateSweepVolume(0);
       } else {
-        sweep_volume -= number;
+        updateSweepVolume(sweep_volume - number);
       }
-      updateSweepVolume(volumeValues[sweep_volume]);
+      
       fader_group[current_channel].fader_position = sweep_volume;
       decreaseMacroVolume(number);
       break;
+
+
     }
     case 1: {
       if ((square_volume - number) <= 0) {
-        square_volume = 0;
+        updateSquareVolume(0);
       } else {
-        square_volume -= number;
+        updateSquareVolume(square_volume - number);
       }
-      updateSquareVolume(volumeValues[square_volume]);
       fader_group[current_channel].fader_position = square_volume;
       decreaseMacroVolume(number);
       break;
@@ -228,36 +265,34 @@ void decreaseMacroVolume(int number) {
   if(volumeMacroStatus.sweep != 0 && current_channel != 0) {
     if (volumeMacroStatus.sweep == 1 ) { // regular macro marker
       if (sweep_volume - number < 0) {
-        sweep_volume = 0;
+        updateSweepVolume(0);
       } else {
-        sweep_volume -= number;
+        updateSweepVolume(sweep_volume - number);
       }
     } else {
       if (sweep_volume + number > 15) {
-        sweep_volume = 15;
+        updateSweepVolume(15);
       } else {
-        sweep_volume += number;
+        updateSweepVolume(sweep_volume + number);
       }
     }
-    updateSweepVolume(volumeValues[sweep_volume]);
     fader_group[0].fader_position = sweep_volume;
     moveFader(0);
   }
   if(volumeMacroStatus.square != 0 && current_channel != 1) {
     if (volumeMacroStatus.square == 1 ) {
       if (square_volume - number < 0) {
-        square_volume = 0;
+        updateSquareVolume(0);
       } else {
-        square_volume -= number;
+        updateSquareVolume(square_volume - number);
       }
     } else {
       if (square_volume + number > 15) {
-        square_volume = 15;
+        updateSquareVolume(15);
       } else {
-        square_volume += number;
+        updateSquareVolume(square_volume + number);
       }
     }
-    updateSquareVolume(volumeValues[square_volume]);
     fader_group[1].fader_position = square_volume;
     moveFader(1);
   }
@@ -306,22 +341,79 @@ void decreaseMacroVolume(int number) {
 
 // Volume update funtions
 void updateSweepVolume(int volume) {
-  UBYTE freqhigh; 
-  UWORD freq;
-  NR12_REG = volume;
-  // checks if in freq or note mode
-  freq = (frequency_mode == 0) ? sweep_freq : frequencies[sweep_note];
-  freqhigh = (UBYTE)((freq & 0x0700)>>8);
-  NR14_REG = 0x80 | freqhigh;
+  // zombie mode volume https://gbdev.gg8.se/wiki/articles/Gameboy_sound_hardware#Obscure_Behavior
+  if (volume > sweep_volume) {
+    while (sweep_volume != volume) {
+      NR12_REG = 0x08;
+      sweep_volume++;
+    }
+  } else if (volume < sweep_volume) {
+    while (sweep_volume != volume) {
+    //afaikt this is the least clicky way to decrease volume
+      __asm 
+        ld a, #0x08
+        ldh (#0xFF12),a
+        ldh (#0xFF12),a
+        ldh (#0xFF12),a
+        ldh (#0xFF12),a
+        ldh (#0xFF12),a
+        ldh (#0xFF12),a
+        ldh (#0xFF12),a
+        ldh (#0xFF12),a
+        ldh (#0xFF12),a
+        ldh (#0xFF12),a
+        ldh (#0xFF12),a
+        ldh (#0xFF12),a
+        ldh (#0xFF12),a
+        ldh (#0xFF12),a
+        ldh (#0xFF12),a
+      __endasm;
+      sweep_volume--;
+    }
+  } else {
+    // do nada
+  }
 }
 
-void updateSquareVolume(int volume) { 
-  UBYTE freqhigh;
-  UWORD freq;
-  NR22_REG = volume;
-  freq = (frequency_mode == 0) ? square_freq : frequencies[square_note];
-  freqhigh = (UBYTE)((freq & 0x0700)>>8);
-  NR24_REG = 0x80 | freqhigh; //restart the channel annars inte funkis
+void updateSquareVolume(int volume) {
+  if (volume > square_volume) {
+    while (square_volume != volume) {
+      NR22_REG = 0x08;
+      square_volume++;
+    }
+  } else if (volume < square_volume) {
+    while (square_volume != volume) {
+    //afaikt this is the least clicky way to decrease volume
+    // FF17 = NR22_REG  
+      __asm 
+        ld a, #0x08
+        ldh (#0xFF17),a
+        ldh (#0xFF17),a
+        ldh (#0xFF17),a
+        ldh (#0xFF17),a
+        ldh (#0xFF17),a
+        ldh (#0xFF17),a
+        ldh (#0xFF17),a
+        ldh (#0xFF17),a
+        ldh (#0xFF17),a
+        ldh (#0xFF17),a
+        ldh (#0xFF17),a
+        ldh (#0xFF17),a
+        ldh (#0xFF17),a
+        ldh (#0xFF17),a
+        ldh (#0xFF17),a
+      __endasm;
+      square_volume--;
+    }
+  } else {
+    // do nada
+  }
+  // UBYTE freqhigh;
+  // UWORD freq;
+  // NR22_REG = volume;
+  // freq = (frequency_mode == 0) ? square_freq : frequencies[square_note];
+  // freqhigh = (UBYTE)((freq & 0x0700)>>8);
+  // NR24_REG = 0x80 | freqhigh; //restart the channel annars inte funkis
 }
 
 // this function lowers the amplitude the 4 bit samples in the wave pattern RAM

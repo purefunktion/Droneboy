@@ -23,8 +23,6 @@ void dutyKeypadController() {
     bPressedHandler();
     waitpadup();
   }
-  //wait_vbl_done();
-  //UPDATE_KEYS();
 }
 
 // increase duty 1 step at the time, 4 steps

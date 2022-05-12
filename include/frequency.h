@@ -22,6 +22,9 @@ void decreaseMacroFreq(int number);
 void increaseMacroNote(int number);
 void decreaseMacroNote(int number);
 
+// copy the note freq to the freq global
+void copyNoteToFreq();
+
 int uwti(UWORD num);
 
 #endif
