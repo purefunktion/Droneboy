@@ -1,21 +1,23 @@
 # Droneboy
-Drone music application for Gameboy. 
-Droneboy creates endless tones or drones on the Gameboys four channels. You can manipulate volume, duty and frequency.
+Drone music application for Game Boy. 
+Droneboy creates endless tones or drones on the Game Boy's four channels. You can manipulate volume, duty and frequency.
 
 # Don't have a real Gameboy and flashcart?
-There are numerous emulators for the Gameboy these days. The Droneboy ROM was developed using BGB, SameBoy and Emoulicious. Get one of them and download the droneboy.gb file above and try it out. You can also try Droneboy in your browser over at https://hh.gbdev.io/game/droneboy.
+There are numerous emulators for the Game Boy these days. The Droneboy ROM was developed using BGB, SameBoy and Emoulicious. Get one of them and download the droneboy.gb file above and try it out. You can also try Droneboy in your browser over at https://hh.gbdev.io/game/droneboy.
 
 # How to use
-The Droneboy is made up of four control pages volume, duty, frequency and chord/chord step.
+The Droneboy is made up of four control pages: volume, duty, frequency and chord/chord step.
 
 Use **SELECT** to switch between the pages.
 
-A common feature on most control pages is the macro and inverted macro markers. Use **A** button to place a macro marker under each fader/control. Press **A** again to place a inverted macro marker. And a third time to delete marker. When a macro marker is activated that fader will respond to whatever change is done on the other channels on that control page. For example a macro marker on the sweep channel on the volume page will increase in volume if the square(or any other) fader is increased. A inverted macro marker will do the opposite, if another fader/control is increased the inverted one will decrease. With this utility you can for example put on all channels volume at once or change the octave of a minor chord on the frequency page.
+A common feature on most control pages is the macro and inverted macro markers. Use **A** button to place a macro marker under each fader/control. Press **A** again to place a inverted macro marker. And a third time to delete marker. When a macro marker is activated that fader will respond to whatever change is done on the other channels on that control page. 
+
+For example, a macro marker on the sweep channel on the volume page will increase in volume if the square(or any other) fader is increased. A inverted macro marker will do the opposite, if another fader/control is increased the inverted one will decrease. With this utility you can, for example, increase all channels' volume at once, or change the octave of a minor chord on the frequency page.
 
 On the volume page:
 
 **RIGHT/LEFT** change sound channel. 
-The channels are from left to right sweep, square, wave and noise
+Channels (left to right): sweep, square, wave and noise
 
 **UP/DOWN** to increase/decrease volume, or **HOLD UP/DOWN** to continuously in/de-crease volume
 
@@ -24,7 +26,7 @@ The channels are from left to right sweep, square, wave and noise
 On the duty page:
 
 **RIGHT/LEFT** change sound channel.  
-Channels(left to right) sweep, square, wave, noise. The noise channel has no duty so the fader will instead control the "dividing ratio of frequencies" in the polynomial counter.
+Channels (left to right): sweep, square, wave, noise. The noise channel has no duty so the fader will instead control the "dividing ratio of frequencies" in the polynomial counter.
 
 **UP/DOWN** to cycle through duty settings
 
