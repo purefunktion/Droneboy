@@ -193,6 +193,10 @@ const UBYTE volumeValues[16] = {0x08, 0x18, 0x28, 0x38, 0x48, 0x58, 0x68, 0x78, 
 // y coordinates for the volume fader(16 steps)
 const UBYTE volumeFaderPosition[16] = {119, 114, 109, 104, 98, 93, 89, 85, 80, 76, 71, 67, 58, 54, 49, 41};
 
+// state of the navigation 
+int right_pressed = 0; // select + right goes right(duh)
+int left_pressed = 0; // read above but left
+
 // Main 
 void main() {
   
@@ -221,16 +225,43 @@ void main() {
       }
       waitpadup();
     }
-    if (KEY_PRESSED(J_SELECT)) {
-      if (active_control_page == num_control_pages-1) {
-        active_control_page = 0;
+    if (KEY_PRESSED(J_SELECT)) { // so if select is currently pressed
+      if (right_pressed == 1) { // right has been pressed
+        if (!KEY_PRESSED(J_RIGHT)) {
+          if (active_control_page == num_control_pages - 1) { // minus one because array index
+            active_control_page = 0;
+          } else {
+            active_control_page = active_control_page + 1;
+          }
+          changeControlPage(active_control_page);
+          right_pressed = 0; // reset select+right state
+        }
       } else {
-        active_control_page = active_control_page + 1;
+        if (KEY_PRESSED(J_RIGHT)) {
+          right_pressed = 1;
+        }
       }
-      changeControlPage(active_control_page);
-      waitpadup();
+      if (left_pressed == 1) {
+        if (!KEY_PRESSED(J_LEFT)) {
+          if (active_control_page == 0) {
+            active_control_page = num_control_pages - 1;
+          } else {
+            active_control_page = active_control_page - 1;
+          }
+          changeControlPage(active_control_page);
+          left_pressed = 0; // reset select+left state
+        }
+      } else {
+        if (KEY_PRESSED(J_LEFT)) {
+          left_pressed = 1;
+        }
+      }
+    } else {
+      right_pressed = 0;
+      left_pressed = 0;
     }
-    if (credit_page != 1) {
+    // i not pressing select use navigation on current controle page
+    if (credit_page != 1 && right_pressed != 1 && left_pressed != 1) {
       switch(active_control_page)
       {
         case 0: { // volume
@@ -262,6 +293,7 @@ void main() {
   }
 }
 
+// timer interrupt
 void tim()
 {
   tim_cnt++;  
@@ -302,6 +334,75 @@ void changeControlPage(int to_page) {
   }
 }
 
+/*
+* Change to the volume background.
+*/
+void changeToVolumeBackground() {
+  set_bkg_data(0,4, fadertile); // all functions are "VRAM safe" albeit slow
+  set_bkg_tiles(0x00, 0x00, 20, 18, volumefaderbackground);
+  hideSprites(4, 36); // hide tiles from frequency page
+  for (int i = 0; i <= max_faders-1; i++) {
+    move_sprite(i, fader_group[i].x, fader_group[i].y);
+  }
+  // hide record marker from chord page
+  move_sprite(39, 0, 0);
+  updateFaderMarker();
+  setAllVolumeMacroMarkers();
+  domacro = 0;
+}
+
+/*
+* This changes sprites/background to the duty page
+* Duty is only available for sweep and square
+*/
+void changeToDutyBackground() {
+  set_bkg_data(0,4, fadertile);
+  set_bkg_tiles(0x00, 0x00, 20, 18, dutyfaderbackground);
+  hideSprites(0, 39);
+  // move the duty faders on screen
+  for (int i = 0; i <= max_faders-1; i++) {
+    if (i == 3) {
+      duty_fader_group[i].y = dutyFaderPositionNoise[duty_fader_group[i].fader_position];
+    }
+    move_sprite(i, duty_fader_group[i].x, duty_fader_group[i].y);
+  }
+  updateFaderMarker();
+  setAllDutyMacroMarkers();
+  setUpSwitches();
+}
+
+/*
+* Changes to the frequency background
+*/
+void changeToFrequencyBackground() {
+  set_bkg_data(0,4, fadertile); // setup fader tiles
+  set_bkg_tiles(0x00, 0x00, 20, 18, frequencybackground); // the bakground
+  setUpFrequencySprites();
+  // this hides the sprites from duty page
+  for (int i = 0; i <= max_faders-1; i++) 
+  {
+    move_sprite(i, 1, 168);
+  }
+  move_sprite(39, 0, 0); // hide rec marker from chord
+  updateFaderMarker();
+  setAllFreqMacroMarkers();
+}
+
+/*
+* Change to the chord background.
+*/
+void changeToChordBackground() {
+  set_bkg_data(0,4, fadertile);
+  set_bkg_tiles(0x00, 0x00, 20, 18, chordbackground);
+  hideSprites(0, 39); // hide tiles from frequency page
+  setupChordSprites();
+  printCurrentSeq();
+  updateFaderMarker();
+  updateRecordMarker(); // record sprite 
+  doPlayCurrentChord = 0;
+  doSetCurrentStep = 0;
+}
+
 // credit page flipper
 void goToCreditPage() {
   set_bkg_data(0,4, fadertile); // setup fader tiles
@@ -322,142 +423,58 @@ void leaveCreditPage() {
   changeControlPage(active_control_page);
 }
 
-/*
-* Changes to the frequency background
-*/
-void changeToFrequencyBackground() {
-  set_bkg_data(0,4, fadertile); // setup fader tiles
-  set_bkg_tiles(0x00, 0x00, 20, 18, frequencybackground); // the bakground
-  setUpFrequencySprites();
-  // this hides the sprites from duty page
-  for (int i = 0; i <= max_faders-1; i++) 
+// helper function for the setup of sprites
+void freqSpritesSetupHelper(int position, int freq_value, int note_value) {
+  setCounterSprites(position, freq_value); // setup the frequency tiles
+  clearCounterValues(position, current_channel); // clear if needed
+  setNoteSprites(position+16, note_value); // set the note tiles
+}
+
+// elper func to move sprites when going to frequency page
+void freqSetupMoveHelper(int index, int x, int y) {
+  int offset = 0;
+  for (int i = index; i < index+4; ++i)
   {
-    move_sprite(i, 1, 168);
+    move_sprite(i, x-offset, y);
+    offset += 8; // 1, 10, 100, 1000
   }
-  current_channel = 0;
-  updateFaderMarker();
-  setAllFreqMacroMarkers();
 }
 
 /*
-* This could use some work but is left as is for clarity(hopefully)
+* This is now cleaned up a bit
 */
 void setUpFrequencySprites() {
-  // First the sweep channel
+  int temp_channel = current_channel;
   current_channel = SWEEP;
-  int value = sweep_freq;
-  int position = 4;
-  setCounterSprites(position, value); // setup the frequency tiles
-  clearCounterValues(position, 0); // clear if needed
-  setNoteSprites(position+16, sweep_note); // set the note tiles
+  freqSpritesSetupHelper(4, sweep_freq, sweep_note);
 
-  // square
   current_channel = SQUARE;
-  value = square_freq;
-  position = 8;
-  setCounterSprites(position, value);
-  clearCounterValues(position, 1);
-  setNoteSprites(position+16, square_note);
+  freqSpritesSetupHelper(8, square_freq, square_note);
 
-  //wave
   current_channel = WAVE;
-  value = wave_freq;
-  position = 12;
-  setCounterSprites(position, value);
-  clearCounterValues(position, 2);
-  setNoteSprites(position+16, wave_note);
+  freqSpritesSetupHelper(12, wave_freq, wave_note);
 
-  //noise
   current_channel = NOISE;
-  value = noise_freq;
-  position = 16;
-  setCounterSprites(position, value);
-  clearCounterValues(position, 3);
-  // only a few "notes" available on the noise channel
-  setNoteSprites(position+16, noiseNoteNameIndex[noise_note]);
-
-  current_channel = 0;
+  freqSpritesSetupHelper(16, noise_freq, noiseNoteNameIndex[noise_note]);
+  current_channel = temp_channel;
 
   // This section positions the tiles used to display
   // notes or frequencies.
   // sweep
-  int sweep_x = 51; // coordinates
-  int sweep_y = 57;
-  // numbers
-  move_sprite(4, sweep_x, sweep_y); // 1
-  move_sprite(5, sweep_x-8, sweep_y); // 10
-  move_sprite(6, sweep_x-16, sweep_y); // 100
-  move_sprite(7, sweep_x-24, sweep_y); // 1000
-  // notes
-  sweep_y = sweep_y + 10; // 10 pixels under the freq tiles
-  move_sprite(20, sweep_x, sweep_y);
-  move_sprite(21, sweep_x-8, sweep_y); // decrese by 8 to move left
-  move_sprite(22, sweep_x-16, sweep_y);
-  move_sprite(23, sweep_x-24, sweep_y);
+  freqSetupMoveHelper(4, 51, 57);
+  freqSetupMoveHelper(20, 51, 67);
 
   // square
-  int square_x = 130;
-  int square_y = 57;
-  move_sprite(8,  square_x, square_y);
-  move_sprite(9,  square_x-8, square_y); 
-  move_sprite(10, square_x-16, square_y); 
-  move_sprite(11, square_x-24, square_y); 
-  //notes
-  square_y = square_y + 10;
-  move_sprite(24, square_x, square_y);
-  move_sprite(25, square_x-8, square_y);
-  move_sprite(26, square_x-16, square_y);
-  move_sprite(27, square_x-24, square_y);
+  freqSetupMoveHelper(8, 130, 57);
+  freqSetupMoveHelper(24, 130, 67);
 
   // wave
-  int wave_x = 51;
-  int wave_y = 121;
-  //numbers
-  move_sprite(12, wave_x, wave_y);
-  move_sprite(13, wave_x-8, wave_y); 
-  move_sprite(14, wave_x-16, wave_y); 
-  move_sprite(15, wave_x-24, wave_y); 
-  //notes
-  wave_y = wave_y + 10;
-  move_sprite(28, wave_x, wave_y);
-  move_sprite(29, wave_x-8, wave_y);
-  move_sprite(30, wave_x-16, wave_y);
-  move_sprite(31, wave_x-24, wave_y);
+  freqSetupMoveHelper(12, 51, 121);
+  freqSetupMoveHelper(28, 51, 131);
   
   // noise
-  int noise_x = 130;
-  int noise_y = 121;
-  //numbers
-  move_sprite(16, noise_x, noise_y);
-  move_sprite(17, noise_x-8, noise_y); 
-  move_sprite(18, noise_x-16, noise_y); 
-  move_sprite(19, noise_x-24, noise_y); 
-  //notes
-  noise_y = noise_y + 10;
-  move_sprite(32, noise_x, noise_y);
-  move_sprite(33, noise_x-8, noise_y);
-  move_sprite(34, noise_x-16, noise_y);
-  move_sprite(35, noise_x-24, noise_y);
-}
-
-/*
-* This changes sprites/background to the duty page
-* Duty is only available for sweep and square
-*/
-void changeToDutyBackground() {
-  set_bkg_data(0,4, fadertile);
-  set_bkg_tiles(0x00, 0x00, 20, 18, dutyfaderbackground);
-  // move the duty faders on screen
-  for (int i = 0; i <= max_faders-1; i++) {
-    if (i == 3) {
-      duty_fader_group[i].y = dutyFaderPositionNoise[duty_fader_group[i].fader_position];
-    }
-    move_sprite(i, duty_fader_group[i].x, duty_fader_group[i].y);
-  }
-  current_channel = 0; // set to sweep
-  updateFaderMarker();
-  setAllDutyMacroMarkers();
-  setUpSwitches();
+  freqSetupMoveHelper(16, 130, 121);
+  freqSetupMoveHelper(32, 130, 131);
 }
 
 // background icons
@@ -493,40 +510,6 @@ void setUpSwitches() {
       break;
     }
   }
-}
-
-/*
-* Change to the volume background.
-*/
-void changeToVolumeBackground() {
-  set_bkg_data(0,4, fadertile); // all functions are "VRAM safe" albeit slow
-  set_bkg_tiles(0x00, 0x00, 20, 18, volumefaderbackground);
-  hideSprites(4, 36); // hide tiles from frequency page
-  for (int i = 0; i <= max_faders-1; i++) {
-    move_sprite(i, fader_group[i].x, fader_group[i].y);
-  }
-  // hide record marker from chord page
-  move_sprite(39, 0, 0);
-  current_channel = 0; // not really needed
-  updateFaderMarker();
-  setAllVolumeMacroMarkers();
-  domacro = 0;
-}
-
-/*
-* Change to the chord background.
-*/
-void changeToChordBackground() {
-  set_bkg_data(0,4, fadertile);
-  set_bkg_tiles(0x00, 0x00, 20, 18, chordbackground);
-  hideSprites(4, 36); // hide tiles from frequency page
-  setupChordSprites();
-  printCurrentSeq();
-  current_channel = 0;
-  updateFaderMarker();
-  updateRecordMarker(); // record sprite 
-  doPlayCurrentChord = 0;
-  doSetCurrentStep = 0;
 }
 
 // set up the chord tiles to use
@@ -686,7 +669,7 @@ void init() {
   // https://gbdev.io/pandocs/Sound_Controller.html#sound-channel-2---tone
   NR22_REG = 0x00;
   NR21_REG = 0x80;
-  updateSquareFreq( 1);
+  updateSquareFreq(1);
 
   // wave channel
   // https://gbdev.io/pandocs/Sound_Controller.html#sound-channel-3---wave-output

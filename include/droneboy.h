@@ -18,6 +18,11 @@ const UBYTE faderMarkerFreqy[2][4] = {{53, 53, 117, 117},{1,1,1,1}};
 
 // frequency page, numbers
 void setUpFrequencySprites();
+// helper function for above
+void freqSpritesSetupHelper(int position, int freq_value, int note_value);
+// Helper fun to move sprites
+void freqSetupMoveHelper(int index, int x, int y);
+
 // chord page setup sprites to visulize chords
 void setupChordSprites();
 
