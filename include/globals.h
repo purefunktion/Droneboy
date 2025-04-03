@@ -2,6 +2,7 @@
 #define GLOBALS_H
 
 //Globals
+enum CHANNELS {SWEEP, SQUARE, WAVE, NOISE};
 
 // Zalo key pad logic
 // https://github.com/Zal0
@@ -42,7 +43,7 @@ extern int duty_square;
 extern int duty_wave; // sample index nums for square wave in wave channel
 
 //wave type in wave cahnnel
-enum WAVES {SQUARE, SAW, RAMP, TRIANGLE, SINE};
+enum WAVES {SQUAREWAVE, SAW, RAMP, TRIANGLE, SINE};
 extern enum WAVES wave_type;
 
 // this is the marker for fader and other stuff

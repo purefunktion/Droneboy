@@ -54,7 +54,7 @@ int duty_sweep = 2;
 int duty_square = 2;
 int duty_wave = 2;
 
-enum WAVES wave_type = SQUARE;
+enum WAVES wave_type = SQUAREWAVE;
 
 const UBYTE dutyValues[4] = {0x00, 0x40, 0x80, 0xC0};
 const UBYTE dutyFaderPosition[4] = {111, 89, 65, 41};
@@ -195,8 +195,6 @@ const UBYTE volumeFaderPosition[16] = {119, 114, 109, 104, 98, 93, 89, 85, 80, 7
 
 // Main 
 void main() {
-
-  intro(); // comment this out if enoying
   
   CRITICAL {
       tim_cnt = 0;
@@ -346,7 +344,7 @@ void changeToFrequencyBackground() {
 */
 void setUpFrequencySprites() {
   // First the sweep channel
-  current_channel = 0;
+  current_channel = SWEEP;
   int value = sweep_freq;
   int position = 4;
   setCounterSprites(position, value); // setup the frequency tiles
@@ -354,7 +352,7 @@ void setUpFrequencySprites() {
   setNoteSprites(position+16, sweep_note); // set the note tiles
 
   // square
-  current_channel = 1;
+  current_channel = SQUARE;
   value = square_freq;
   position = 8;
   setCounterSprites(position, value);
@@ -362,7 +360,7 @@ void setUpFrequencySprites() {
   setNoteSprites(position+16, square_note);
 
   //wave
-  current_channel = 2;
+  current_channel = WAVE;
   value = wave_freq;
   position = 12;
   setCounterSprites(position, value);
@@ -370,7 +368,7 @@ void setUpFrequencySprites() {
   setNoteSprites(position+16, wave_note);
 
   //noise
-  current_channel = 3;
+  current_channel = NOISE;
   value = noise_freq;
   position = 16;
   setCounterSprites(position, value);
@@ -472,10 +470,9 @@ void setUpSwitches() {
     set_bkg_tile_xy(0x12, 0x0F, 0x38); // right flip area
   }
   // wave form icons
-
   switch(wave_type)
   {
-    case SQUARE: {
+    case SQUAREWAVE: {
       set_bkg_tile_xy(0x0D, 0x0F, 0x39);
       break;
     }
@@ -752,34 +749,34 @@ void init() {
     chord_part_step[i].fader_position = 0;
   }
   // from left to right 
-  fader_group[0].x = 32; // sweep 
-  fader_group[1].x = 72; // square
-  fader_group[2].x = 112; // wave
-  fader_group[3].x = 152; // noise
+  fader_group[SWEEP].x = 32;
+  fader_group[SQUARE].x = 72;
+  fader_group[WAVE].x = 112;
+  fader_group[NOISE].x = 152;
 
   // chord step x positions, chord page
-  chord_part_step[0].x = 48;
-  chord_part_step[1].x = 56;
-  chord_part_step[2].x = 64;
-  chord_part_step[3].x = 72;
+  chord_part_step[SWEEP].x = 48;
+  chord_part_step[SQUARE].x = 56;
+  chord_part_step[WAVE].x = 64;
+  chord_part_step[NOISE].x = 72;
 
   // Duty faders
   // sweep
-  duty_fader_group[0].x = 32; 
-  duty_fader_group[0].y = 65;
-  duty_fader_group[0].fader_position = 2;
+  duty_fader_group[SWEEP].x = 32;
+  duty_fader_group[SWEEP].y = 65;
+  duty_fader_group[SWEEP].fader_position = 2;
   // square
-  duty_fader_group[1].x = 72;
-  duty_fader_group[1].y = 65;
-  duty_fader_group[1].fader_position = 2;
+  duty_fader_group[SQUARE].x = 72;
+  duty_fader_group[SQUARE].y = 65;
+  duty_fader_group[SQUARE].fader_position = 2;
   //wave
-  duty_fader_group[2].x = 112;
-  duty_fader_group[2].y = 65;
-  duty_fader_group[2].fader_position = 2;
+  duty_fader_group[WAVE].x = 112;
+  duty_fader_group[WAVE].y = 65;
+  duty_fader_group[WAVE].fader_position = 2;
   //noise
-  duty_fader_group[3].x = 152;
-  duty_fader_group[3].y = 41;
-  duty_fader_group[3].fader_position = 7;
+  duty_fader_group[NOISE].x = 152;
+  duty_fader_group[NOISE].y = 41;
+  duty_fader_group[NOISE].fader_position = 7;
 
   // Macro markers
   volumeMacroStatus.sweep = 0;

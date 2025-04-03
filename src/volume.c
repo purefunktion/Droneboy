@@ -78,17 +78,17 @@ void volumeKeypadController() {
 void increaseVolume(int number) {
   switch(current_channel)
   {
-    case 0: {
+    case SWEEP: {
       if ((sweep_volume + number) >= 15) {
         updateSweepVolume(15);
       } else {
         updateSweepVolume(sweep_volume + number);
-      }  
+      }
       fader_group[current_channel].fader_position = sweep_volume;
       increaseMacroVolume(number);
       break;
     }
-    case 1: {
+    case SQUARE: {
       if ((square_volume + number) >= 15) {
         updateSquareVolume(15);
       } else {
@@ -98,7 +98,7 @@ void increaseVolume(int number) {
       increaseMacroVolume(number);
       break;
     }
-    case 2: {
+    case WAVE: {
       if ((wave_volume + number) >= 15) {
         wave_volume = 15;
       } else {
@@ -109,7 +109,7 @@ void increaseVolume(int number) {
       increaseMacroVolume(number);
       break;
     }
-    case 3: {
+    case NOISE: {
       if ((noise_volume + number) >= 15) {
         noise_volume = 15;
       } else {
@@ -208,21 +208,17 @@ void increaseMacroVolume(int number) {
 void decreaseVolume(int number) {
   switch(current_channel)
   {
-    case 0: {
-
+    case SWEEP: {
       if ((sweep_volume - number) <= 0) {
         updateSweepVolume(0);
       } else {
         updateSweepVolume(sweep_volume - number);
-      }
-      
+      }      
       fader_group[current_channel].fader_position = sweep_volume;
       decreaseMacroVolume(number);
       break;
-
-
     }
-    case 1: {
+    case SQUARE: {
       if ((square_volume - number) <= 0) {
         updateSquareVolume(0);
       } else {
@@ -232,7 +228,7 @@ void decreaseVolume(int number) {
       decreaseMacroVolume(number);
       break;
     }
-    case 2: {
+    case WAVE: {
       if ((wave_volume - number) <= 0) {
         wave_volume = 0;
       } else {
@@ -243,7 +239,7 @@ void decreaseVolume(int number) {
       decreaseMacroVolume(number);
       break;
     }
-    case 3: {
+    case NOISE: {
       if ((noise_volume - number) <= 0) {
         noise_volume = 0;
       } else {
@@ -434,7 +430,7 @@ void updateWaveVolume(int volume, int sample_index) {
 void updateWaveToBeLoaded(int volume, int sample_index) {
   switch(wave_type)
   {
-    case SQUARE: {
+    case SQUAREWAVE: {
       loadSquareWave(volume, sample_index);
       break;
     }

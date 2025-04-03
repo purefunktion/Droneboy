@@ -322,7 +322,7 @@ void changNoiseCounterStep() {
 void changeWaveType() {
   switch(wave_type)
   {
-    case SQUARE: {
+    case SQUAREWAVE: {
       wave_type = SAW;
       set_bkg_tile_xy(0x0D, 0x0F, 0x3A);
       break;
@@ -343,7 +343,7 @@ void changeWaveType() {
       break;
     }
     case SINE: {
-      wave_type = SQUARE;
+      wave_type = SQUAREWAVE;
       set_bkg_tile_xy(0x0D, 0x0F, 0x39);
       break;
     }
