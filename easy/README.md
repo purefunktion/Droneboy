@@ -1,12 +1,9 @@
 # Droneboy
-Drone music application for Game Boys.
-Droneboy creates endless tones or drones on the Gameboys four channels. You can manipulate volume, duty and frequency and make chords.
+Drone music application for Gameboy. 
+Droneboy creates endless tones or drones on the Gameboys four channels. You can manipulate volume, duty and frequency.
 
 # Don't have a real Gameboy and flashcart?
 There are numerous emulators for the Gameboy these days. The Droneboy ROM was developed using BGB, SameBoy and Emoulicious. Get one of them and download the droneboy.gb file above and try it out. You can also try Droneboy in your browser over at https://hh.gbdev.io/game/droneboy.
-
-# Easy version
-This project started as a learning experience and the code was kept fairly simple for clarity. The "easy to understand" version has been frozen in the `easy` folder for anyone starting out with c and gbdk programming to check out. Going forward, there will be more "advanced" features used that might be a bit intimidating to beginners.
 
 # How to use
 The Droneboy is made up of four control pages volume, duty, frequency and chord/chord step.

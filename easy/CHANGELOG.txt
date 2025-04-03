@@ -1,0 +1,54 @@
+# Changelog
+
+## [1.07] - 2022-05-12
+### Addition
+	- New less clicky volume change
+	- Continuously change volume by holding up or down
+	- Continuously change frequency when in frequency mode by holding up or down
+	- Copy over note frequency to "frequency mode" on frequency page.
+
+## [1.06] - 2022-05-04
+### Addition
+	- Chord page
+	- Play and change chords
+	- Chord step sequence
+### Fix
+	- Changing frequency no longer retriggers channel, aka less poppin
+
+## [1.05] - 2021-11-08
+### Addition
+	- New waves in wave channel, saw, ramp, triangle and sine
+
+## [1.04] - 2021-10-20
+### Addition
+	- Credit page
+	- Edit counter step of noise channel on duty page
+	- Tones on noise channel on freq/note page
+	- Macro markers on noise freq/noise
+### Fix
+	- Noise channel macro and state handling
+
+## [1.03] - 2021-09-28
+### Fix
+	- Fixed blinking backgrounds
+	- Note/frequency indicator on freq page shown correctly
+
+## [1.02] - 2021-09-28
+### Addition
+	- Macro and inverted macro markers
+	- Dividing ratio of frequencies fader for Noise channel on duty page
+	- Min/Max volume control
+
+## [1.01] - 2021-08-31
+### Addition
+	- Duty on wave channel
+	- Show correct header when in note or frequency mode on frequency page
+### Fix
+	- Wave volume refactoring
+
+## [1.0] - 2021-06-03
+### Addition
+	- Initial commit 
+	- Volume on all channels
+	- Duty on Sweep and Square
+	- Freq/Notes on all channels(noise only has freq)
