@@ -1,7 +1,7 @@
 #include "duty.h"
 // Duty page
 
-void dutyKeypadController() {
+void dutyKeypadController(void) {
   if (KEY_PRESSED(J_UP)) {
     increaseDuty();
     moveFader(current_channel);
@@ -27,7 +27,7 @@ void dutyKeypadController() {
 
 // increase duty 1 step at the time, 4 steps
 // https://gbdev.io/pandocs/Sound_Controller.html#ff11---nr11---channel-1-sound-lengthwave-pattern-duty-rw
-void increaseDuty() { 
+void increaseDuty(void) { 
   switch(current_channel)
   {
     case 0: {
@@ -78,7 +78,7 @@ void increaseDuty() {
 }
 
 // ...and decrease
-void decreaseDuty() { 
+void decreaseDuty(void) { 
   switch(current_channel)
   {
     case 0: {
@@ -130,7 +130,7 @@ void updateSquareDuty(UBYTE duty) {
 }
 
 // Wave channel has no duty register but has corresponding waves in table
-void updateWaveDuty() {
+void updateWaveDuty(void) {
     updateWaveVolume(wave_volume, duty_wave);
 }
 
@@ -292,7 +292,7 @@ void decreaseMacroDuty(int number) {
   }
 }
 
-void bPressedHandler() {
+void bPressedHandler(void) {
   if (current_channel == 3) { // noise
     changNoiseCounterStep();
   } else if (current_channel == 2) { // wave
@@ -302,7 +302,7 @@ void bPressedHandler() {
 
 // Change the counter step of Polynomial Counter in the noise channel
 // 1 = 7bit and 0 = 15bits
-void changNoiseCounterStep() {
+void changNoiseCounterStep(void) {
   if (noiseStruct.counter_step == 1) {
     noiseStruct.counter_step = 0;
     NR43_REG = noiseStruct.dividing_ratio | (noiseStruct.counter_step << 3) | (noiseStruct.clock_freq << 4);
@@ -319,7 +319,7 @@ void changNoiseCounterStep() {
 }
 
 // icon flippety flip
-void changeWaveType() {
+void changeWaveType(void) {
   switch(wave_type)
   {
     case SQUAREWAVE: {

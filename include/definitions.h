@@ -9,13 +9,13 @@
 #define KEY_RELEASED(K) (!(keys & (K)) && (previous_keys & (K)))
 
 // load the wave register pattern data
-void loadWave();
+void loadWave(void);
 
 // fader stuff
 void moveFader(int channel);
 void change_fader(BYTE direction);
-void updateFaderMarker();
-void updateRecordMarker();
+void updateFaderMarker(void);
+void updateRecordMarker(void);
 
 void updateSweepFreq(int retrigger);
 void updateSquareFreq( int retrigger);
@@ -27,24 +27,24 @@ void clearCounterValues(UINT8 position, int channel);
 void setCounterSprites(UINT8 position, int value);
 void updateWaveVolume(int volume, int sample_index);
 
-void placeMacroMarker();
-void setAllVolumeMacroMarkers();
-void setAllDutyMacroMarkers();
-void setAllFreqMacroMarkers();
+void placeMacroMarker(void);
+void setAllVolumeMacroMarkers(void);
+void setAllDutyMacroMarkers(void);
+void setAllFreqMacroMarkers(void);
 
-void flipHeader();
+void flipHeader(void);
 
 // frequency page, notes
 void setNoteSprites(int position, int note_value);
 
 // chord page, called from main when switching
-void printChordParts();
-void setOnOffSprites();
-void playChordStep();
-void playNextChord();
-void printCurrentSeq();
+void printChordParts(void);
+void setOnOffSprites(void);
+void playChordStep(void);
+void playNextChord(void);
+void printCurrentSeq(void);
 
 // bpm 
-void blinkBPM();
+void blinkBPM(void);
 
 #endif

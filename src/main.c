@@ -198,7 +198,7 @@ int right_pressed = 0; // select + right goes right(duh)
 int left_pressed = 0; // read above but left
 
 // Main 
-void main() {
+void main(void) {
   
   CRITICAL {
       tim_cnt = 0;
@@ -294,8 +294,7 @@ void main() {
 }
 
 // timer interrupt
-void tim()
-{
+void tim(void) {
   tim_cnt++;  
   if (tim_cnt == bpm_in_cycles) {
     blinkBPM();
@@ -306,7 +305,7 @@ void tim()
   }
 }
 
-void setBpm() {
+void setBpm(void) {
   bpm_in_cycles = 409600/((bpm*100)/60);
 }
 
@@ -337,7 +336,7 @@ void changeControlPage(int to_page) {
 /*
 * Change to the volume background.
 */
-void changeToVolumeBackground() {
+void changeToVolumeBackground(void) {
   set_bkg_data(0,4, fadertile); // all functions are "VRAM safe" albeit slow
   set_bkg_tiles(0x00, 0x00, 20, 18, volumefaderbackground);
   hideSprites(4, 36); // hide tiles from frequency page
@@ -355,7 +354,7 @@ void changeToVolumeBackground() {
 * This changes sprites/background to the duty page
 * Duty is only available for sweep and square
 */
-void changeToDutyBackground() {
+void changeToDutyBackground(void) {
   set_bkg_data(0,4, fadertile);
   set_bkg_tiles(0x00, 0x00, 20, 18, dutyfaderbackground);
   hideSprites(0, 39);
@@ -374,7 +373,7 @@ void changeToDutyBackground() {
 /*
 * Changes to the frequency background
 */
-void changeToFrequencyBackground() {
+void changeToFrequencyBackground(void) {
   set_bkg_data(0,4, fadertile); // setup fader tiles
   set_bkg_tiles(0x00, 0x00, 20, 18, frequencybackground); // the bakground
   setUpFrequencySprites();
@@ -391,7 +390,7 @@ void changeToFrequencyBackground() {
 /*
 * Change to the chord background.
 */
-void changeToChordBackground() {
+void changeToChordBackground(void) {
   set_bkg_data(0,4, fadertile);
   set_bkg_tiles(0x00, 0x00, 20, 18, chordbackground);
   hideSprites(0, 39); // hide tiles from frequency page
@@ -404,7 +403,7 @@ void changeToChordBackground() {
 }
 
 // credit page flipper
-void goToCreditPage() {
+void goToCreditPage(void) {
   set_bkg_data(0,4, fadertile); // setup fader tiles
   set_bkg_tiles(0x00, 0x00, 20, 18, creditPageBackground);
   // move the duty faders on screen
@@ -419,7 +418,7 @@ void goToCreditPage() {
 }
 
 // leave credit page
-void leaveCreditPage() {
+void leaveCreditPage(void) {
   changeControlPage(active_control_page);
 }
 
@@ -443,7 +442,7 @@ void freqSetupMoveHelper(int index, int x, int y) {
 /*
 * This is now cleaned up a bit
 */
-void setUpFrequencySprites() {
+void setUpFrequencySprites(void) {
   int temp_channel = current_channel;
   current_channel = SWEEP;
   freqSpritesSetupHelper(4, sweep_freq, sweep_note);
@@ -478,7 +477,7 @@ void setUpFrequencySprites() {
 }
 
 // background icons
-void setUpSwitches() {
+void setUpSwitches(void) {
   if (noiseStruct.counter_step == 1) {
     set_bkg_tile_xy(0x11, 0x0F, 0x36);
     set_bkg_tile_xy(0x12, 0x0F, 0x37);
@@ -513,7 +512,7 @@ void setUpSwitches() {
 }
 
 // set up the chord tiles to use
-void setupChordSprites() {
+void setupChordSprites(void) {
   int x = 48; // coordinates
   int y = 56;
   //y = y + 10; // 10 pixels under the freq tiles
@@ -564,7 +563,7 @@ void change_fader(BYTE direction) {
 /*
 * This will move the fader marker to show the active channel.
 */
-void updateFaderMarker() {
+void updateFaderMarker(void) {
   if (active_control_page == 0) { // Volume
     move_sprite(37, fader_group[current_channel].x, 128);
     move_sprite(38, fader_group[current_channel].x, 136);
@@ -616,7 +615,7 @@ void moveFader(int channel) {
 * https://blog.gg8.se/wordpress/2013/02/11/gameboy-project-week-6-can-i-have-an-a-men/
 * Changed to use a the memory location instead of Look Up Table (LUT). 
 */
-void loadWave() {
+void loadWave(void) {
   UBYTE freqlow, freqhigh;
   // diffrent freq depending on note or freq mode
   if (frequency_mode == 0) {
@@ -646,7 +645,7 @@ void loadWave() {
 /*
 * Setup when starting the app.
 */
-void init() {
+void init(void) {
   int csx = 0x01;
   // IMPORTANT! NR52_REG must always be set first
   // otherwise there will be no sound.

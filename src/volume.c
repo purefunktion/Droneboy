@@ -2,7 +2,7 @@
 // Volume page
 
 // Keypad 
-void volumeKeypadController() {
+void volumeKeypadController(void) {
   // sweep up done
   if (KEY_RELEASED(J_UP) && up_volume_counter > 0) {
       up_volume_counter = 0;

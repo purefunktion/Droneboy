@@ -9,7 +9,7 @@ int aug_dim_norm = 0; // 0 norm, 1 augmented, 2 diminished
 BYTE bpm_blink_state = 0;
 
 // This controlls which mode is used
-void chordKeypadController() {
+void chordKeypadController(void) {
   if (KEY_TICKED(J_B)) {
     if(KEY_PRESSED(J_A)) {
       if (chord_mode == 0) {
@@ -41,7 +41,7 @@ void chordKeypadController() {
 }
 
 // chord change keypad controller
-void chordChangeMode() {  
+void chordChangeMode(void) {  
   if (KEY_RELEASED(J_A) && doPlayCurrentChord == 1) {
     playCurrentChord();  
     doPlayCurrentChord = 0;
@@ -95,7 +95,7 @@ void chordChangeMode() {
 }
 
 // this is to indicate the BPM speed in top right corner
-void blinkBPM() {
+void blinkBPM(void) {
   if (active_control_page == 3) {
     if(bpm_blink_state == 0) {
       set_bkg_tile_xy(0x13, 0x00, 0x46);
@@ -108,7 +108,7 @@ void blinkBPM() {
 }
 
 // play chord step while sequencer is running, called by timer function
-void playChordStep() {
+void playChordStep(void) {
   // reached number of beats pre step?
   if ( beats_counter == beats_per_step-1) {
     playNextChord();
@@ -119,7 +119,7 @@ void playChordStep() {
 }
 
 // play the nex chord in the sequencer
-void playNextChord() {
+void playNextChord(void) {
   if (current_seq_chord == 7) {
       current_seq_chord = 0;
     } else {
@@ -129,7 +129,7 @@ void playNextChord() {
 }
 
 // play the current step while sequencer is running
-void playCurrentSeqStep() {
+void playCurrentSeqStep(void) {
   int w = 0;
   int sq = 0;
   sq = chordsteppa[current_seq_chord].root + ((chordsteppa[current_seq_chord].majmin == 0) ? 4 : 3); 
@@ -149,7 +149,7 @@ void playCurrentSeqStep() {
 }
 
 // chord step keydap controller
-void chordSteppaMode() {
+void chordSteppaMode(void) {
   if (KEY_PRESSED(J_RIGHT)) { 
     stepChordSteppa(J_RIGHT);
     waitpadup();
@@ -181,14 +181,14 @@ void stepChordSteppa(BYTE direction) {
 }
 
 // saves the current chord in the current step
-void saveCurrentStep() {
+void saveCurrentStep(void) {
   chordsteppa[current_record_steppa_step].root = chord_root_note;
   chordsteppa[current_record_steppa_step].majmin = major_minor;
   chordsteppa[current_record_steppa_step].adn = aug_dim_norm;
 }
 
 // plays current step
-void playCurrentStep() {
+void playCurrentStep(void) {
   frequency_mode = 1; // we are now floatin in note mode baby
   int w = 0;
   int sq = 0;
@@ -227,7 +227,7 @@ void chordStepRecordRouter(BYTE direction, int num) {
 }
 
 // this will move the record marker on the stepper part
-void updateRecordMarker() {
+void updateRecordMarker(void) {
   move_sprite(39, chord_steppa_step[current_record_steppa_step].x, 152);
 }
 
@@ -302,7 +302,7 @@ void changeAugDimNorm(BYTE direction) {
 
 // this turns chord playing on or off
 // when off changes won't take effect immediatly
-void playCurrentChord() {
+void playCurrentChord(void) {
   chord_on = (chord_on) ? 0 : 1; // flip true/false on/off
   if (chord_on) {
     frequency_mode = 1; // set to note mode
@@ -312,7 +312,7 @@ void playCurrentChord() {
 }
 
 // changes the channels frequencies according to choosen chord
-void changeNotes() {
+void changeNotes(void) {
   sweep_note = chord_root_note;
   square_note = chord_root_note + ((major_minor == 0) ? 4 : 3); // number of semitones for a major or minor chord
   if (aug_dim_norm == 1 && chord_root_note < 64) { // 1 aug and less than highest root note for aug
@@ -354,13 +354,13 @@ void setMinorMajorSprites( int major_minor) {
 }
 
 // print the on/off indicator to screen
-void setOnOffSprites() {
+void setOnOffSprites(void) {
   UINT8 spritenum = ( chord_on == 0) ? 0x42 : 0x41;
   set_bkg_tile_xy(0x02, 0x02, spritenum);
 }
 
 // place the aug dim norm sprites
-void setAugDimNormprites() {
+void setAugDimNormprites(void) {
   UINT8 spritenum = 0x04; // norm
   if (aug_dim_norm == 1) { // aug
     spritenum = 0x3F;  
@@ -371,7 +371,7 @@ void setAugDimNormprites() {
 }
 
 //print the chord parts to screen
-void printChordParts() {
+void printChordParts(void) {
   setNoteSprites(20, chord_root_note);
   setMinorMajorSprites(major_minor);
   setAugDimNormprites();
@@ -470,7 +470,7 @@ void printWithoutHash(int cp, int step) {
 }
 
 //this will print the sequence
-void printCurrentSeq() {
+void printCurrentSeq(void) {
   for (int i = 0; i < 8; ++i)
   {
       printCurrentStep(i);

@@ -1,10 +1,10 @@
-GBDK_HOME = path-to-gbdk
+GBDK_HOME = /home/bjorn/dev/clang/gbdk-linux64/gbdk/
 
 LCC = $(GBDK_HOME)bin/lcc
 
 PROJECTNAME = droneboy
 
-BINS        = $(PROJECTNAME).gb $(PROJECTNAME).pocket
+BINS        = $(PROJECTNAME).gb
 CSOURCES   := $(wildcard src/*.c)
 
 # include folder

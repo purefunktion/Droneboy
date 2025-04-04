@@ -5,18 +5,18 @@
 #include "definitions.h"
 #include "common.h"
 
-void increaseDuty();
-void decreaseDuty();
+void increaseDuty(void);
+void decreaseDuty(void);
 void updateSweepDuty(UBYTE duty);
 void updateSquareDuty(UBYTE duty);
-void updateWaveDuty();
+void updateWaveDuty(void);
 void updateNoiseDividingRatio(int number);
 
 void increaseMacroDuty(int number);
 void decreaseMacroDuty(int number);
-void bPressedHandler();
-void changNoiseCounterStep();
-void changeWaveType();
+void bPressedHandler(void);
+void changNoiseCounterStep(void);
+void changeWaveType(void);
 
 extern const UBYTE dutyValues[4];
 extern const UBYTE dutyFaderPosition[4];

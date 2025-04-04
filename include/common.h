@@ -6,8 +6,8 @@
 #include "tilesandbackgrounds.h"
 #include "globals.h"
 
-void placeVolumeMacroMarker();
-void placeDutyMacroMarker();
-void placeFreqMacroMarker();
+void placeVolumeMacroMarker(void);
+void placeDutyMacroMarker(void);
+void placeFreqMacroMarker(void);
 
 #endif

@@ -2,7 +2,7 @@
 
 // Common functions between control pages
 
-void placeMacroMarker() {
+void placeMacroMarker(void) {
 	switch(active_control_page)
   {
   	case 0: { // volume
@@ -20,7 +20,7 @@ void placeMacroMarker() {
 }
 
 // Place volume macro markers
-void placeVolumeMacroMarker() {
+void placeVolumeMacroMarker(void) {
 	switch(current_channel)
 	{
 		case 0: { // sweep
@@ -89,7 +89,7 @@ void placeVolumeMacroMarker() {
 /*
 This is used when coming back to the volume control page to set macro markers
 */
-void setAllVolumeMacroMarkers() {
+void setAllVolumeMacroMarkers(void) {
   if (volumeMacroStatus.sweep == 0) {
   	set_bkg_tiles(0x03, 0x10, 1, 1, blankTileBkg);
   } else if (volumeMacroStatus.sweep == 1) {
@@ -121,7 +121,7 @@ void setAllVolumeMacroMarkers() {
 }
 
 // Place the duty macro markers
-void placeDutyMacroMarker() {
+void placeDutyMacroMarker(void) {
   switch(current_channel)
   {
     case 0: { // sweep
@@ -191,7 +191,7 @@ void placeDutyMacroMarker() {
 This is used when coming back to the duty control page 
 to set already set macro markers
 */
-void setAllDutyMacroMarkers() {
+void setAllDutyMacroMarkers(void) {
   if (dutyMacroStatus.sweep == 0) {
     set_bkg_tiles(0x03, 0x10, 1, 1, blankTileBkg);
   } else if (dutyMacroStatus.sweep == 1) {
@@ -223,7 +223,7 @@ void setAllDutyMacroMarkers() {
 }
 
 // Place the duty macro markers
-void placeFreqMacroMarker() {
+void placeFreqMacroMarker(void) {
   switch(current_channel)
   {
     case 0: { // sweep
@@ -293,7 +293,7 @@ void placeFreqMacroMarker() {
 This is used when coming back to the duty control page 
 to set already set macro markers
 */
-void setAllFreqMacroMarkers() {
+void setAllFreqMacroMarkers(void) {
   if (freqMacroStatus.sweep == 0) {
     set_bkg_tiles(0x05, 0x08, 1, 1, blankTileBkg);
   } else if (freqMacroStatus.sweep == 1) {

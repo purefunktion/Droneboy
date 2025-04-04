@@ -1,7 +1,7 @@
 #include "frequency.h"
 // Frequency page
 
-void frequencyKeypadController() {
+void frequencyKeypadController(void) {
     if (KEY_TICKED(J_B)) {
         if(KEY_PRESSED(J_A)) {
             if (frequency_mode == 0) {
@@ -33,7 +33,7 @@ void frequencyKeypadController() {
 }
 
 // show/hide frequency/note
-void flipHeader() {
+void flipHeader(void) {
     if (frequency_mode == 1) {
         set_bkg_tiles(0x00, 0x00, 9, 1, noteFreqText);
     } else {
@@ -42,7 +42,7 @@ void flipHeader() {
 }
 
 // when flipping through notes
-void noteMode() {
+void noteMode(void) {
 
     if (KEY_RELEASED(J_A) && domacro == 1) {
         placeMacroMarker();
@@ -87,7 +87,7 @@ void noteMode() {
 }
 
 // when flipping through freqs
-void frequencyMode() {
+void frequencyMode(void) {
 
     // set macro marker
     if (KEY_RELEASED(J_A) && domacro == 1) {
@@ -159,7 +159,7 @@ void frequencyMode() {
 
 // this will copy the frequency of the current note
 // to the global freqency variable, for easier manipulation. 
-void copyNoteToFreq() {
+void copyNoteToFreq(void) {
     switch(current_channel)
     {
         case 0: {
