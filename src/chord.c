@@ -110,7 +110,7 @@ void blinkBPM(void) {
 // play chord step while sequencer is running, called by timer function
 void playChordStep(void) {
   // reached number of beats pre step?
-  if ( beats_counter == beats_per_step-1) {
+  if ( beats_counter == beats_per_step) {
     playNextChord();
     beats_counter = 0;
   } else {

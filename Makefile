@@ -1,26 +1,54 @@
-GBDK_HOME = /home/bjorn/dev/clang/gbdk-linux64/gbdk/
+include include.mk
+
+# put the path to your gbdk instll in the include.mk file
+GBDK_HOME = $(GBDK_PATH)
 
 LCC = $(GBDK_HOME)bin/lcc
 
 PROJECTNAME = droneboy
 
-BINS        = $(PROJECTNAME).gb
-CSOURCES   := $(wildcard src/*.c)
+SRCDIR      = src
+OBJDIR      = obj
+RESDIR      = res
+BINS        = $(OBJDIR)/$(PROJECTNAME).gb
+CSOURCES    = $(foreach dir,$(SRCDIR),$(notdir $(wildcard $(dir)/*.c))) $(foreach dir,$(RESDIR),$(notdir $(wildcard $(dir)/*.c)))
+ASMSOURCES  = $(foreach dir,$(SRCDIR),$(notdir $(wildcard $(dir)/*.s)))
+OBJS       = $(CSOURCES:%.c=$(OBJDIR)/%.o) $(ASMSOURCES:%.s=$(OBJDIR)/%.o)
+
+all:	prepare $(BINS)
 
 # include folder
-CFLAGS  = -Wp-Iinclude
+LCCFLAGS  += -Wp-Iinclude
 ifdef GBDK_DEBUG
-	CFLAGS += -debug -v
+	LCCFLAGS += -debug -v
 endif
 
-all:    $(BINS)
+all: prepare $(BINS)
 
-${PROJECTNAME}.gb: $(CSOURCES)
-	$(LCC) $(CFLAGS) -o $@ $(CSOURCES)
+# Compile .c files in "src/" to .o object files
+$(OBJDIR)/%.o:	$(SRCDIR)/%.c
+	$(LCC) $(LCCFLAGS) -c -o $@ $<
 
-${PROJECTNAME}.pocket: $(CSOURCES)
-	$(LCC) $(CFLAGS) -sm83 -o $@ $(CSOURCES)
+# Compile .c files in "res/" to .o object files
+$(OBJDIR)/%.o:	$(RESDIR)/%.c
+	$(LCC) $(LCCFLAGS) -c -o $@ $<
+
+# Compile .s assembly files in "src/" to .o object files
+$(OBJDIR)/%.o:	$(SRCDIR)/%.s
+	$(LCC) $(LCCFLAGS) -c -o $@ $<
+
+# If needed, compile .c files in "src/" to .s assembly files
+# (not required if .c is compiled directly to .o)
+$(OBJDIR)/%.s:	$(SRCDIR)/%.c
+	$(LCC) $(LCCFLAGS) -S -o $@ $<
+
+# Link the compiled object files into a .gb ROM file
+$(BINS):	$(OBJS)
+	$(LCC) $(LCCFLAGS) -o $(BINS) $(OBJS)
+
+prepare:
+	mkdir -p $(OBJDIR)
 
 clean:
-	rm -f *.o *.lst *.map *.gb *.ihx *.sym *.cdb *.adb *.asm *.pocket
-
+#	rm -f  *.gb *.ihx *.cdb *.adb *.noi *.map
+	rm -f  $(OBJDIR)/*.*
