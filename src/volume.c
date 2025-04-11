@@ -348,21 +348,9 @@ void updateSweepVolume(int volume) {
     //afaikt this is the least clicky way to decrease volume
       __asm 
         ld a, #0x08
+        .rept 15    // https://shop-pdp.net/ashtml/asmcro.htm#SECT6
         ldh (#0xFF12),a
-        ldh (#0xFF12),a
-        ldh (#0xFF12),a
-        ldh (#0xFF12),a
-        ldh (#0xFF12),a
-        ldh (#0xFF12),a
-        ldh (#0xFF12),a
-        ldh (#0xFF12),a
-        ldh (#0xFF12),a
-        ldh (#0xFF12),a
-        ldh (#0xFF12),a
-        ldh (#0xFF12),a
-        ldh (#0xFF12),a
-        ldh (#0xFF12),a
-        ldh (#0xFF12),a
+        .endm
       __endasm;
       sweep_volume--;
     }
@@ -383,21 +371,9 @@ void updateSquareVolume(int volume) {
     // FF17 = NR22_REG  
       __asm 
         ld a, #0x08
+        .rept 15    // https://shop-pdp.net/ashtml/asmcro.htm#SECT6
         ldh (#0xFF17),a
-        ldh (#0xFF17),a
-        ldh (#0xFF17),a
-        ldh (#0xFF17),a
-        ldh (#0xFF17),a
-        ldh (#0xFF17),a
-        ldh (#0xFF17),a
-        ldh (#0xFF17),a
-        ldh (#0xFF17),a
-        ldh (#0xFF17),a
-        ldh (#0xFF17),a
-        ldh (#0xFF17),a
-        ldh (#0xFF17),a
-        ldh (#0xFF17),a
-        ldh (#0xFF17),a
+        .endm
       __endasm;
       square_volume--;
     }

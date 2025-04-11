@@ -85,7 +85,6 @@ unsigned int tim_cnt = 0;
 int bpm_in_cycles = 2048;
 int bpm = 120;
 
-
 // Note names to display
 const char noteNames[72][5] = {
   " C 3", "C# 3", " D 3", "D# 3", " E 3", " F 3", "F# 3", " G 3", "G# 3", " A 3", "A# 3", " B 3",
@@ -629,13 +628,8 @@ void loadWave(void) {
   // This next line must be done or wave ram will act weird see:
   // https://gbdev.gg8.se/wiki/articles/Gameboy_sound_hardware#Obscure_Behavior
   NR30_REG = 0x00; 
-  unsigned char *dst = (unsigned char *)(0xFF30u); // Create pointer to the wave RAM.
-  unsigned char *src = &waveToBeLoaded[0]; // Create pointer to the waveform.
-  unsigned char length = 16; // Number of bytes to copy.
-  while (length--) {
-    *dst++ = *src++;
-  }
-
+  // see load_wave.s
+  load_wave(&waveToBeLoaded[0]);
   NR30_REG |= 0x80; // Enable wave channel.
   NR51_REG = 0b11111111; // antispike
   NR33_REG = freqlow; // Set lower byte of frequency.

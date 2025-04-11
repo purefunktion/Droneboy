@@ -1,6 +1,6 @@
 include include.mk
 
-# put the path to your gbdk installation in as include.mk file
+# put the path to your gbdk installation in a include.mk file
 GBDK_HOME = $(GBDK_PATH)
 
 LCC = $(GBDK_HOME)bin/lcc
