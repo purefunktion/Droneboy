@@ -1,6 +1,6 @@
 include include.mk
 
-# put the path to your gbdk instll in the include.mk file
+# put the path to your gbdk installation in as include.mk file
 GBDK_HOME = $(GBDK_PATH)
 
 LCC = $(GBDK_HOME)bin/lcc
@@ -24,6 +24,11 @@ ifdef GBDK_DEBUG
 endif
 
 all: prepare $(BINS)
+
+# if you are on windows
+compile.bat: Makefile
+	@echo "REM Automatically generated from Makefile" > compile.bat
+	@make -sn | sed y/\\//\\\\/ | sed s/mkdir\ -p\/mkdir\/ | grep -v make >> compile.bat
 
 # Compile .c files in "src/" to .o object files
 $(OBJDIR)/%.o:	$(SRCDIR)/%.c
