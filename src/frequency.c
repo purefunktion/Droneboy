@@ -43,12 +43,10 @@ void flipHeader(void) {
 
 // when flipping through notes
 void noteMode(void) {
-
     if (KEY_RELEASED(J_A) && domacro == 1) {
         placeMacroMarker();
         domacro = 0;
     }
-
     if (KEY_TICKED(J_UP)) {
         if(KEY_PRESSED(J_A)) {
             increaseCurrentNote(12);
@@ -88,7 +86,6 @@ void noteMode(void) {
 
 // when flipping through freqs
 void frequencyMode(void) {
-
     // set macro marker
     if (KEY_RELEASED(J_A) && domacro == 1) {
         placeMacroMarker();
@@ -98,7 +95,6 @@ void frequencyMode(void) {
     if (KEY_RELEASED(J_UP) && up_sweep_counter > 0) {
         up_sweep_counter = 0;
     }
-
     // sweep down done
     if (KEY_RELEASED(J_DOWN) && down_sweep_counter > 0) {
         down_sweep_counter = 0;
@@ -162,15 +158,15 @@ void frequencyMode(void) {
 void copyNoteToFreq(void) {
     switch(current_channel)
     {
-        case 0: {
+        case SWEEP: {
             sweep_freq = frequencies[sweep_note];
             break;
         }
-        case 1: {
+        case SQUARE: {
             square_freq = frequencies[square_note];
             break;
         }
-        case 2: {
+        case WAVE: {
             wave_freq = frequencies[wave_note];
             break;
         }
@@ -185,7 +181,7 @@ void copyNoteToFreq(void) {
 void increaseCurrentFreq(int amount) {
     switch(current_channel)
     {
-        case 0: {
+        case SWEEP: {
             if ((sweep_freq + amount) >= 2047) {
                 sweep_freq = 2047;
             } else {
@@ -195,7 +191,7 @@ void increaseCurrentFreq(int amount) {
             updateSweepFreq(0);
             break;
         }
-        case 1: {
+        case SQUARE: {
             if ((square_freq + amount) >= 2047) {
                 square_freq = 2047;
             } else {
@@ -205,7 +201,7 @@ void increaseCurrentFreq(int amount) {
             updateSquareFreq( 0);
             break;
         }
-        case 2: {
+        case WAVE: {
             if ((wave_freq + amount) >= 2047) {
                 wave_freq = 2047;
             } else {
@@ -215,7 +211,7 @@ void increaseCurrentFreq(int amount) {
             updateWaveFreq(0);
             break;
         }
-        case 3: {
+        case NOISE: {
             if ((noise_freq + amount) >= 15) {
                 noise_freq = 15;
             } else {
@@ -240,7 +236,7 @@ int uwti(UWORD num) {
 void decreaseCurrentFreq(int amount) {
     switch(current_channel)
     {
-        case 0: {
+        case SWEEP: {
             if ((uwti(sweep_freq) - amount) <= 0) {
                 sweep_freq = 0;
             } else {
@@ -250,7 +246,7 @@ void decreaseCurrentFreq(int amount) {
             updateSweepFreq(0);
             break;
         }
-        case 1: {
+        case SQUARE: {
             if ((uwti(square_freq) - amount) <= 0) {
                 square_freq = 0;
             } else {
@@ -260,7 +256,7 @@ void decreaseCurrentFreq(int amount) {
             updateSquareFreq(0);
             break;
         }
-        case 2: {
+        case WAVE: {
             if ((uwti(wave_freq) - amount) <= 0) {
                 wave_freq = 0;
             } else {
@@ -270,7 +266,7 @@ void decreaseCurrentFreq(int amount) {
             updateWaveFreq(0);
             break;
         }
-        case 3: {
+        case NOISE: {
             if ((noise_freq - amount) <= 0) {
                 noise_freq = 0;
             } else {
@@ -358,28 +354,28 @@ void updateNoiseNoteFreq(UBYTE new_freq) {
 void printChannelFrequency(int channel) {
     switch(channel)
     {
-        case 0: {
+        case SWEEP: {
             int value = sweep_freq;
             UINT8 position = 4;
             setCounterSprites(position, value);
             clearCounterValues(position, channel);
             break;
         }
-        case 1: {
+        case SQUARE: {
             int value = square_freq;
             UINT8 position = 8;
             setCounterSprites(position, value);
             clearCounterValues(position, channel);
             break;
         }
-        case 2: {
+        case WAVE: {
             int value = wave_freq;
             UINT8 position = 12;
             setCounterSprites(position, value);
             clearCounterValues(position, channel);
             break;
         }
-        case 3: {
+        case NOISE: {
             int value = noise_freq;
             UINT8 position = 16;
             setCounterSprites(position, value);
@@ -471,19 +467,19 @@ void setNoteSprites(int position, int note_value) {
 void printChannelNote(int channel) {
   switch(channel)
   {
-    case 0: {
+    case SWEEP: {
         setNoteSprites(20, sweep_note);
         break;
     }
-    case 1: {
+    case SQUARE: {
         setNoteSprites(24, square_note);
         break;
     }
-    case 2: {
+    case WAVE: {
         setNoteSprites(28, wave_note);
         break;
     }
-    case 3: {
+    case NOISE: {
         setNoteSprites(32, noiseNoteNameIndex[noise_note]);
         break;
     }
@@ -495,11 +491,11 @@ void printChannelNote(int channel) {
 */
 void clearCounterValues(UINT8 position, int channel) {
     int val;
-    if (channel == 0) {
+    if (channel == SWEEP) {
         val = sweep_freq;
-    } else if (channel == 1) {
+    } else if (channel == SQUARE) {
         val = square_freq;
-    } else if (channel == 2) {
+    } else if (channel == WAVE) {
         val = wave_freq;
     } else {
         val = noise_freq;
@@ -521,7 +517,7 @@ void clearCounterValues(UINT8 position, int channel) {
 void increaseCurrentNote(int amount) {
     switch(current_channel)
     {
-        case 0: {
+        case SWEEP: {
             if ((sweep_note + amount) >= 71) {
                 sweep_note = 71;
             } else {
@@ -531,7 +527,7 @@ void increaseCurrentNote(int amount) {
             updateSweepFreq(0);
             break;
         }
-        case 1: {
+        case SQUARE: {
             if ((square_note + amount) >= 71) {
                 square_note = 71;
             } else {
@@ -541,7 +537,7 @@ void increaseCurrentNote(int amount) {
             updateSquareFreq(0);
             break;
         }
-        case 2: {
+        case WAVE: {
             if ((wave_note + amount) >= 71) {
                 wave_note = 71;
             } else {
@@ -551,7 +547,7 @@ void increaseCurrentNote(int amount) {
             updateWaveFreq(0);
             break;
         }
-        case 3: {
+        case NOISE: {
             if ((noise_note + amount) >= 5) {
                 noise_note = 5;
             } else {
@@ -570,7 +566,7 @@ void increaseCurrentNote(int amount) {
 void decreaseCurrentNote(int amount) {
     switch(current_channel)
     {
-        case 0: {
+        case SWEEP: {
             if ((sweep_note - amount) <= 0) {
                 sweep_note = 0;
             } else {
@@ -580,7 +576,7 @@ void decreaseCurrentNote(int amount) {
             updateSweepFreq(0);
             break;
         }
-        case 1: {
+        case SQUARE: {
             if ((square_note - amount) <= 0) {
                 square_note = 0;
             } else {
@@ -590,7 +586,7 @@ void decreaseCurrentNote(int amount) {
             updateSquareFreq(0);
             break;
         }
-        case 2: {
+        case WAVE: {
             if ((wave_note - amount) <= 0) {
                 wave_note = 0;
             } else {
@@ -600,7 +596,7 @@ void decreaseCurrentNote(int amount) {
             updateWaveFreq(0);
             break;
         }
-        case 3: {
+        case NOISE: {
             if ((noise_note - amount) <= 0) {
                 noise_note = 0;
             } else {
@@ -615,7 +611,7 @@ void decreaseCurrentNote(int amount) {
 
 // Increase the macro enabled channels freq
 void increaseMacroNote(int number) {
-  if(current_channel != 0 && freqMacroStatus.sweep != 0) {
+  if (current_channel != SWEEP && freqMacroStatus.sweep != 0) {
     if (freqMacroStatus.sweep == 1 ) { // regular macro marker
       if ((sweep_note + number) >= 71) {
             sweep_note = 71;
@@ -632,7 +628,7 @@ void increaseMacroNote(int number) {
     updateSweepFreq(0);
     printChannelNote(0);
   }
-  if(current_channel != 1 && freqMacroStatus.square != 0) {
+  if (current_channel != SQUARE && freqMacroStatus.square != 0) {
     if (freqMacroStatus.square == 1 ) { // regular macro marker
       if ((square_note + number) >= 71) {
             square_note = 71;
@@ -649,7 +645,7 @@ void increaseMacroNote(int number) {
     updateSquareFreq(0);
     printChannelNote(1);
   }
-  if(current_channel != 2 && freqMacroStatus.wave != 0) {
+  if (current_channel != WAVE && freqMacroStatus.wave != 0) {
     if (freqMacroStatus.wave == 1 ) { // regular macro marker
       if ((wave_note + number) >= 71) {
             wave_note = 71;
@@ -666,7 +662,7 @@ void increaseMacroNote(int number) {
     updateWaveFreq(0);
     printChannelNote(2);
   }
-  if(current_channel != 3 && freqMacroStatus.noise != 0) {
+  if (current_channel != NOISE && freqMacroStatus.noise != 0) {
     if (freqMacroStatus.noise == 1 ) { // regular macro marker
       if ((noise_note + number) >= 5) {
             noise_note = 5;
@@ -687,7 +683,7 @@ void increaseMacroNote(int number) {
 
 // Increase the macro enabled channels freq
 void decreaseMacroNote(int number) {
-  if(current_channel != 0 && freqMacroStatus.sweep != 0) {
+  if (current_channel != SWEEP && freqMacroStatus.sweep != 0) {
     if (freqMacroStatus.sweep == 1 ) { // regular macro marker
       if ((sweep_note - number) <= 0) {
             sweep_note = 0;
@@ -704,7 +700,7 @@ void decreaseMacroNote(int number) {
     updateSweepFreq(0);
     printChannelNote(0);
   }
-  if(current_channel != 1 && freqMacroStatus.square != 0) {
+  if (current_channel != SQUARE && freqMacroStatus.square != 0) {
     if (freqMacroStatus.square == 1 ) { // regular macro marker
        if ((square_note - number) <= 0) {
             square_note = 0;
@@ -721,7 +717,7 @@ void decreaseMacroNote(int number) {
     updateSquareFreq( 0);
     printChannelNote(1);
   }
-  if(current_channel != 2 && freqMacroStatus.wave != 0) {
+  if (current_channel != WAVE && freqMacroStatus.wave != 0) {
     if (freqMacroStatus.wave == 1 ) { // regular macro marker
       if ((wave_note - number) <= 0) {
             wave_note = 0;
@@ -738,7 +734,7 @@ void decreaseMacroNote(int number) {
     updateWaveFreq(0);
     printChannelNote(2);
   }
-  if(current_channel != 3 && freqMacroStatus.noise != 0) {
+  if (current_channel != NOISE && freqMacroStatus.noise != 0) {
     if (freqMacroStatus.noise == 1 ) { // regular macro marker
       if ((noise_note - number) <= 0) {
             noise_note = 0;
@@ -759,7 +755,7 @@ void decreaseMacroNote(int number) {
 
 // Increase the macro enabled channels freq
 void increaseMacroFreq(int number) {
-  if(current_channel != 0 && freqMacroStatus.sweep != 0) {
+  if (current_channel != SWEEP && freqMacroStatus.sweep != 0) {
     if (freqMacroStatus.sweep == 1 ) { // regular macro marker
       if ((sweep_freq + number) >= 2047) {
             sweep_freq = 2047;
@@ -776,7 +772,7 @@ void increaseMacroFreq(int number) {
     updateSweepFreq(0);
     printChannelFrequency(0);
   }
-  if(current_channel != 1 && freqMacroStatus.square != 0) {
+  if (current_channel != SQUARE && freqMacroStatus.square != 0) {
     if (freqMacroStatus.square == 1 ) { // regular macro marker
       if ((square_freq + number) >= 2047) {
             square_freq = 2047;
@@ -793,7 +789,7 @@ void increaseMacroFreq(int number) {
     updateSquareFreq( 0);
     printChannelFrequency(1);
   }
-  if(current_channel != 2 && freqMacroStatus.wave != 0) {
+  if (current_channel != WAVE && freqMacroStatus.wave != 0) {
     if (freqMacroStatus.wave == 1 ) { // regular macro marker
       if ((wave_freq + number) >= 2047) {
             wave_freq = 2047;
@@ -810,7 +806,7 @@ void increaseMacroFreq(int number) {
     updateWaveFreq(0);
     printChannelFrequency(2);
   }
-  if(current_channel != 3 && freqMacroStatus.noise != 0) {
+  if (current_channel != NOISE && freqMacroStatus.noise != 0) {
     if (freqMacroStatus.noise == 1 ) { // regular macro marker
       if ((noise_freq + number) >= 15) {
             noise_freq = 15;
@@ -831,7 +827,7 @@ void increaseMacroFreq(int number) {
 
 // Decrease the macro enabled channels freq
 void decreaseMacroFreq(int number) {
-  if(current_channel != 0 && freqMacroStatus.sweep != 0) {
+  if (current_channel != SWEEP && freqMacroStatus.sweep != 0) {
     if (freqMacroStatus.sweep == 1 ) { // regular macro marker
       if ((uwti(sweep_freq) - number) <= 0) {
         sweep_freq = 0;
@@ -848,7 +844,7 @@ void decreaseMacroFreq(int number) {
     updateSweepFreq(0);
     printChannelFrequency(0);
   }
-  if(current_channel != 1 && freqMacroStatus.square != 0) {
+  if (current_channel != SQUARE && freqMacroStatus.square != 0) {
     if (freqMacroStatus.square == 1 ) { // regular macro marker
       if ((uwti(square_freq) - number) <= 0) {
          square_freq = 0;
@@ -865,7 +861,7 @@ void decreaseMacroFreq(int number) {
     updateSquareFreq(0);
     printChannelFrequency(1);
   }
-  if(current_channel != 2 && freqMacroStatus.wave != 0) {
+  if (current_channel != WAVE && freqMacroStatus.wave != 0) {
     if (freqMacroStatus.wave == 1 ) { // regular macro marker
       if ((uwti(wave_freq) - number) <= 0) {
         wave_freq = 0;
@@ -882,7 +878,7 @@ void decreaseMacroFreq(int number) {
     updateWaveFreq(0);
     printChannelFrequency(2);
   }
-  if(current_channel != 3 && freqMacroStatus.noise != 0) {
+  if (current_channel != NOISE && freqMacroStatus.noise != 0) {
     if (freqMacroStatus.noise == 1 ) { // regular macro marker
       if ((uwti(noise_freq) - number) <= 0) {
         noise_freq = 0;

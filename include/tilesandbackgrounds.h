@@ -81,4 +81,9 @@ extern unsigned char creditPageBackground[];
 #define chordbackgroundBank 0
 extern unsigned char chordbackground[];
 
+#define bpmPageBackgroundWidth 20
+#define bpmPageBackgroundHeight 18
+#define bpmPageBackgroundBank 0
+extern unsigned char bpmbackground[];
+
 #endif

@@ -19,8 +19,10 @@ all:	prepare $(BINS)
 
 # include folder
 LCCFLAGS  += -Wp-Iinclude
+
+# run like this "make GBDK_DEBUG=1"s
 ifdef GBDK_DEBUG
-	LCCFLAGS += -debug -v
+	LCCFLAGS +=  -Wm-yS -debug
 endif
 
 all: prepare $(BINS)

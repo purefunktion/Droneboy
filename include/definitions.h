@@ -8,6 +8,9 @@
 #define KEY_TICKED(K) ((keys & (K)) && !(previous_keys & (K)))
 #define KEY_RELEASED(K) (!(keys & (K)) && (previous_keys & (K)))
 
+#define TIMER_FREQ 1024     // 256 timer ticks per second
+#define SECONDS_PER_MIN 60
+
 // load the wave register pattern data
 void loadWave(void);
 
@@ -46,5 +49,7 @@ void printCurrentSeq(void);
 
 // bpm 
 void blinkBPM(void);
+void printBPM(void);
+
 
 #endif

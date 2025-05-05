@@ -1,6 +1,7 @@
 #include "duty.h"
 // Duty page
 
+// handle duty navigation
 void dutyKeypadController(void) {
   if (KEY_PRESSED(J_UP)) {
     increaseDuty();
@@ -30,7 +31,7 @@ void dutyKeypadController(void) {
 void increaseDuty(void) { 
   switch(current_channel)
   {
-    case 0: {
+    case SWEEP: {
       if(duty_sweep == 3) {
         increaseMacroDuty(1);
         break;
@@ -41,7 +42,7 @@ void increaseDuty(void) {
       increaseMacroDuty(1);
       break;
     }
-    case 1: {
+    case SQUARE: {
       if(duty_square == 3) {
         increaseMacroDuty(1);
         break;
@@ -52,7 +53,7 @@ void increaseDuty(void) {
       increaseMacroDuty(1);
       break;
     }
-    case 2: {
+    case WAVE: {
       if(duty_wave == 3) {
         increaseMacroDuty(1);
         break;
@@ -63,7 +64,7 @@ void increaseDuty(void) {
       increaseMacroDuty(1);
       break;
     }
-    case 3: {
+    case NOISE: {
       if(noiseStruct.dividing_ratio == 7) {
         increaseMacroDuty(1);
         break;
@@ -81,7 +82,7 @@ void increaseDuty(void) {
 void decreaseDuty(void) { 
   switch(current_channel)
   {
-    case 0: {
+    case SWEEP: {
       if(duty_sweep != 0) {
         duty_sweep = duty_sweep - 1;  
         updateSweepDuty(dutyValues[duty_sweep]);
@@ -90,7 +91,7 @@ void decreaseDuty(void) {
       decreaseMacroDuty(1);
       break;
     }
-    case 1: {
+    case SQUARE: {
       if(duty_square != 0) {
         duty_square = duty_square - 1;    
         updateSquareDuty(dutyValues[duty_square]);
@@ -99,7 +100,7 @@ void decreaseDuty(void) {
       decreaseMacroDuty(1);
       break;
     }
-    case 2: {
+    case WAVE: {
       if(duty_wave != 0) {
         duty_wave = duty_wave - 1;
         updateWaveDuty();
@@ -108,7 +109,7 @@ void decreaseDuty(void) {
       decreaseMacroDuty(1);
       break;
     }
-    case 3: {
+    case NOISE: {
       if(noiseStruct.dividing_ratio != 0) {
         noiseStruct.dividing_ratio = noiseStruct.dividing_ratio - 1;
         updateNoiseDividingRatio(noiseStruct.dividing_ratio);
@@ -142,7 +143,7 @@ void updateNoiseDividingRatio(int number) {
 
 // Increase the macro enabled channels, decrease the inverted ones.
 void increaseMacroDuty(int number) {
-  if(current_channel != 0 && dutyMacroStatus.sweep != 0) {
+  if (current_channel != SWEEP && dutyMacroStatus.sweep != 0) {
     if (dutyMacroStatus.sweep == 1 ) { // regular macro marker
       if(duty_sweep + number > 3) { // if not highest add one
         duty_sweep = 3;
@@ -160,7 +161,7 @@ void increaseMacroDuty(int number) {
     duty_fader_group[0].fader_position = duty_sweep;
     moveFader(0);
   }
-  if(current_channel != 1 && dutyMacroStatus.square != 0) {
+  if (current_channel != SQUARE && dutyMacroStatus.square != 0) {
     if (dutyMacroStatus.square == 1 ) { // regular macro marker
       if(duty_square + number > 3) { // if not highest add one
         duty_square = 3;
@@ -178,7 +179,7 @@ void increaseMacroDuty(int number) {
     duty_fader_group[1].fader_position = duty_square;
     moveFader(1);
   }
-  if(current_channel != 2 && dutyMacroStatus.wave != 0) {
+  if (current_channel != WAVE && dutyMacroStatus.wave != 0) {
     if (dutyMacroStatus.wave == 1 ) { // regular macro marker
       if(duty_wave + number > 3) { // if not highest add one
         duty_wave = 3;
@@ -196,7 +197,7 @@ void increaseMacroDuty(int number) {
     duty_fader_group[2].fader_position = duty_wave;
     moveFader(2);
   }
-  if(current_channel != 3 && dutyMacroStatus.noise != 0) {
+  if (current_channel != NOISE && dutyMacroStatus.noise != 0) {
     if (dutyMacroStatus.noise == 1 ) { // regular macro marker
       if(noiseStruct.dividing_ratio + number > 7) { // if not highest add one
         noiseStruct.dividing_ratio = 7;
@@ -218,7 +219,7 @@ void increaseMacroDuty(int number) {
 
 // Decrease the macro enabled channels, increase the inverted ones.
 void decreaseMacroDuty(int number) {
-  if(current_channel != 0 && dutyMacroStatus.sweep != 0) {
+  if (current_channel != SWEEP && dutyMacroStatus.sweep != 0) {
     if (dutyMacroStatus.sweep == 1 ) { // regular macro marker
       if (duty_sweep - number < 0) {
         duty_sweep = 0;
@@ -236,7 +237,7 @@ void decreaseMacroDuty(int number) {
     duty_fader_group[0].fader_position = duty_sweep;
     moveFader(0);
   }
-  if(current_channel != 1 && dutyMacroStatus.square != 0) {
+  if (current_channel != SQUARE && dutyMacroStatus.square != 0) {
     if (dutyMacroStatus.square == 1 ) { // regular macro marker
       if (duty_square - number < 0) {
         duty_square = 0;
@@ -254,7 +255,7 @@ void decreaseMacroDuty(int number) {
     duty_fader_group[1].fader_position = duty_square;
     moveFader(1);
   }
-  if(current_channel != 2 && dutyMacroStatus.wave != 0) {
+  if (current_channel != WAVE && dutyMacroStatus.wave != 0) {
     if (dutyMacroStatus.wave == 1 ) { // regular macro marker
       if (duty_wave - number < 0) {
         duty_wave = 0;
@@ -272,7 +273,7 @@ void decreaseMacroDuty(int number) {
     duty_fader_group[2].fader_position = duty_wave;
     moveFader(2);
   }
-  if(current_channel != 3 && dutyMacroStatus.noise != 0) {
+  if (current_channel != NOISE && dutyMacroStatus.noise != 0) {
     if (dutyMacroStatus.noise == 1 ) { // regular macro marker
       if (noiseStruct.dividing_ratio - number < 0) {
         noiseStruct.dividing_ratio = 0;
@@ -292,6 +293,7 @@ void decreaseMacroDuty(int number) {
   }
 }
 
+// that B button yo
 void bPressedHandler(void) {
   if (current_channel == 3) { // noise
     changNoiseCounterStep();
@@ -306,13 +308,11 @@ void changNoiseCounterStep(void) {
   if (noiseStruct.counter_step == 1) {
     noiseStruct.counter_step = 0;
     NR43_REG = noiseStruct.dividing_ratio | (noiseStruct.counter_step << 3) | (noiseStruct.clock_freq << 4);
-    NR44_REG = 0x80; // restart channel
     set_bkg_tile_xy(0x11, 0x0F, 0x35); // left flip area
     set_bkg_tile_xy(0x12, 0x0F, 0x38); // right flip area
   } else {
     noiseStruct.counter_step = 1;
     NR43_REG = noiseStruct.dividing_ratio | (noiseStruct.counter_step << 3) | (noiseStruct.clock_freq << 4);
-    NR44_REG = 0x80;
     set_bkg_tile_xy(0x11, 0x0F, 0x36);
     set_bkg_tile_xy(0x12, 0x0F, 0x37);
   }

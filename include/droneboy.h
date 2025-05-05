@@ -1,9 +1,18 @@
 #ifndef DRONEBOY_H
 #define DRONEBOY_H
 
+#include "globals.h"
+
 void tim(void);
 void intro(void);
 void init(void);
+
+void handleVolumePage(Event event);
+void handleDutyPage(Event event);
+void handleFreqPage(Event event);
+void handleChordPage(Event event);
+void handleCreditPage(Event event);
+void handleBpmPage(Event event);
 
 // keypad functions
 void dutyKeypadController(void);
@@ -11,6 +20,7 @@ void volumeKeypadController(void);
 void frequencyKeypadController(void);
 void volumeKeypadController(void);
 void chordKeypadController(void);
+void bpmKeypadController(void);
 
 // placement of the fader marker on freq page
 const UBYTE faderMarkerFreqx[2][4] = {{13, 93, 13, 93},{1,1,1,1}};
@@ -30,15 +40,14 @@ void setupChordSprites(void);
 void hideSprites(int sprite_id, int num);
 
 // flip through the pages
-void changeControlPage(int to_page);
 void changeToDutyBackground(void);
 void changeToVolumeBackground(void);
 void changeToFrequencyBackground(void);
 void changeToChordBackground(void);
+void changeToBPMBackground(void);
 
 // goto credit page
 void goToCreditPage(void);
-void leaveCreditPage(void);
 
 // blank tile
 const unsigned char blank[] = {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
@@ -47,5 +56,6 @@ const unsigned char blank[] = {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
 void setUpSwitches(void);
 
 extern void load_wave(unsigned char *src);
+void startStopChordStep(void);
 
 #endif

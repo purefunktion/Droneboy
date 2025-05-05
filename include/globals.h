@@ -70,8 +70,26 @@ struct NoiseyStruct {
 
 extern struct NoiseyStruct noiseStruct;
 
+// navigation state machine enums
+typedef enum {
+  VOLUME_PAGE,
+  DUTY_PAGE,
+  FREQ_PAGE,
+  CHORD_PAGE,
+  CREDIT_PAGE,
+  BPM_PAGE
+} State;
+
+typedef enum {
+  EVENT_NONE,
+  EVENT_UP,
+  EVENT_DOWN,
+  EVENT_LEFT,
+  EVENT_RIGHT
+} Event;
+
 extern UINT8 num_control_pages;
-extern int active_control_page;
+extern Event current_state; // what page we are on
 extern int credit_page;
 
 extern const char noteNames[72][5];
@@ -107,8 +125,6 @@ extern int up_volume_counter;
 extern int down_volume_counter;
 extern int volume_slide_counter;
 
-
-
 // A-button state, because A is used as semi tone hop as well, on chord page
 extern int doPlayCurrentChord;
 // B-button state on chord page
@@ -134,10 +150,10 @@ extern UINT8 beats_counter;
 extern int current_seq_chord;
 
 // counter for bpm
-extern unsigned int tim_cnt;
+extern uint16_t tim_cnt;
 // bpm variables
-extern int bpm_in_cycles;
-extern int bpm;
+extern uint16_t bpm_in_cycles;
+extern uint16_t bpm;
 extern BYTE bpm_blink_state;
 
 extern int chord_root_note; // root note taken from frequencies table
@@ -146,5 +162,9 @@ extern int aug_dim_norm; // 0 norm, 1 augmented, 2 diminished
 
 // volume values 0-15
 extern const UBYTE volumeValues[16];
+
+void setBpm(uint16_t new_bpm);
+extern const uint16_t bpm_cycles_lut[240];
+void printChordSteppaOnOff(void);
 
 #endif

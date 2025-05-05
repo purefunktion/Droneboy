@@ -30,7 +30,6 @@ int credit_page = 0;
 int frequency_mode = 0;
 UINT8 chord_mode = 0;
 UINT8 num_control_pages = 4;
-int active_control_page = 0;
 struct NoiseyStruct noiseStruct;
 int current_chord_step = 0;
 int current_chord_steppa_step = 0;
@@ -76,164 +75,56 @@ struct ChordStep chordsteppa[8];
 // play the chord step sequencer, 0=off,1=on
 BYTE play_chord_step = 0;
 // number of beats per step in sequencer
-UINT8 beats_per_step = 1;
-UINT8 beats_counter = 0;
+UINT8 beats_per_step = 0; // 0 == once every beat(quarter)
+UINT8 beats_counter = 0; // keeps track of beats
 int current_seq_chord = 0;
-
-// BPM globals
-unsigned int tim_cnt = 0;
-int bpm_in_cycles = 2048;
-int bpm = 120;
-
-// Note names to display
-const char noteNames[72][5] = {
-  " C 3", "C# 3", " D 3", "D# 3", " E 3", " F 3", "F# 3", " G 3", "G# 3", " A 3", "A# 3", " B 3",
-  " C 4", "C# 4", " D 4", "D# 4", " E 4", " F 4", "F# 4", " G 4", "G# 4", " A 4", "A# 4", " B 4",
-  " C 5", "C# 5", " D 5", "D# 5", " E 5", " F 5", "F# 5", " G 5", "G# 5", " A 5", "A# 5", " B 5",
-  " C 6", "C# 6", " D 6", "D# 6", " E 6", " F 6", "F# 6", " G 6", "G# 6", " A 6", "A# 6", " B 6",
-  " C 7", "C# 7", " D 7", "D# 7", " E 7", " F 7", "F# 7", " G 7", "G# 7", " A 7", "A# 7", " B 7",
-  " C 8", "C# 8", " D 8", "D# 8", " E 8", " F 8", "F# 8", " G 8", "G# 8", " A 8", "A# 8", " B 8"
-};
-// the UBYTE for polynomial counter when doing notes on noise channel
-const UBYTE noiseNotesFrequencies[] = {
-   0X2F, 0x1F, 0x2D, 0x0F, 0x1D, 0x0D
- };
-//  0x0B, 0x0A
-// noise note name, index in the noteName array above
-const int noiseNoteNameIndex[] = {
-   2, 14, 20, 26, 32, 44
-};
-// 53, 60
-// GB frequencies matching notes in noteNames
-// taken from http://www.devrs.com/gb/files/sndtab.html
-const UWORD frequencies[] = {
-  44, 156, 262, 363, 457, 547, 631, 710, 786, 854, 923, 986,
-  1046, 1102, 1155, 1205, 1253, 1297, 1339, 1379, 1417, 1452, 1486, 1517,
-  1546, 1575, 1602, 1627, 1650, 1673, 1694, 1714, 1732, 1750, 1767, 1783,
-  1798, 1812, 1825, 1837, 1849, 1860, 1871, 1881, 1890, 1899, 1907, 1915,
-  1923, 1930, 1936, 1943, 1949, 1954, 1959, 1964, 1969, 1974, 1978, 1982,
-  1985, 1988, 1992, 1995, 1998, 2001, 2004, 2006, 2009, 2011, 2013, 2015
-};
-// Wave table. Different square duties to match other square channels 12.5%, 25%, 50% and 75%.
-const UBYTE squareSamples[] = {
-  0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-  0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-  0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00,  //fiddy fiddy
-  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 
-};
-
-// half total wave ram length. this is so it will fit more easily
-// with the frequency of the other square channels.
-// the period is 16(nibbles hence 8 bytes in a row) but wave ram is 32 
-const UBYTE sawSamples[] = {
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // silence not used
-  0x11, 0x11, 0x11, 0x11, 0x00, 0x00, 0x00, 0x00,
-  0x22, 0x22, 0x11, 0x11, 0x11, 0x11, 0x00, 0x00,
-  0x33, 0x32, 0x22, 0x22, 0x11, 0x11, 0x10, 0x00,
-  0x44, 0x33, 0x33, 0x22, 0x22, 0x11, 0x11, 0x00,
-  0x55, 0x44, 0x43, 0x33, 0x22, 0x21, 0x11, 0x00,
-  0x66, 0x55, 0x44, 0x43, 0x32, 0x22, 0x11, 0x00,
-  0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11, 0x00,
-  0x87, 0x76, 0x65, 0x54, 0x43, 0x32, 0x21, 0x10,
-  0x98, 0x87, 0x76, 0x55, 0x44, 0x32, 0x21, 0x10,
-  0xA9, 0x98, 0x77, 0x65, 0x54, 0x33, 0x21, 0x10,
-  0xBA, 0xA9, 0x87, 0x76, 0x54, 0x43, 0x21, 0x10,
-  0xCB, 0xAA, 0x98, 0x76, 0x65, 0x43, 0x22, 0x10,
-  0xDC, 0xBA, 0xA9, 0x87, 0x65, 0x43, 0x32, 0x10,
-  0xED, 0xCB, 0xA9, 0x87, 0x76, 0x54, 0x32, 0x10,
-  0xFE, 0xDC, 0xBA, 0x98, 0x76, 0x54, 0x32, 0x10, // full volume
-};
-
-//samples for triangle wave
-const UBYTE triangleSamples[] = {
-  0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-  0x00,0x01,0x11,0x11,0x11,0x11,0x00,0x00,
-  0x01,0x11,0x12,0x22,0x22,0x11,0x11,0x00,
-  0x01,0x12,0x22,0x33,0x32,0x22,0x11,0x00,
-  0x11,0x22,0x33,0x44,0x43,0x32,0x21,0x10,
-  0x11,0x23,0x34,0x45,0x44,0x33,0x21,0x10,
-  0x12,0x23,0x45,0x56,0x55,0x43,0x22,0x10,
-  0x12,0x34,0x45,0x67,0x65,0x44,0x32,0x10,
-  0x12,0x34,0x56,0x78,0x76,0x54,0x32,0x10,
-  0x12,0x35,0x67,0x89,0x87,0x65,0x32,0x10,
-  0x13,0x45,0x68,0x9A,0x98,0x65,0x43,0x10,
-  0x13,0x46,0x78,0xAB,0xA8,0x76,0x43,0x10,
-  0x23,0x56,0x89,0xBC,0xB9,0x86,0x53,0x20,
-  0x23,0x57,0x8A,0xBD,0xBA,0x87,0x53,0x20,
-  0x24,0x57,0x9B,0xCE,0xCB,0x97,0x54,0x20,
-  0x24,0x68,0x9B,0xDF,0xDB,0x98,0x64,0x20,
-};
-
-// sine wave LUT
-const UBYTE sineSamples[] = {
-  0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-  0x11,0x11,0x11,0x11,0x10,0x00,0x00,0x00,
-  0x11,0x22,0x22,0x21,0x11,0x00,0x00,0x01,
-  0x22,0x33,0x33,0x32,0x21,0x00,0x00,0x01,
-  0x23,0x34,0x44,0x33,0x21,0x10,0x00,0x11,
-  0x33,0x45,0x55,0x43,0x32,0x10,0x00,0x12,
-  0x34,0x56,0x66,0x54,0x32,0x10,0x00,0x12,
-  0x45,0x67,0x77,0x65,0x42,0x10,0x00,0x12,
-  0x46,0x78,0x88,0x76,0x42,0x10,0x00,0x12,
-  0x56,0x89,0x99,0x86,0x53,0x10,0x00,0x13,
-  0x57,0x9A,0xAA,0x97,0x53,0x10,0x00,0x13,
-  0x68,0x9B,0xBB,0x98,0x63,0x20,0x00,0x23,
-  0x68,0xAC,0xCC,0xA8,0x64,0x20,0x00,0x24,
-  0x79,0xBD,0xDD,0xB9,0x74,0x20,0x00,0x24,
-  0x7A,0xCD,0xED,0xCA,0x74,0x21,0x01,0x24,
-  0x8A,0xDE,0xFE,0xDA,0x85,0x21,0x01,0x25,
-};
-
-// intial wave
-UBYTE waveToBeLoaded[16] = {0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00,};
-
-// volume values for the "zombie" mode. https://gbdev.gg8.se/wiki/articles/Gameboy_sound_hardware#Obscure_Behavior
-const UBYTE volumeValues[16] = {0x08, 0x18, 0x28, 0x38, 0x48, 0x58, 0x68, 0x78, 0x78, 0x98, 0xA8, 0xB8, 0xC8, 0xD8, 0xE8, 0xF8};
-// y coordinates for the volume fader(16 steps)
-const UBYTE volumeFaderPosition[16] = {119, 114, 109, 104, 98, 93, 89, 85, 80, 76, 71, 67, 58, 54, 49, 41};
 
 // state of the navigation 
 int right_pressed = 0; // select + right goes right(duh)
 int left_pressed = 0; // read above but left
+int up_pressed = 0; // up nav
+int down_pressed = 0; // down nav
+
+// navigation state
+State current_state = VOLUME_PAGE;
+
+// BPM globals
+uint16_t tim_cnt = 0;
+uint16_t bpm = 120;
+uint16_t bpm_in_cycles; // how many timer ticks per beat
 
 // Main 
 void main(void) {
   
-  CRITICAL {
+  __critical {
+      // Set TMA to divide clock by 0xF0U
+      TMA_REG = 0xF0U;
+      // Set clock to 16384 Hertz
+      TAC_REG = 0x07U;
       tim_cnt = 0;
       add_TIM(tim);
+      set_interrupts(VBL_IFLAG | TIM_IFLAG);
   }
 
-   // Set TMA to divide clock by 0x100
-  TMA_REG = 0xFFU;
-  // Set clock to 4096 Hertz 
-  TAC_REG = 0x04U;
-  // Handle VBL and TIM interrupts
-  set_interrupts(VBL_IFLAG | TIM_IFLAG);
   init();
   
+  Event event = EVENT_NONE;
   // Main loop
   while(1) {
     // Change control page
+
+    // start chord seequencer from anywhere
+    // have to be in tone/chord mode to hear though
     if (KEY_PRESSED(J_START)) {
-      credit_page = (credit_page == 1) ? 0 : 1; // credit page flipper
-      if (credit_page == 1) {
-        goToCreditPage();
-      } else {
-        leaveCreditPage();
-      }
+      startStopChordStep();
       waitpadup();
     }
-    if (KEY_PRESSED(J_SELECT)) { // so if select is currently pressed
-      if (right_pressed == 1) { // right has been pressed
+    event = EVENT_NONE;
+    if (KEY_PRESSED(J_SELECT)) {
+      if (right_pressed == 1) {
         if (!KEY_PRESSED(J_RIGHT)) {
-          if (active_control_page == num_control_pages - 1) { // minus one because array index
-            active_control_page = 0;
-          } else {
-            active_control_page = active_control_page + 1;
-          }
-          changeControlPage(active_control_page);
-          right_pressed = 0; // reset select+right state
+          event = EVENT_RIGHT;
+          right_pressed = 0;
         }
       } else {
         if (KEY_PRESSED(J_RIGHT)) {
@@ -242,51 +133,98 @@ void main(void) {
       }
       if (left_pressed == 1) {
         if (!KEY_PRESSED(J_LEFT)) {
-          if (active_control_page == 0) {
-            active_control_page = num_control_pages - 1;
-          } else {
-            active_control_page = active_control_page - 1;
-          }
-          changeControlPage(active_control_page);
-          left_pressed = 0; // reset select+left state
+          event = EVENT_LEFT;
+          left_pressed = 0;
         }
       } else {
         if (KEY_PRESSED(J_LEFT)) {
           left_pressed = 1;
         }
       }
+      if (up_pressed == 1) {
+        if (!KEY_PRESSED(J_UP)) {
+          event = EVENT_UP;
+          up_pressed = 0;
+        }
+      } else {
+        if (KEY_PRESSED(J_UP)) {
+          up_pressed = 1;
+        }
+      }
+      if (down_pressed == 1) {
+        if (!KEY_PRESSED(J_UP)) {
+          event = EVENT_DOWN;
+          down_pressed = 0;
+        }
+      } else {
+        if (KEY_PRESSED(J_DOWN)) {
+          down_pressed = 1;
+        }
+      }
     } else {
       right_pressed = 0;
       left_pressed = 0;
+      up_pressed = 0;
+      down_pressed = 0;
     }
-    // i not pressing select use navigation on current controle page
-    if (credit_page != 1 && right_pressed != 1 && left_pressed != 1) {
-      switch(active_control_page)
+
+    if (event != EVENT_NONE) {
+      switch (current_state) {
+        case VOLUME_PAGE:
+          handleVolumePage(event);
+          break;
+        case DUTY_PAGE:
+          handleDutyPage(event);
+          break;
+        case FREQ_PAGE:
+          handleFreqPage(event);
+          break;
+        case CHORD_PAGE:
+          handleChordPage(event);
+          break;
+        case CREDIT_PAGE:
+          handleCreditPage(event);
+          break;
+        case BPM_PAGE:
+          handleBpmPage(event);
+          break;
+      }
+    }
+
+    if (right_pressed != 1
+        && left_pressed != 1
+        && up_pressed != 1
+        && down_pressed != 1) {
+      switch(current_state)
       {
-        case 0: { // volume
+        case VOLUME_PAGE: {
           num_faders = 4;
           volumeKeypadController();
           break;
         }
-        case 1: { // duty
+        case DUTY_PAGE: {
           num_faders = 4;
           dutyKeypadController();
           break;
         }
-        case 2: { // freq/note
+        case FREQ_PAGE: {
           num_faders = 4;
           flipHeader();
           frequencyKeypadController();
           break;
         }
-        case 3: { // chord
+        case CHORD_PAGE: {
           num_faders = 1;
           chordKeypadController();
           break;
         }
+        case BPM_PAGE: {
+          num_faders = 1;
+          bpmKeypadController();
+          break;
+        }
       }
     }
-    // Switch depending on which control page we are on
     wait_vbl_done();
     UPDATE_KEYS();
   }
@@ -294,8 +232,8 @@ void main(void) {
 
 // timer interrupt
 void tim(void) {
-  tim_cnt++;  
-  if (tim_cnt == bpm_in_cycles) {
+  tim_cnt++;
+  if (tim_cnt >= bpm_in_cycles) {
     blinkBPM();
     if (play_chord_step == 1) {
       playChordStep();
@@ -304,31 +242,111 @@ void tim(void) {
   }
 }
 
-void setBpm(void) {
-  bpm_in_cycles = 409600/((bpm*100)/60);
-}
-
-/*
-* Flip between pages in the app
-*/
-void changeControlPage(int to_page) {
-  switch(to_page) {
-    case 0: { // volume
-      changeToVolumeBackground();
-      break;
-    }
-    case 1: {
+// Handel navigation event on Volume page
+void handleVolumePage(Event event) {
+  switch (event) {
+    case EVENT_RIGHT: {
+      current_state = DUTY_PAGE;
       changeToDutyBackground();
       break;
     }
-    case 2: {
-      changeToFrequencyBackground();
-      break;
-    }
-    case 3: {
+    case EVENT_LEFT: {
+      current_state = CHORD_PAGE;
       changeToChordBackground();
       break;
     }
+    case EVENT_DOWN: {
+      current_state = CREDIT_PAGE;
+      goToCreditPage();
+      break;
+    }
+    default:
+      break;
+  }
+}
+
+// Handle navigation event on Duty page
+void handleDutyPage(Event event) {
+  switch (event) {
+    case EVENT_RIGHT: {
+      current_state = FREQ_PAGE;
+      changeToFrequencyBackground();
+      break;
+    }
+    case EVENT_LEFT: {
+      current_state = VOLUME_PAGE;
+      changeToVolumeBackground();
+      break;
+    }
+    default:
+      break;
+  }
+}
+
+// Handle navigation event on Frequency page
+void handleFreqPage(Event event) {
+  switch (event) {
+    case EVENT_RIGHT: {
+      current_state = CHORD_PAGE;
+      changeToChordBackground();
+      break;
+    }
+    case EVENT_LEFT: {
+      current_state = DUTY_PAGE;
+      changeToDutyBackground();
+      break;
+    }
+    default:
+      break;
+  }
+}
+
+// Handle navigation event on Chord page
+void handleChordPage(Event event) {
+  switch (event) {
+    case EVENT_RIGHT: {
+      current_state = VOLUME_PAGE;
+      changeToVolumeBackground();
+      break;
+    }
+    case EVENT_LEFT: {
+      current_state = FREQ_PAGE;
+      changeToFrequencyBackground();
+      break;
+    }
+    case EVENT_UP: {
+      current_state = BPM_PAGE;
+      changeToBPMBackground();
+      break;
+    }
+    default:
+      break;
+  }
+}
+
+// Handle navigation event on Credit page
+void handleCreditPage(Event event) {
+  switch (event) {
+    case EVENT_UP: {
+      current_state = VOLUME_PAGE;
+      changeToVolumeBackground();
+      break;
+    }
+    default:
+      break;
+  }
+}
+
+// Handle navigation event on BPM page
+void handleBpmPage(Event event) {
+  switch (event) {
+    case EVENT_DOWN: {
+      current_state = CHORD_PAGE;
+      changeToChordBackground();
+      break;
+    }
+    default:
+      break;
   }
 }
 
@@ -401,6 +419,26 @@ void changeToChordBackground(void) {
   doSetCurrentStep = 0;
 }
 
+/*
+* Change to the BPM background.
+*/
+void changeToBPMBackground(void) {
+  set_bkg_data(0,4, fadertile); // setup fader tiles
+  set_bkg_tiles(0x00, 0x00, 20, 18, bpmbackground);
+  // move the duty faders on screen
+
+  for (int i = 0; i <= max_faders-1; i++)
+  {
+    move_sprite(i, 1, 168);
+  }
+  move_sprite(37, 2, 168);
+  move_sprite(38, 2, 168);
+  move_sprite(39, 0, 0); // hide rec marker from chord
+  hideSprites(0, 36);
+  printBPM(); // show current bpm
+  printChordSteppaOnOff(); // show if chordsteppa is on/off
+}
+
 // credit page flipper
 void goToCreditPage(void) {
   set_bkg_data(0,4, fadertile); // setup fader tiles
@@ -414,11 +452,6 @@ void goToCreditPage(void) {
   move_sprite(37, 2, 168);
   move_sprite(38, 2, 168);
   hideSprites(0, 36);
-}
-
-// leave credit page
-void leaveCreditPage(void) {
-  changeControlPage(active_control_page);
 }
 
 // helper function for the setup of sprites
@@ -563,13 +596,13 @@ void change_fader(BYTE direction) {
 * This will move the fader marker to show the active channel.
 */
 void updateFaderMarker(void) {
-  if (active_control_page == 0) { // Volume
+  if (current_state == VOLUME_PAGE) { // Volume
     move_sprite(37, fader_group[current_channel].x, 128);
     move_sprite(38, fader_group[current_channel].x, 136);
-  } else if(active_control_page == 1) { // Duty
+  } else if(current_state == DUTY_PAGE) { // Duty
     move_sprite(37, fader_group[current_channel].x, 120);
     move_sprite(38, fader_group[current_channel].x, 128); 
-  } else if(active_control_page == 2) { // Frequency
+  } else if(current_state == FREQ_PAGE) { // Frequency
     if (frequency_mode == 0) { // Frequency number mode
       move_sprite(37, faderMarkerFreqx[0][current_channel], faderMarkerFreqy[0][current_channel]);
       move_sprite(38, faderMarkerFreqx[0][current_channel], faderMarkerFreqy[0][current_channel]+8);
@@ -577,7 +610,7 @@ void updateFaderMarker(void) {
       move_sprite(37, faderMarkerFreqx[0][current_channel], faderMarkerFreqy[0][current_channel]+10);
       move_sprite(38, faderMarkerFreqx[0][current_channel], faderMarkerFreqy[0][current_channel]+18);
     }
-  } else if(active_control_page == 3) { // chord
+  } else if(current_state == CHORD_PAGE) { // chord
     if (chord_mode == 0) { // Chord mode, steppa och chord change
       move_sprite(37, chord_part_step[current_chord_step].x, chord_part_step[current_chord_step].y);
       move_sprite(38, chord_part_step[current_chord_step].x, chord_part_step[current_chord_step].y + 8);
@@ -592,10 +625,10 @@ void updateFaderMarker(void) {
 * This will move the fader up/down(y axis), values from volumeFaderPosition
 */
 void moveFader(int channel) {
-  if (active_control_page == 0) {
+  if (current_state == VOLUME_PAGE) {
     fader_group[channel].y = volumeFaderPosition[fader_group[channel].fader_position];
     move_sprite(channel, fader_group[channel].x, fader_group[channel].y);
-  } else if (active_control_page == 1 ) {
+  } else if (current_state == DUTY_PAGE) {
     if (channel == 3) {
       duty_fader_group[channel].y = dutyFaderPositionNoise[duty_fader_group[channel].fader_position];
       move_sprite(channel, duty_fader_group[channel].x, duty_fader_group[channel].y);
@@ -608,7 +641,7 @@ void moveFader(int channel) {
 
 /*
 * This will load a sample in to the wave channels wave pattern ram
-* More or less copypasta from
+* See below for C solution
 * https://gbdev.gg8.se/forums/viewtopic.php?id=758
 * and Nitro2k01 "antispike fix"
 * https://blog.gg8.se/wordpress/2013/02/11/gameboy-project-week-6-can-i-have-an-a-men/
@@ -673,8 +706,8 @@ void init(void) {
   noiseStruct.dividing_ratio = 7; // 3 bits
   noiseStruct.counter_step = 1; // 1 = 7bits, 0 = 15 bits
   noiseStruct.clock_freq = noise_freq; // 4 bits
-  NR42_REG = 0x00;
-  NR41_REG = 0;
+  NR41_REG = 0x80;
+  NR42_REG = 0x08;
   updateNoiseFreq(noise_freq);
   NR44_REG = 0x80;
   
@@ -806,4 +839,6 @@ void init(void) {
   NR22_REG = 0x08;
   NR23_REG = (UBYTE)square_freq & 0xFF;
   NR24_REG = 0x80 | ((square_freq & 0x0700)>>8);
+
+  setBpm(120); // disco time
 }

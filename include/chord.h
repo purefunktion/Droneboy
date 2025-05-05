@@ -28,5 +28,6 @@ void printWithoutHash(int cp, int step);
 void printMinMajAugDim(int step);
 void playCurrentSeqStep(void);
 void chordStepRecordRouter(BYTE direction, int num);
+void setAugDimNormSprites(void);
 
 #endif

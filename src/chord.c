@@ -1,6 +1,4 @@
 #include "chord.h"
-//#include <gb/bgb_emu.h> 
-//chord view
 
 UINT8 chord_on = 0; // this will play the chord
 int chord_root_note = 24; // root note taken from frequencies table
@@ -8,7 +6,7 @@ int major_minor = 0; // 0 major, 1 minor
 int aug_dim_norm = 0; // 0 norm, 1 augmented, 2 diminished
 BYTE bpm_blink_state = 0;
 
-// This controlls which mode is used
+// This controls which mode is used
 void chordKeypadController(void) {
   if (KEY_TICKED(J_B)) {
     if(KEY_PRESSED(J_A)) {
@@ -94,19 +92,6 @@ void chordChangeMode(void) {
   }
 }
 
-// this is to indicate the BPM speed in top right corner
-void blinkBPM(void) {
-  if (active_control_page == 3) {
-    if(bpm_blink_state == 0) {
-      set_bkg_tile_xy(0x13, 0x00, 0x46);
-      bpm_blink_state = 1;
-    } else {
-      set_bkg_tile_xy(0x13, 0x00, 0x47);
-      bpm_blink_state = 0;
-    }
-  }
-}
-
 // play chord step while sequencer is running, called by timer function
 void playChordStep(void) {
   // reached number of beats pre step?
@@ -135,7 +120,7 @@ void playCurrentSeqStep(void) {
   sq = chordsteppa[current_seq_chord].root + ((chordsteppa[current_seq_chord].majmin == 0) ? 4 : 3); 
   if (chordsteppa[current_seq_chord].adn == 1) {
     w = chordsteppa[current_seq_chord].root + 8;
-  } else if (chordsteppa[current_seq_chord].adn == 2) { // deminisehed
+  } else if (chordsteppa[current_seq_chord].adn == 2) { // diminished
     w = chordsteppa[current_seq_chord].root + 6;
   } else { // fallback 0 norm, this is for E8 chords basically 
     w = chordsteppa[current_seq_chord].root + 7;
@@ -143,9 +128,9 @@ void playCurrentSeqStep(void) {
   sweep_note = chordsteppa[current_seq_chord].root;
   square_note = sq;
   wave_note = w;
-  updateSweepFreq(1);
-  updateSquareFreq(1);
-  updateWaveFreq(1);
+  updateSweepFreq(0);
+  updateSquareFreq(0);
+  updateWaveFreq(0);
 }
 
 // chord step keydap controller
@@ -195,7 +180,7 @@ void playCurrentStep(void) {
   sq = chordsteppa[current_chord_steppa_step].root + ((chordsteppa[current_chord_steppa_step].majmin == 0) ? 4 : 3); 
   if (chordsteppa[current_chord_steppa_step].adn == 1) {
     w = chordsteppa[current_chord_steppa_step].root + 8;
-  } else if (chordsteppa[current_chord_steppa_step].adn == 2) { // deminisehed
+  } else if (chordsteppa[current_chord_steppa_step].adn == 2) { // diminished
     w = chordsteppa[current_chord_steppa_step].root + 6;
   } else { // fallback 0 norm, this is for E8 chords basically 
     w = chordsteppa[current_chord_steppa_step].root + 7;
@@ -360,7 +345,7 @@ void setOnOffSprites(void) {
 }
 
 // place the aug dim norm sprites
-void setAugDimNormprites(void) {
+void setAugDimNormSprites(void) {
   UINT8 spritenum = 0x04; // norm
   if (aug_dim_norm == 1) { // aug
     spritenum = 0x3F;  
@@ -374,7 +359,7 @@ void setAugDimNormprites(void) {
 void printChordParts(void) {
   setNoteSprites(20, chord_root_note);
   setMinorMajorSprites(major_minor);
-  setAugDimNormprites();
+  setAugDimNormSprites();
 }
 
 // prints current step to the steppa
@@ -476,7 +461,6 @@ void printCurrentSeq(void) {
       printCurrentStep(i);
   }
 }
-
 
 /*
 * Set the note tiles

@@ -3,7 +3,7 @@
 // Common functions between control pages
 
 void placeMacroMarker(void) {
-	switch(active_control_page)
+	switch(current_state)
   {
   	case 0: { // volume
   		placeVolumeMacroMarker();
@@ -23,7 +23,7 @@ void placeMacroMarker(void) {
 void placeVolumeMacroMarker(void) {
 	switch(current_channel)
 	{
-		case 0: { // sweep
+		case SWEEP: { // sweep
 			if (volumeMacroStatus.sweep == 2) {
   			volumeMacroStatus.sweep = 0;
   		} else {
@@ -38,7 +38,7 @@ void placeVolumeMacroMarker(void) {
 	    }
 	    break;
 		}
-		case 1: { // square
+		case SQUARE: { // square
 			if (volumeMacroStatus.square == 2) {
   			volumeMacroStatus.square = 0;
   		} else {
@@ -53,7 +53,7 @@ void placeVolumeMacroMarker(void) {
 	    }
 	    break;
 		}
-		case 2: { // wave
+		case WAVE: { // wave
 			if (volumeMacroStatus.wave == 2) {
   			volumeMacroStatus.wave = 0;
   		} else {
@@ -68,7 +68,7 @@ void placeVolumeMacroMarker(void) {
 	    }
 	    break;
 		}
-		case 3: { // noise
+		case NOISE: { // noise
 			if (volumeMacroStatus.noise == 2) {
   			volumeMacroStatus.noise = 0;
   		} else {
@@ -124,7 +124,7 @@ void setAllVolumeMacroMarkers(void) {
 void placeDutyMacroMarker(void) {
   switch(current_channel)
   {
-    case 0: { // sweep
+    case SWEEP: { // sweep
       if (dutyMacroStatus.sweep == 2) {
         dutyMacroStatus.sweep = 0;
       } else {
@@ -139,7 +139,7 @@ void placeDutyMacroMarker(void) {
       }
       break;
     }
-    case 1: { // square
+    case SQUARE: { // square
       if (dutyMacroStatus.square == 2) {
         dutyMacroStatus.square = 0;
       } else {
@@ -154,7 +154,7 @@ void placeDutyMacroMarker(void) {
       }
       break;
     }
-    case 2: { // wave
+    case WAVE: { // wave
       if (dutyMacroStatus.wave == 2) {
         dutyMacroStatus.wave = 0;
       } else {
@@ -169,7 +169,7 @@ void placeDutyMacroMarker(void) {
       }
       break;
     }
-    case 3: { // noise
+    case NOISE: { // noise
       if (dutyMacroStatus.noise == 2) {
         dutyMacroStatus.noise = 0;
       } else {
@@ -226,7 +226,7 @@ void setAllDutyMacroMarkers(void) {
 void placeFreqMacroMarker(void) {
   switch(current_channel)
   {
-    case 0: { // sweep
+    case SWEEP: { // sweep
       if (freqMacroStatus.sweep == 2) {
         freqMacroStatus.sweep = 0;
       } else {
@@ -241,7 +241,7 @@ void placeFreqMacroMarker(void) {
       }
       break;
     }
-    case 1: { // square
+    case SQUARE: { // square
       if (freqMacroStatus.square == 2) {
         freqMacroStatus.square = 0;
       } else {
@@ -256,7 +256,7 @@ void placeFreqMacroMarker(void) {
       }
       break;
     }
-    case 2: { // wave
+    case WAVE: { // wave
       if (freqMacroStatus.wave == 2) {
         freqMacroStatus.wave = 0;
       } else {
@@ -271,7 +271,7 @@ void placeFreqMacroMarker(void) {
       }
       break;
     }
-    case 3: { // noise
+    case NOISE: { // noise
       if (freqMacroStatus.noise == 2) {
         freqMacroStatus.noise = 0;
       } else {
