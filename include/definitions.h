@@ -8,7 +8,7 @@
 #define KEY_TICKED(K) ((keys & (K)) && !(previous_keys & (K)))
 #define KEY_RELEASED(K) (!(keys & (K)) && (previous_keys & (K)))
 
-#define TIMER_FREQ 1024     // 256 timer ticks per second
+#define TIMER_FREQ 1024
 #define SECONDS_PER_MIN 60
 
 // load the wave register pattern data
@@ -34,6 +34,7 @@ void placeMacroMarker(void);
 void setAllVolumeMacroMarkers(void);
 void setAllDutyMacroMarkers(void);
 void setAllFreqMacroMarkers(void);
+void printLowHighFreqIcon(void);
 
 void flipHeader(void);
 

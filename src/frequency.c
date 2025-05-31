@@ -1,9 +1,12 @@
 #include "frequency.h"
+#include "volume.h"
 // Frequency page
 
 void frequencyKeypadController(void) {
     if (KEY_TICKED(J_B)) {
-        if(KEY_PRESSED(J_A)) {
+        low_high_wave_flip = 1; // high or low waves used
+        if (KEY_PRESSED(J_A)) {
+            low_high_wave_flip = 0;
             if (frequency_mode == 0) {
                 frequency_mode = 1;
                 flipHeader();
@@ -47,6 +50,7 @@ void noteMode(void) {
         placeMacroMarker();
         domacro = 0;
     }
+
     if (KEY_TICKED(J_UP)) {
         if(KEY_PRESSED(J_A)) {
             increaseCurrentNote(12);
@@ -76,11 +80,17 @@ void noteMode(void) {
     } else if (KEY_TICKED(J_A)) {
         if(KEY_PRESSED(J_B)) { // copy over to freq
             domacro = 0;
+            low_high_wave_flip = 0;
             copyNoteToFreq();
             printChannelFrequency(current_channel);
         } else {
             domacro = 1;
         }
+    }
+    // wave type low/high flip on B press
+    if (KEY_RELEASED(J_B) && low_high_wave_flip == 1) {
+        updateWaveType();
+        low_high_wave_flip = 0;
     }
 }
 
@@ -91,6 +101,12 @@ void frequencyMode(void) {
         placeMacroMarker();
         domacro = 0;
     }
+
+    if (KEY_RELEASED(J_B) && low_high_wave_flip == 1) {
+        updateWaveType();
+        low_high_wave_flip = 0;
+    }
+
     // sweep up done
     if (KEY_RELEASED(J_UP) && up_sweep_counter > 0) {
         up_sweep_counter = 0;
@@ -150,6 +166,16 @@ void frequencyMode(void) {
         } else {
             down_sweep_counter++;
         }
+    }
+}
+
+// set to high or low wave type
+void updateWaveType(void) {
+    low_or_high_wave_freq = (low_or_high_wave_freq == 0) ? 1 : 0;
+    updateWaveToBeLoaded(wave_volume, duty_wave);
+    loadWave();
+    if (current_state == FREQ_PAGE) {
+        printLowHighFreqIcon();
     }
 }
 

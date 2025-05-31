@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.08] - 2025-05-31
+### Addition
+	- New navigation, hold SELECT and press D-Pad
+	- BPM page, set bpm and see sequencer status
+	- Play sequence on chord page using START button
+	- MIDI support, note on and CC (see manual for details)
+	- High and low wave versions of wave types
+	- KORG nanoKONTROL 2 MIDI preset file in resources directory
+	- Manual now available as PDF
+### Fix
+	- Moved 1.07 version into easy directory
+	- Credits page moved
+	- Refactoring of code
+	- Noise channel volume zombie mode
+
 ## [1.07] - 2022-05-12
 ### Addition
 	- New less clicky volume change

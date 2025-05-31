@@ -696,7 +696,7 @@ void init() {
   loadWave();
 
   // noise channel
-  // https://gbdev.io/pandocs/Sound_Controller.html#sound-channel-4---noise
+  // https://gbdev.io/pandocs/Audio_Registers.html#sound-channel-4--noise
   noiseStruct.dividing_ratio = 7; // 3 bits
   noiseStruct.counter_step = 1; // 1 = 7bits, 0 = 15 bits
   noiseStruct.clock_freq = noise_freq; // 4 bits

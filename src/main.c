@@ -3,6 +3,8 @@
 #include "tilesandbackgrounds.h"
 #include "definitions.h"
 #include "globals.h"
+#include "midi.h"
+#include "serial.h"
 
 // Declaration of global variables
 BYTE keys = 0;
@@ -26,7 +28,6 @@ int wave_volume = 0;
 int noise_volume = 0;
 
 int current_channel = 0;
-int credit_page = 0;
 int frequency_mode = 0;
 UINT8 chord_mode = 0;
 UINT8 num_control_pages = 4;
@@ -53,6 +54,7 @@ int duty_sweep = 2;
 int duty_square = 2;
 int duty_wave = 2;
 
+// current wave type in wave channel
 enum WAVES wave_type = SQUAREWAVE;
 
 const UBYTE dutyValues[4] = {0x00, 0x40, 0x80, 0xC0};
@@ -93,140 +95,154 @@ uint16_t tim_cnt = 0;
 uint16_t bpm = 120;
 uint16_t bpm_in_cycles; // how many timer ticks per beat
 
+// if 0 then reading from serial
+BYTE system_idle = 0;
+
+// 0 read lower sounding waves else higher
+BYTE low_or_high_wave_freq = 0;
+// flip between high or low waves in frequency button controller
+BYTE low_high_wave_flip = 0;
+
 // Main 
 void main(void) {
   
   __critical {
-      // Set TMA to divide clock by 0xF0U
-      TMA_REG = 0xF0U;
-      // Set clock to 16384 Hertz
-      TAC_REG = 0x07U;
-      tim_cnt = 0;
       add_TIM(tim);
-      set_interrupts(VBL_IFLAG | TIM_IFLAG);
   }
-
+  // Set TMA to divide clock by 0xF0U
+  TMA_REG = 0xF0U;
+  // Set clock to 16384 Hertz
+  TAC_REG = 0x07U;
+  tim_cnt = 0;
+  enable_interrupts();
+  set_interrupts(VBL_IFLAG | TIM_IFLAG | SIO_IFLAG);
   init();
   
+  // Navigation events
   Event event = EVENT_NONE;
+  // this makes serial tick
+  rSC = SIOF_XFER_START | SIOF_CLOCK_EXT;
   // Main loop
   while(1) {
-    // Change control page
+    // serial flag
+    system_idle = 1;
+    updateMidiBuffer();
+    if (system_idle == 1) {
+      // start chord sequencer from anywhere(only in tone/chord mode)
+      if (KEY_PRESSED(J_START)) {
+        startStopChordStep();
+        waitpadup();
+      }
+      event = EVENT_NONE;
+      // Change control page
+      if (KEY_PRESSED(J_SELECT)) {
+        if (right_pressed == 1) {
+          if (!KEY_PRESSED(J_RIGHT)) {
+            event = EVENT_RIGHT;
+            right_pressed = 0;
+          }
+        } else {
+          if (KEY_PRESSED(J_RIGHT)) {
+            right_pressed = 1;
+          }
+        }
+        if (left_pressed == 1) {
+          if (!KEY_PRESSED(J_LEFT)) {
+            event = EVENT_LEFT;
+            left_pressed = 0;
+          }
+        } else {
+          if (KEY_PRESSED(J_LEFT)) {
+            left_pressed = 1;
+          }
+        }
+        if (up_pressed == 1) {
+          if (!KEY_PRESSED(J_UP)) {
+            event = EVENT_UP;
+            up_pressed = 0;
+          }
+        } else {
+          if (KEY_PRESSED(J_UP)) {
+            up_pressed = 1;
+          }
+        }
+        if (down_pressed == 1) {
+          if (!KEY_PRESSED(J_UP)) {
+            event = EVENT_DOWN;
+            down_pressed = 0;
+          }
+        } else {
+          if (KEY_PRESSED(J_DOWN)) {
+            down_pressed = 1;
+          }
+        }
+      } else {
+        right_pressed = 0;
+        left_pressed = 0;
+        up_pressed = 0;
+        down_pressed = 0;
+      }
 
-    // start chord seequencer from anywhere
-    // have to be in tone/chord mode to hear though
-    if (KEY_PRESSED(J_START)) {
-      startStopChordStep();
-      waitpadup();
-    }
-    event = EVENT_NONE;
-    if (KEY_PRESSED(J_SELECT)) {
-      if (right_pressed == 1) {
-        if (!KEY_PRESSED(J_RIGHT)) {
-          event = EVENT_RIGHT;
-          right_pressed = 0;
-        }
-      } else {
-        if (KEY_PRESSED(J_RIGHT)) {
-          right_pressed = 1;
-        }
-      }
-      if (left_pressed == 1) {
-        if (!KEY_PRESSED(J_LEFT)) {
-          event = EVENT_LEFT;
-          left_pressed = 0;
-        }
-      } else {
-        if (KEY_PRESSED(J_LEFT)) {
-          left_pressed = 1;
+      if (event != EVENT_NONE) {
+        switch (current_state) {
+          case VOLUME_PAGE:
+            handleVolumePage(event);
+            break;
+          case DUTY_PAGE:
+            handleDutyPage(event);
+            break;
+          case FREQ_PAGE:
+            handleFreqPage(event);
+            break;
+          case CHORD_PAGE:
+            handleChordPage(event);
+            break;
+          case CREDIT_PAGE:
+            handleCreditPage(event);
+            break;
+          case BPM_PAGE:
+            handleBpmPage(event);
+            break;
         }
       }
-      if (up_pressed == 1) {
-        if (!KEY_PRESSED(J_UP)) {
-          event = EVENT_UP;
-          up_pressed = 0;
-        }
-      } else {
-        if (KEY_PRESSED(J_UP)) {
-          up_pressed = 1;
-        }
-      }
-      if (down_pressed == 1) {
-        if (!KEY_PRESSED(J_UP)) {
-          event = EVENT_DOWN;
-          down_pressed = 0;
-        }
-      } else {
-        if (KEY_PRESSED(J_DOWN)) {
-          down_pressed = 1;
-        }
-      }
-    } else {
-      right_pressed = 0;
-      left_pressed = 0;
-      up_pressed = 0;
-      down_pressed = 0;
-    }
 
-    if (event != EVENT_NONE) {
-      switch (current_state) {
-        case VOLUME_PAGE:
-          handleVolumePage(event);
-          break;
-        case DUTY_PAGE:
-          handleDutyPage(event);
-          break;
-        case FREQ_PAGE:
-          handleFreqPage(event);
-          break;
-        case CHORD_PAGE:
-          handleChordPage(event);
-          break;
-        case CREDIT_PAGE:
-          handleCreditPage(event);
-          break;
-        case BPM_PAGE:
-          handleBpmPage(event);
-          break;
-      }
-    }
-
-    if (right_pressed != 1
-        && left_pressed != 1
-        && up_pressed != 1
-        && down_pressed != 1) {
-      switch(current_state)
-      {
-        case VOLUME_PAGE: {
-          num_faders = 4;
-          volumeKeypadController();
-          break;
-        }
-        case DUTY_PAGE: {
-          num_faders = 4;
-          dutyKeypadController();
-          break;
-        }
-        case FREQ_PAGE: {
-          num_faders = 4;
-          flipHeader();
-          frequencyKeypadController();
-          break;
-        }
-        case CHORD_PAGE: {
-          num_faders = 1;
-          chordKeypadController();
-          break;
-        }
-        case BPM_PAGE: {
-          num_faders = 1;
-          bpmKeypadController();
-          break;
+      if (right_pressed != 1
+          && left_pressed != 1
+          && up_pressed != 1
+          && down_pressed != 1) {
+        switch(current_state)
+        {
+          case VOLUME_PAGE: {
+            num_faders = 4;
+            volumeKeypadController();
+            break;
+          }
+          case DUTY_PAGE: {
+            num_faders = 4;
+            dutyKeypadController();
+            break;
+          }
+          case FREQ_PAGE: {
+            num_faders = 4;
+            flipHeader();
+            frequencyKeypadController();
+            break;
+          }
+          case CHORD_PAGE: {
+            num_faders = 1;
+            chordKeypadController();
+            break;
+          }
+          case BPM_PAGE: {
+            num_faders = 1;
+            bpmKeypadController();
+            break;
+          }
         }
       }
+      wait_vbl_done();
+      UPDATE_KEYS();
     }
-    wait_vbl_done();
-    UPDATE_KEYS();
   }
 }
 
@@ -402,6 +418,7 @@ void changeToFrequencyBackground(void) {
   move_sprite(39, 0, 0); // hide rec marker from chord
   updateFaderMarker();
   setAllFreqMacroMarkers();
+  printLowHighFreqIcon();
 }
 
 /*
@@ -676,13 +693,13 @@ void init(void) {
   int csx = 0x01;
   // IMPORTANT! NR52_REG must always be set first
   // otherwise there will be no sound.
-  // https://gbdev.io/pandocs/Sound_Controller.html#sound-control-registers
+  // https://gbdev.io/pandocs/Audio_Registers.html
   NR52_REG = 0x80; // Bit 7 all sounds on
   NR50_REG = 0x77; // don't need Vin  
   NR51_REG = 0xFF; // output all channels to S01 and SO2
 
   // sweep channel 
-  // https://gbdev.io/pandocs/Sound_Controller.html#sound-channel-1---tone--sweep
+  // https://gbdev.io/pandocs/Audio_Registers.html#sound-channel-1--pulse-with-period-sweep
 
   // Volume envelope
   NR12_REG = 0x08; //0x00 // 0=min volume, length ignored
@@ -692,17 +709,17 @@ void init(void) {
   updateSweepFreq(1);
 
   // square channel
-  // https://gbdev.io/pandocs/Sound_Controller.html#sound-channel-2---tone
+  // https://gbdev.io/pandocs/Audio_Registers.html#sound-channel-2--pulse
   NR22_REG = 0x00;
   NR21_REG = 0x80;
   updateSquareFreq(1);
 
   // wave channel
-  // https://gbdev.io/pandocs/Sound_Controller.html#sound-channel-3---wave-output
+  // https://gbdev.io/pandocs/Audio_Registers.html#sound-channel-3--wave-output
   loadWave();
 
   // noise channel
-  // https://gbdev.io/pandocs/Sound_Controller.html#sound-channel-4---noise
+  // https://gbdev.io/pandocs/Audio_Registers.html#sound-channel-4--noise
   noiseStruct.dividing_ratio = 7; // 3 bits
   noiseStruct.counter_step = 1; // 1 = 7bits, 0 = 15 bits
   noiseStruct.clock_freq = noise_freq; // 4 bits
@@ -710,7 +727,7 @@ void init(void) {
   NR42_REG = 0x08;
   updateNoiseFreq(noise_freq);
   NR44_REG = 0x80;
-  
+  display_off(); // @todo deleting this works on emus, not on hardware
   // setup the background data
   set_bkg_data(0,4, fadertile); 
   set_bkg_data(4,1, blank);
@@ -723,9 +740,29 @@ void init(void) {
   set_bkg_data(57,17, waveforms);
   set_bkg_tiles(0,0,20,18, volumefaderbackground);
 
-  SHOW_BKG;
-  DISPLAY_ON;
-  SPRITES_8x8;
+  UINT8 root = 19;
+  UINT8 major_scale_from_root[] = {0, 2, 4, 5, 7, 9, 11};
+  UINT8 major_scale_majmin[] = {0, 1, 1, 0, 0, 1, 1};
+  UINT8 major_scale_adn[] = {0, 0, 0, 0, 0, 0, 2};
+  //chord steppa init
+  for (int i = 0; i < 7; ++i) {
+    if (i != 0) {
+      csx += 2;
+    }
+    chordsteppa[i].root = root + major_scale_from_root[i];
+    chordsteppa[i].majmin = major_scale_majmin[i];
+    chordsteppa[i].adn = major_scale_adn[i];
+    chordsteppa[i].y = 0x0B;
+    chordsteppa[i].x = csx;
+    chord_steppa_step[i].y = 136;
+  }
+  chordsteppa[7].root = root + 12;
+  chordsteppa[7].majmin = 0;
+  chordsteppa[7].adn = 0;
+  chordsteppa[7].y = 0x0B;
+  chordsteppa[7].x = csx + 2; // we are done with csx here
+  chord_steppa_step[7].y = 136;
+
   set_sprite_data(0, 4, fadertile);
   for (int i = 0; i < 4; ++i){
     set_sprite_tile(i, 0);
@@ -806,19 +843,6 @@ void init(void) {
     move_sprite(i, fader_group[i].x, fader_group[i].y);
   }
 
-  //chord steppa init
-  for (int i = 0; i < 8; ++i) {
-    if (i != 0) {
-      csx += 2;
-    }
-    chordsteppa[i].root = 24;
-    chordsteppa[i].majmin = 0;
-    chordsteppa[i].adn = 0;
-    chordsteppa[i].y = 0x0B;
-    chordsteppa[i].x = csx;
-    chord_steppa_step[i].y = 136;
-  }
-
   // chord step x positions, chord page
   chord_steppa_step[0].x = 16;
   chord_steppa_step[1].x = 32;
@@ -830,6 +854,9 @@ void init(void) {
   chord_steppa_step[7].x = 128;
 
   updateFaderMarker();
+  SHOW_BKG;
+  DISPLAY_ON;
+  SPRITES_8x8;
   SHOW_SPRITES;
 
   // zombie volume mode init

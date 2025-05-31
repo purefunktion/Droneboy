@@ -27,4 +27,8 @@ void copyNoteToFreq(void);
 
 int uwti(UWORD num);
 
+// this updates if wave channel should use low or high waves
+// eg short or long waves, see data.c
+void updateWaveType(void);
+
 #endif

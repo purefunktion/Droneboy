@@ -27,11 +27,6 @@ endif
 
 all: prepare $(BINS)
 
-# if you are on windows
-compile.bat: Makefile
-	@echo "REM Automatically generated from Makefile" > compile.bat
-	@make -sn | sed y/\\//\\\\/ | sed s/mkdir\ -p\/mkdir\/ | grep -v make >> compile.bat
-
 # Compile .c files in "src/" to .o object files
 $(OBJDIR)/%.o:	$(SRCDIR)/%.c
 	$(LCC) $(LCCFLAGS) -c -o $@ $<

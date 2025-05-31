@@ -323,3 +323,13 @@ void setAllFreqMacroMarkers(void) {
     set_bkg_tiles(0x0F, 0x10, 1, 1, iconInvertedMacroMarkerBkg);
   }
 }
+
+// print a icon to indicate if we use the high or low waves
+// on freq page
+void printLowHighFreqIcon(void) {
+    if (low_or_high_wave_freq == 0) { // low
+        set_bkg_tile_xy(0x03, 0x0B, 0x07); // L
+    } else {
+        set_bkg_tile_xy(0x03, 0x0B, 0x30); // H
+    }
+}

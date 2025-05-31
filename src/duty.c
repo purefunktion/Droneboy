@@ -135,7 +135,7 @@ void updateWaveDuty(void) {
     updateWaveVolume(wave_volume, duty_wave);
 }
 
-// noise "duty". ut the controll for dividing ratio here because reasons.
+// noise "duty". controls the dividing ratio here because reasons.
 void updateNoiseDividingRatio(int number) {
   noiseStruct.dividing_ratio = number;
   updateNoiseFreq(noise_freq);
@@ -324,27 +324,37 @@ void changeWaveType(void) {
   {
     case SQUAREWAVE: {
       wave_type = SAW;
-      set_bkg_tile_xy(0x0D, 0x0F, 0x3A);
+      if (current_state == DUTY_PAGE) { // because this is used in midi as well
+        set_bkg_tile_xy(0x0D, 0x0F, 0x3A);
+      }
       break;
     }
     case SAW: {
       wave_type = RAMP;
-      set_bkg_tile_xy(0x0D, 0x0F, 0x3D);
+      if (current_state == DUTY_PAGE) {
+        set_bkg_tile_xy(0x0D, 0x0F, 0x3D);
+      }
       break;
     }
     case RAMP: {
       wave_type = TRIANGLE;
-      set_bkg_tile_xy(0x0D, 0x0F, 0x3B);
+      if (current_state == DUTY_PAGE) {
+        set_bkg_tile_xy(0x0D, 0x0F, 0x3B);
+      }
       break;
     }
     case TRIANGLE: {
       wave_type = SINE;
-      set_bkg_tile_xy(0x0D, 0x0F, 0x3C);
+      if (current_state == DUTY_PAGE) {
+        set_bkg_tile_xy(0x0D, 0x0F, 0x3C);
+      }
       break;
     }
     case SINE: {
       wave_type = SQUAREWAVE;
-      set_bkg_tile_xy(0x0D, 0x0F, 0x39);
+      if (current_state == DUTY_PAGE) {
+        set_bkg_tile_xy(0x0D, 0x0F, 0x39);
+      }
       break;
     }
   }

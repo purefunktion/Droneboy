@@ -105,7 +105,7 @@ void playChordStep(void) {
 
 // play the nex chord in the sequencer
 void playNextChord(void) {
-  if (current_seq_chord == 7) {
+  if (current_seq_chord == MAX_SEQUENCE_INDEX) {
       current_seq_chord = 0;
     } else {
       current_seq_chord += 1;
@@ -150,14 +150,14 @@ void chordSteppaMode(void) {
 // step in da steppa
 void stepChordSteppa(BYTE direction) {
   if (direction == J_RIGHT) {
-    if (current_chord_steppa_step == 7) {
+    if (current_chord_steppa_step == MAX_SEQUENCE_INDEX) {
       current_chord_steppa_step = 0;
     } else {
       current_chord_steppa_step += 1;
     }
   } else { //left
     if (current_chord_steppa_step == 0) {
-      current_chord_steppa_step = 7;
+      current_chord_steppa_step = MAX_SEQUENCE_INDEX;
     } else {
       current_chord_steppa_step -= 1;
     }
@@ -193,17 +193,28 @@ void playCurrentStep(void) {
   updateWaveFreq(1);
 }
 
+// set new current_chord_steppa_step
+void setCurrentChordSteppaStep(int new_step) {
+  if (new_step > MAX_SEQUENCE_INDEX) {
+    current_chord_steppa_step = current_chord_steppa_step = new_step;;
+  } else if (new_step < 0) {
+    current_chord_steppa_step = 0;
+  } else {
+    current_chord_steppa_step = new_step;
+  }
+}
+
 // decide direction of record marker on stepper part
 void chordStepRecordRouter(BYTE direction, int num) {
   if (direction == J_RIGHT) {
-    if (current_record_steppa_step == 7) {
+    if (current_record_steppa_step == MAX_SEQUENCE_INDEX) {
       current_record_steppa_step = 0;
     } else {
       current_record_steppa_step += num;
     }
   } else { //left
     if (current_record_steppa_step == 0) {
-      current_record_steppa_step = 7;
+      current_record_steppa_step = MAX_SEQUENCE_INDEX;
     } else {
       current_record_steppa_step -= num;
     }
@@ -291,6 +302,9 @@ void playCurrentChord(void) {
   chord_on = (chord_on) ? 0 : 1; // flip true/false on/off
   if (chord_on) {
     frequency_mode = 1; // set to note mode
+    // @todo revisit this in futr
+    low_or_high_wave_freq = 1; // set to use high waves
+    updateWaveVolume(wave_volume, duty_wave);
     changeNotes();
   }
   setOnOffSprites();

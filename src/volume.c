@@ -1,6 +1,9 @@
 #include "volume.h"
 // Volume page
 
+const UBYTE wave_volumeValues[4] = {0x00, 0x60, 0x40, 0x20};
+const UBYTE volumeFaderPositionWave[4] = {119, 98, 71, 41};
+
 // Keypad 
 void volumeKeypadController(void) {
   // sweep up done
@@ -372,7 +375,7 @@ void updateSquareVolume(int volume) {
 
 // this function lowers the amplitude the 4 bit samples in the wave pattern RAM
 void updateWaveVolume(int volume, int sample_index) {
-    if (volume == 0) {
+  if (volume == 0) {
       NR32_REG = 0x00;//turn off volume
       return;
     } else  {
@@ -415,33 +418,69 @@ void updateWaveToBeLoaded(int volume, int sample_index) {
   switch(wave_type)
   {
     case SQUAREWAVE: {
-      loadSquareWave(volume, sample_index);
+      if (low_or_high_wave_freq == 0) { // 0 = low
+        loadSquareWaveLow(volume, sample_index);
+      } else {
+        loadSquareWaveHigh(volume, sample_index);
+      }
       break;
     }
     case SAW: {
-      loadSawWave(volume);
+      if (low_or_high_wave_freq == 0) {
+        loadSawWaveLow(volume);
+      } else {
+        loadSawWaveHigh(volume);
+      }
       break;
     }
     case RAMP: {
-      loadRampWave(volume);
+      if (low_or_high_wave_freq == 0) {
+        loadRampWaveLow(volume);
+      } else {
+        loadRampWaveHigh(volume);
+      }
       break;
     }
     case TRIANGLE: {
-      loadTriangleWave(volume);
+      if (low_or_high_wave_freq == 0) {
+        loadTriangleWaveLow(volume);
+      } else {
+        loadTriangleWaveHigh(volume);
+      }
       break;
     }
     case SINE: {
-      loadSineWave(volume);
+      if (low_or_high_wave_freq == 0) {
+        loadSineWaveLow(volume);
+      } else {
+        loadSineWaveHigh(volume);
+      }
       break;
     }
   }
 }
 
+// Routine for loading the square wave into wave memory area using
+// double length wave forms that produce lower frequencys
+void loadSquareWaveLow(int volume, int sample_index) {
+  unsigned char *dst = &waveToBeLoaded[0];
+  //unsigned char *dst2 = &waveToBeLoaded[8];
+  unsigned char *src = &squareSamplesLow[sample_index*16]; // points to selected duty
+  unsigned char length = 16;
+  while (length--) {
+    unsigned char tmp = *src;
+    UBYTE elbyto = (UBYTE) ((volume & tmp) | ((volume & tmp)<<4));
+    *dst++ = elbyto;
+    //*dst2++ = elbyto;
+    *src++;
+  }
+}
+
 // Routine for loading the square wave into wave memory area
-void loadSquareWave(int volume, int sample_index) {
+void loadSquareWaveHigh(int volume, int sample_index) {
   unsigned char *dst = &waveToBeLoaded[0];
   unsigned char *dst2 = &waveToBeLoaded[8];
-  unsigned char *src = &squareSamples[sample_index*8]; // points to selected duty
+  unsigned char *src = &squareSamplesHigh[sample_index*8]; // points to selected duty
   unsigned char length = 8;
   while (length--) {
     unsigned char tmp = *src;
@@ -452,11 +491,23 @@ void loadSquareWave(int volume, int sample_index) {
   }
 }
 
-// Routine for loading the saw wave into wave memory area
-void loadSawWave(int volume) {
+// Routine for loading the LOW saw wave into wave memory area
+void loadSawWaveLow(int volume) {
+  unsigned char *dst = &waveToBeLoaded[0];
+  //unsigned char *dst2 = &waveToBeLoaded[8];
+  unsigned char *src = &sawSamplesLow[volume*16]; // Create pointer to the waveform
+  unsigned char length = 16;
+  while (length--) {
+    *dst++ = *src++;
+    //*dst2++ = *src++;
+  }
+}
+
+// Routine for loading the LOW saw wave into wave memory area
+void loadSawWaveHigh(int volume) {
   unsigned char *dst = &waveToBeLoaded[0];
   unsigned char *dst2 = &waveToBeLoaded[8];
-  unsigned char *src = &sawSamples[volume*8]; // Create pointer to the waveform
+  unsigned char *src = &sawSamplesHigh[volume*8]; // Create pointer to the waveform
   unsigned char length = 8;
   while (length--) {
     *dst++ = *src;
@@ -464,35 +515,24 @@ void loadSawWave(int volume) {
   }
 }
 
-// Routine for loading the saw wave into wave memory area
-void loadTriangleWave(int volume) {
+// Routine for loading the LOW ramp wave into wave memory area
+void loadRampWaveLow(int volume) {
   unsigned char *dst = &waveToBeLoaded[0];
-  unsigned char *dst2 = &waveToBeLoaded[8];
-  unsigned char *src = &triangleSamples[volume*8]; // Create pointer to the waveform
-  unsigned char length = 8;
+  unsigned char *src = &sawSamplesLow[((volume+1)*16)-1]; // Create pointer to the waveform
+  unsigned char length = 16;
   while (length--) {
-    *dst++ = *src;
-    *dst2++ = *src++;
+    unsigned char tmp = *src;
+    UBYTE losbitos = ((tmp & 0x0F) << 4) | ((tmp & 0xF0) >> 4);
+    *dst++ = losbitos;
+    *src--;
   }
 }
 
-// Routine for loading the sine wave into wave memory area
-void loadSineWave(int volume) {
+// High ramp loadery
+void loadRampWaveHigh(int volume) {
   unsigned char *dst = &waveToBeLoaded[0];
   unsigned char *dst2 = &waveToBeLoaded[8];
-  unsigned char *src = &sineSamples[volume*8]; // Create pointer to the waveform
-  unsigned char length = 8;
-  while (length--) {
-    *dst++ = *src;
-    *dst2++ = *src++;
-  }
-}
-
-// Routine for loading the ramp wave into wave memory area
-void loadRampWave(int volume) {
-  unsigned char *dst = &waveToBeLoaded[0];
-  unsigned char *dst2 = &waveToBeLoaded[8];
-  unsigned char *src = &sawSamples[((volume+1)*8)-1]; // Create pointer to the waveform
+  unsigned char *src = &sawSamplesHigh[((volume+1)*8)-1]; // Create pointer to the waveform
   unsigned char length = 8;
   while (length--) {
     unsigned char tmp = *src;
@@ -500,5 +540,48 @@ void loadRampWave(int volume) {
     *dst++ = losbitos;
     *dst2++ = losbitos;
     *src--;
+  }
+}
+
+// Triangle Low loader
+void loadTriangleWaveLow(int volume) {
+  unsigned char *dst = &waveToBeLoaded[0];
+  unsigned char *src = &triangleSamplesLow[volume*16];
+  unsigned char length = 16;
+  while (length--) {
+    *dst++ = *src++;
+  }
+}
+
+void loadTriangleWaveHigh(int volume) {
+  unsigned char *dst = &waveToBeLoaded[0];
+  unsigned char *dst2 = &waveToBeLoaded[8];
+  unsigned char *src = &triangleSamplesHigh[volume*8];
+  unsigned char length = 8;
+  while (length--) {
+    *dst++ = *src;
+    *dst2++ = *src++;
+  }
+}
+
+// Routine for loading the LOW sine wave into wave memory area
+void loadSineWaveLow(int volume) {
+  unsigned char *dst = &waveToBeLoaded[0];
+  unsigned char *src = &sineSamplesLow[volume*16]; // Create pointer to the waveform
+  unsigned char length = 16;
+  while (length--) {
+    *dst++ = *src++;
+  }
+}
+
+// sine high
+void loadSineWaveHigh(int volume) {
+  unsigned char *dst = &waveToBeLoaded[0];
+  unsigned char *dst2 = &waveToBeLoaded[8];
+  unsigned char *src = &sineSamplesHigh[volume*8]; // Create pointer to the waveform
+  unsigned char length = 8;
+  while (length--) {
+    *dst++ = *src;
+    *dst2++ = *src++;
   }
 }

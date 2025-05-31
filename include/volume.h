@@ -13,16 +13,21 @@ void updateSweepVolume(int volume);
 void updateSquareVolume(int volume);
 void updateNoiseVolume(UBYTE volume);
 void updateWaveToBeLoaded(int volume, int sample_index);
-void loadSquareWave(int volume, int sample_index);
-void loadSawWave(int volume);
-void loadTriangleWave(int volume);
-void loadSineWave(int volume);
-void loadRampWave(int volume);
+void loadSquareWaveLow(int volume, int sample_index);
+void loadSquareWaveHigh(int volume, int sample_index);
+void loadSawWaveLow(int volume);
+void loadSawWaveHigh(int volume);
+void loadTriangleWaveLow(int volume);
+void loadTriangleWaveHigh(int volume);
+void loadSineWaveLow(int volume);
+void loadSineWaveHigh(int volume);
+void loadRampWaveLow(int volume);
+void loadRampWaveHigh(int volume);
 
 void increaseMacroVolume(int number);
 void decreaseMacroVolume(int number);
 
-const UBYTE wave_volumeValues[4] = {0x00, 0x60, 0x40, 0x20};
-const UBYTE volumeFaderPositionWave[4] = {119, 98, 71, 41};
+extern const UBYTE wave_volumeValues[4];
+extern const UBYTE volumeFaderPositionWave[4];
 
 #endif

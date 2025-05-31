@@ -29,5 +29,6 @@ void printMinMajAugDim(int step);
 void playCurrentSeqStep(void);
 void chordStepRecordRouter(BYTE direction, int num);
 void setAugDimNormSprites(void);
+void setCurrentChordSteppaStep(int new_step);
 
 #endif
