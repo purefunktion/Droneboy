@@ -10,8 +10,7 @@
 BYTE keys = 0;
 UBYTE previous_keys;
 
-int max_faders = 4;
-int num_faders = 4;
+uint8_t num_faders = 4;
 
 int sweep_note = 36; // Tone channel 1 is called sweep
 int square_note = 40; // Tone channel 2 is called square
@@ -373,9 +372,12 @@ void changeToVolumeBackground(void) {
   set_bkg_data(0,4, fadertile); // all functions are "VRAM safe" albeit slow
   set_bkg_tiles(0x00, 0x00, 20, 18, volumefaderbackground);
   hideSprites(4, 36); // hide tiles from frequency page
-  for (int i = 0; i <= max_faders-1; i++) {
-    move_sprite(i, fader_group[i].x, fader_group[i].y);
-  }
+
+  move_sprite(0, fader_group[0].x, fader_group[0].y);
+  move_sprite(1, fader_group[1].x, fader_group[1].y);
+  move_sprite(2, fader_group[2].x, fader_group[2].y);
+  move_sprite(3, fader_group[3].x, fader_group[3].y);
+
   // hide record marker from chord page
   move_sprite(39, 0, 0);
   updateFaderMarker();
@@ -392,12 +394,12 @@ void changeToDutyBackground(void) {
   set_bkg_tiles(0x00, 0x00, 20, 18, dutyfaderbackground);
   hideSprites(0, 39);
   // move the duty faders on screen
-  for (int i = 0; i <= max_faders-1; i++) {
-    if (i == 3) {
-      duty_fader_group[i].y = dutyFaderPositionNoise[duty_fader_group[i].fader_position];
-    }
-    move_sprite(i, duty_fader_group[i].x, duty_fader_group[i].y);
-  }
+  move_sprite(0, duty_fader_group[0].x, duty_fader_group[0].y);
+  move_sprite(1, duty_fader_group[1].x, duty_fader_group[1].y);
+  move_sprite(2, duty_fader_group[2].x, duty_fader_group[2].y);
+  duty_fader_group[3].y = dutyFaderPositionNoise[duty_fader_group[3].fader_position];
+  move_sprite(3, duty_fader_group[3].x, duty_fader_group[3].y);
+
   updateFaderMarker();
   setAllDutyMacroMarkers();
   setUpSwitches();
@@ -411,10 +413,11 @@ void changeToFrequencyBackground(void) {
   set_bkg_tiles(0x00, 0x00, 20, 18, frequencybackground); // the bakground
   setUpFrequencySprites();
   // this hides the sprites from duty page
-  for (int i = 0; i <= max_faders-1; i++) 
-  {
-    move_sprite(i, 1, 168);
-  }
+  move_sprite(0, 1, 168);
+  move_sprite(1, 1, 168);
+  move_sprite(2, 1, 168);
+  move_sprite(3, 1, 168);
+
   move_sprite(39, 0, 0); // hide rec marker from chord
   updateFaderMarker();
   setAllFreqMacroMarkers();
@@ -443,11 +446,11 @@ void changeToBPMBackground(void) {
   set_bkg_data(0,4, fadertile); // setup fader tiles
   set_bkg_tiles(0x00, 0x00, 20, 18, bpmbackground);
   // move the duty faders on screen
+  move_sprite(0, 1, 168);
+  move_sprite(1, 1, 168);
+  move_sprite(2, 1, 168);
+  move_sprite(3, 1, 168);
 
-  for (int i = 0; i <= max_faders-1; i++)
-  {
-    move_sprite(i, 1, 168);
-  }
   move_sprite(37, 2, 168);
   move_sprite(38, 2, 168);
   move_sprite(39, 0, 0); // hide rec marker from chord
@@ -460,12 +463,12 @@ void changeToBPMBackground(void) {
 void goToCreditPage(void) {
   set_bkg_data(0,4, fadertile); // setup fader tiles
   set_bkg_tiles(0x00, 0x00, 20, 18, creditPageBackground);
-  // move the duty faders on screen
 
-  for (int i = 0; i <= max_faders-1; i++)
-  {
-    move_sprite(i, 1, 168);
-  }
+  move_sprite(0, 1, 168);
+  move_sprite(1, 1, 168);
+  move_sprite(2, 1, 168);
+  move_sprite(3, 1, 168);
+
   move_sprite(37, 2, 168);
   move_sprite(38, 2, 168);
   hideSprites(0, 36);
