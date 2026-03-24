@@ -15,7 +15,7 @@
 void loadWave(void);
 
 // fader stuff
-void moveFader(int channel);
+void moveFader(int8_t channel);
 void change_fader(uint8_t direction);
 void updateFaderMarker(void);
 void updateRecordMarker(void);

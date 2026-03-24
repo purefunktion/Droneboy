@@ -8,8 +8,8 @@
 
 void increaseCurrentFreq(int amount);
 void decreaseCurrentFreq(int amount);
-void printChannelFrequency(int channel);
-void printChannelNote(int channel);
+void printChannelFrequency(uint8_t channel);
+void printChannelNote(uint8_t channel);
 
 void frequencyMode(void);
 void noteMode(void);

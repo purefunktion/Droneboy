@@ -16,11 +16,10 @@ extern uint16_t wave_freq;
 extern uint8_t noise_freq;
 
 // volumes
-extern int sweep_volume;
-extern int sweep_up_down_flag; // 1 up zero down
-extern int square_volume;
-extern int wave_volume;
-extern int noise_volume;
+extern int8_t sweep_volume;
+extern int8_t square_volume;
+extern int8_t wave_volume;
+extern int8_t noise_volume;
 
 // notes
 extern int sweep_note;  
@@ -29,18 +28,18 @@ extern int wave_note;
 extern int noise_note;
 
 // this indicates which channel is being controlled
-extern int current_channel;
+extern int8_t current_channel;
 // and this for the chord part being controlled, on chord page
-extern int current_chord_step;
+extern int8_t current_chord_step;
 // chord stepper current step
-extern int current_chord_steppa_step;
+extern int8_t current_chord_steppa_step;
 // the record marker on stepper on chord page
-extern int current_record_steppa_step;
+extern int8_t current_record_steppa_step;
 
 // duty
-extern int duty_sweep;
-extern int duty_square;
-extern int duty_wave; // sample index nums for square wave in wave channel
+extern int8_t duty_sweep;
+extern int8_t duty_square;
+extern int8_t duty_wave; // sample index nums for square wave in wave channel
 
 //wave type in wave cahnnel
 enum WAVES {SQUAREWAVE, SAW, RAMP, TRIANGLE, SINE};
@@ -59,7 +58,7 @@ extern struct fader chord_part_step[4];
 extern struct fader chord_steppa_step[8];
 
 // which mode on freq page, note or freq
-extern int frequency_mode;
+extern uint8_t frequency_mode;
 
 struct NoiseyStruct {
   //NR43 0xFF22
@@ -118,23 +117,22 @@ extern struct MacroStatus volumeMacroStatus;
 extern struct MacroStatus dutyMacroStatus;
 extern struct MacroStatus freqMacroStatus;
 // to place the macro marker
-extern int domacro;
+extern int8_t domacro;
 // this is to keep track of v_blanks before doing a continuous sweep on freq
-extern int up_sweep_counter;
-extern int down_sweep_counter;
+extern int8_t up_sweep_counter;
+extern int8_t down_sweep_counter;
 
 // track v blanks to continuous 
-extern int up_volume_counter;
-extern int down_volume_counter;
-extern int volume_slide_counter;
+extern int8_t up_volume_counter;
+extern int8_t down_volume_counter;
 
 #define MAX_SEQUENCE_STEPS 8
 #define MAX_SEQUENCE_INDEX (MAX_SEQUENCE_STEPS - 1)
 
 // A-button state, because A is used as semi tone hop as well, on chord page
-extern int doPlayCurrentChord;
+extern int8_t doPlayCurrentChord;
 // B-button state on chord page
-extern int doSetCurrentStep;
+extern int8_t doSetCurrentStep;
 
 // Chord step struct
 struct ChordStep {

@@ -6,12 +6,12 @@
 #include "tilesandbackgrounds.h"
 #include "common.h"
 
-void increaseVolume(int number);
-void decreaseVolume(int number);
+void increaseVolume(int8_t number);
+void decreaseVolume(int8_t number);
 
-void updateSweepVolume(int volume);
+void updateSweepVolume(int8_t volume);
 void updateSquareVolume(int volume);
-void updateNoiseVolume(uint8_t volume);
+void updateNoiseVolume(int8_t volume);
 void updateWaveToBeLoaded(int volume, int sample_index);
 void loadSquareWaveLow(int volume, int sample_index);
 void loadSquareWaveHigh(int volume, int sample_index);
@@ -24,8 +24,8 @@ void loadSineWaveHigh(int volume);
 void loadRampWaveLow(int volume);
 void loadRampWaveHigh(int volume);
 
-void increaseMacroVolume(int number);
-void decreaseMacroVolume(int number);
+void increaseMacroVolume(int8_t number);
+void decreaseMacroVolume(int8_t number);
 
 extern const uint8_t wave_volumeValues[4];
 extern const uint8_t volumeFaderPositionWave[4];

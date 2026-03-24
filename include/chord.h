@@ -21,14 +21,14 @@ void chordSteppaMode(void);
 void stepChordSteppa(int8_t direction);
 void saveCurrentStep(void);
 void playCurrentStep(void);
-void printCurrentStep(int step);
+void printCurrentStep(uint8_t step);
 void setNoteSpritesBg(int x, int y, int number);
 void printWithHash(int cp, int step);
 void printWithoutHash(int cp, int step);
 void printMinMajAugDim(int step);
 void playCurrentSeqStep(void);
-void chordStepRecordRouter(uint8_t direction, int num);
+void chordStepRecordRouter(uint8_t direction, uint8_t num);
 void setAugDimNormSprites(void);
-void setCurrentChordSteppaStep(int new_step);
+void setCurrentChordSteppaStep(int8_t new_step); // midi
 
 #endif

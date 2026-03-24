@@ -9,13 +9,11 @@ void volumeKeypadController(void) {
   // sweep up done
   if (KEY_RELEASED(J_UP) && up_volume_counter > 0) {
       up_volume_counter = 0;
-      volume_slide_counter = 0;
   }
 
   // volume down done
   if (KEY_RELEASED(J_DOWN) && down_volume_counter > 0) {
       down_volume_counter = 0;
-      volume_slide_counter = 0;
   }
 
   if (KEY_PRESSED(J_A)) {
@@ -49,15 +47,10 @@ void volumeKeypadController(void) {
   if (KEY_PRESSED(J_UP)) {
     // counter to check if just a button press
     if (up_volume_counter == 30) {
-      if (volume_slide_counter == 4) { // give wave and noise some breathing room...
-        increaseVolume(1);
-        moveFader(current_channel);
-        volume_slide_counter = 0;
-      } else {
-        volume_slide_counter++;
-      }
+      increaseVolume(1);
+      moveFader(current_channel);
     } else {
-        up_volume_counter++;
+      up_volume_counter++;
     }
   }
 
@@ -65,21 +58,16 @@ void volumeKeypadController(void) {
   if (KEY_PRESSED(J_DOWN)) {
     // counter to check if just a button press
     if (down_volume_counter == 30) {
-      if (volume_slide_counter == 4) {
-        decreaseVolume(1);
-        moveFader(current_channel);
-        volume_slide_counter = 0;
-      } else {
-        volume_slide_counter++;
-      }
+      decreaseVolume(1);
+      moveFader(current_channel);
     } else {
-        down_volume_counter++;
+      down_volume_counter++;
     }
   }
 }
 
 // Increase volume 1 step at the time
-void increaseVolume(int number) {
+void increaseVolume(int8_t number) {
   switch(current_channel)
   {
     case SWEEP: {
@@ -129,16 +117,16 @@ void increaseVolume(int number) {
 /**
 * Increase the macro marked channels volume with number.
 **/
-void increaseMacroVolume(int number) {
+void increaseMacroVolume(int8_t number) {
   // not current fader used and macro marker set
   if (volumeMacroStatus.sweep != 0 && current_channel != SWEEP) {
-    if (volumeMacroStatus.sweep == 1 ) { // regular macro marker
+    if (volumeMacroStatus.sweep == 1) { // regular macro marker
       if (sweep_volume + number > 15) {
         updateSweepVolume(15);
       } else {
         updateSweepVolume(sweep_volume + number);
       }
-    } else if (volumeMacroStatus.sweep == 2) { // inverted macro
+    } else { // inverted macro
       if (sweep_volume - number < 0) {
         updateSweepVolume(0);
       } else {
@@ -149,7 +137,7 @@ void increaseMacroVolume(int number) {
     moveFader(0);
   }
   if (volumeMacroStatus.square != 0 && current_channel != SQUARE) {
-    if (volumeMacroStatus.square == 1 ) {
+    if (volumeMacroStatus.square == 1) {
       if (square_volume + number > 15) {
         updateSquareVolume(15);
       } else {
@@ -185,7 +173,7 @@ void increaseMacroVolume(int number) {
   }
   //&& noise_volume != 15
   if (volumeMacroStatus.noise != 0 && current_channel != NOISE) {
-    if (volumeMacroStatus.noise == 1 && noise_volume != 15) {
+    if (volumeMacroStatus.noise == 1) {
       if (noise_volume + number > 15) {
         updateNoiseVolume(15);
       } else {
@@ -204,7 +192,7 @@ void increaseMacroVolume(int number) {
 }
 
 // ..and decrease
-void decreaseVolume(int number) {
+void decreaseVolume(int8_t number) {
   switch(current_channel)
   {
     case SWEEP: {
@@ -254,7 +242,7 @@ void decreaseVolume(int number) {
 /**
 * Increase the macro marked channels volume with number.
 **/
-void decreaseMacroVolume(int number) {
+void decreaseMacroVolume(int8_t number) {
   if (volumeMacroStatus.sweep != 0 && current_channel != SWEEP) {
     if (volumeMacroStatus.sweep == 1 ) { // regular macro marker
       if (sweep_volume - number < 0) {
@@ -320,14 +308,14 @@ void decreaseMacroVolume(int number) {
         } else {
           updateNoiseVolume(noise_volume + number);
         }
-      fader_group[3].fader_position = noise_volume;
-      moveFader(3);
     }
+    fader_group[3].fader_position = noise_volume;
+    moveFader(3);
   }
 }
 
 // Volume update funtions
-void updateSweepVolume(int volume) {
+void updateSweepVolume(int8_t volume) {
   // zombie mode volume https://gbdev.gg8.se/wiki/articles/Gameboy_sound_hardware#Obscure_Behavior
   if (volume > sweep_volume) {
     while (sweep_volume != volume) {
@@ -386,7 +374,7 @@ void updateWaveVolume(int volume, int sample_index) {
 }
 
 // update the noise volume
-void updateNoiseVolume(uint8_t volume) {
+void updateNoiseVolume(int8_t volume) {
   //NR42_REG = volume;
   //NR43_REG = noiseStruct.dividing_ratio | (noiseStruct.counter_step << 3) | (noiseStruct.clock_freq << 4);
   //NR44_REG = 0x80;

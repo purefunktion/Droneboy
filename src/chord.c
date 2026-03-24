@@ -193,10 +193,10 @@ void playCurrentStep(void) {
   updateWaveFreq(1);
 }
 
-// set new current_chord_steppa_step
-void setCurrentChordSteppaStep(int new_step) {
+// set new current_chord_steppa_step used by midi
+void setCurrentChordSteppaStep(int8_t new_step) {
   if (new_step > MAX_SEQUENCE_INDEX) {
-    current_chord_steppa_step = current_chord_steppa_step = new_step;;
+    current_chord_steppa_step = MAX_SEQUENCE_INDEX;
   } else if (new_step < 0) {
     current_chord_steppa_step = 0;
   } else {
@@ -205,7 +205,7 @@ void setCurrentChordSteppaStep(int new_step) {
 }
 
 // decide direction of record marker on stepper part
-void chordStepRecordRouter(uint8_t direction, int num) {
+void chordStepRecordRouter(uint8_t direction, uint8_t num) {
   if (direction == J_RIGHT) {
     if (current_record_steppa_step == MAX_SEQUENCE_INDEX) {
       current_record_steppa_step = 0;
@@ -331,14 +331,14 @@ void changeNotes(void) {
 // like root note, octave, major minor etc
 void changeChordPart(uint8_t direction) {
   if (direction == J_RIGHT) {
-    if (current_chord_step == 3 - 1) {
+    if (current_chord_step == 2) {
       current_chord_step = 0;
     } else {
       current_chord_step += 1;
     }
   } else { //left
     if (current_chord_step == 0) {
-      current_chord_step = 3 - 1;
+      current_chord_step = 2;
     } else {
       current_chord_step -= 1;
     }
@@ -377,7 +377,7 @@ void printChordParts(void) {
 }
 
 // prints current step to the steppa
-void printCurrentStep(int step) {
+void printCurrentStep(uint8_t step) {
   int cp = 0;
   int compare = noteNames[chordsteppa[step].root][0] == 32;
   //BGB_printf("Compare: %d", compare);

@@ -377,7 +377,7 @@ void updateNoiseNoteFreq(uint8_t new_freq) {
 }
 
 // print function for frequency mode
-void printChannelFrequency(int channel) {
+void printChannelFrequency(uint8_t channel) {
     switch(channel)
     {
         case SWEEP: {
@@ -490,7 +490,7 @@ void setNoteSprites(int position, int note_value) {
 /*
 * Print function for notes
 */
-void printChannelNote(int channel) {
+void printChannelNote(uint8_t channel) {
   switch(channel)
   {
     case SWEEP: {

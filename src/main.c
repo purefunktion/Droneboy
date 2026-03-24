@@ -10,8 +10,6 @@
 int8_t keys = 0;
 uint8_t previous_keys;
 
-uint8_t num_faders = 4;
-
 int sweep_note = 36; // Tone channel 1 is called sweep
 int square_note = 40; // Tone channel 2 is called square
 int wave_note = 43; // Channel 3 Wave Output is called wave
@@ -20,27 +18,26 @@ uint16_t sweep_freq = 262;
 uint16_t square_freq = 850;
 uint16_t wave_freq = 1002;
 uint8_t noise_freq = 0;
-int sweep_volume = 0;
-int sweep_up_down_flag = 1; //going up
-int square_volume = 0;
-int wave_volume = 0;
-int noise_volume = 0;
+int8_t sweep_volume = 0;
+int8_t square_volume = 0;
+int8_t wave_volume = 0;
+int8_t noise_volume = 0;
 
-int current_channel = 0;
-int frequency_mode = 0;
+int8_t current_channel = 0;
+uint8_t frequency_mode = 0;
 uint8_t chord_mode = 0;
 uint8_t num_control_pages = 4;
 struct NoiseyStruct noiseStruct;
-int current_chord_step = 0;
-int current_chord_steppa_step = 0;
-int current_record_steppa_step = 0;
+
+int8_t current_chord_step = 0;
+int8_t current_chord_steppa_step = 0;
+int8_t current_record_steppa_step = 0;
 
 // continuous sweep of freq and volume counters
-int up_sweep_counter = 0;
-int down_sweep_counter = 0;
-int up_volume_counter = 0;
-int down_volume_counter = 0;
-int volume_slide_counter = 0;
+int8_t up_sweep_counter = 0;
+int8_t down_sweep_counter = 0;
+int8_t up_volume_counter = 0;
+int8_t down_volume_counter = 0;
 
 // this are marker positions
 struct fader fader_group[4];
@@ -49,9 +46,9 @@ struct fader chord_part_step[4];
 struct fader chord_steppa_step[8];
 
 // duty 
-int duty_sweep = 2;
-int duty_square = 2;
-int duty_wave = 2;
+int8_t duty_sweep = 2;
+int8_t duty_square = 2;
+int8_t duty_wave = 2;
 
 // current wave type in wave channel
 enum WAVES wave_type = SQUAREWAVE;
@@ -64,12 +61,12 @@ const uint8_t dutyFaderPositionNoise[8] = {111, 100, 89, 80, 73, 65, 53, 41};
 struct MacroStatus volumeMacroStatus;
 struct MacroStatus dutyMacroStatus;
 struct MacroStatus freqMacroStatus;
-int domacro = 0;
+int8_t domacro = 0;
 
 // chord page A-button state
-int doPlayCurrentChord = 0;
+int8_t doPlayCurrentChord = 0;
 // chord page B-button state
-int doSetCurrentStep = 0;
+int8_t doSetCurrentStep = 0;
 
 // the chord steppa init
 struct ChordStep chordsteppa[8];
@@ -81,10 +78,10 @@ uint8_t beats_counter = 0; // keeps track of beats
 int current_seq_chord = 0;
 
 // state of the navigation 
-int right_pressed = 0; // select + right goes right(duh)
-int left_pressed = 0; // read above but left
-int up_pressed = 0; // up nav
-int down_pressed = 0; // down nav
+static int8_t right_pressed = 0; // select + right goes right(duh)
+static int8_t left_pressed = 0; // read above but left
+static int8_t up_pressed = 0; // up nav
+static int8_t down_pressed = 0; // down nav
 
 // navigation state
 State current_state = VOLUME_PAGE;
@@ -212,28 +209,23 @@ void main(void) {
         switch(current_state)
         {
           case VOLUME_PAGE: {
-            num_faders = 4;
             volumeKeypadController();
             break;
           }
           case DUTY_PAGE: {
-            num_faders = 4;
             dutyKeypadController();
             break;
           }
           case FREQ_PAGE: {
-            num_faders = 4;
             flipHeader();
             frequencyKeypadController();
             break;
           }
           case CHORD_PAGE: {
-            num_faders = 1;
             chordKeypadController();
             break;
           }
           case BPM_PAGE: {
-            num_faders = 1;
             bpmKeypadController();
             break;
           }
@@ -495,7 +487,7 @@ void freqSetupMoveHelper(int index, int x, int y) {
 * This is now cleaned up a bit
 */
 void setUpFrequencySprites(void) {
-  int temp_channel = current_channel;
+  int8_t temp_channel = current_channel;
   current_channel = SWEEP;
   freqSpritesSetupHelper(4, sweep_freq, sweep_note);
 
@@ -597,14 +589,14 @@ void hideSprites(int sprite_id, int num) {
 */
 void change_fader(uint8_t direction) {
   if (direction == J_RIGHT) {
-    if (current_channel == num_faders - 1) {
+    if (current_channel == 3) {
       current_channel = 0;
     } else {
       current_channel += 1;
     }
   } else { //left
     if (current_channel == 0) {
-      current_channel = num_faders - 1;
+      current_channel = 3;
     } else {
       current_channel -= 1;
     }
@@ -644,7 +636,7 @@ void updateFaderMarker(void) {
 /*
 * This will move the fader up/down(y axis), values from volumeFaderPosition
 */
-void moveFader(int channel) {
+void moveFader(int8_t channel) {
   if (current_state == VOLUME_PAGE) {
     fader_group[channel].y = volumeFaderPosition[fader_group[channel].fader_position];
     move_sprite(channel, fader_group[channel].x, fader_group[channel].y);
