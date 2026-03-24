@@ -8,17 +8,17 @@
 #include "tilesandbackgrounds.h"
 #include "common.h"
 
-void changeRootNote(BYTE direction, int num);
+void changeRootNote(uint8_t direction, int num);
 void playCurrentChord(void);
 void changeNotes(void);
-void changeChordPart(BYTE direction);
-void chordPartRouter(BYTE direction, int num);
-void changeMinorMajor(BYTE direction);
-void changeAugDimNorm(BYTE direction);
+void changeChordPart(uint8_t direction);
+void chordPartRouter(uint8_t direction, int num);
+void changeMinorMajor(uint8_t direction);
+void changeAugDimNorm(uint8_t direction);
 void setMinorMajorSprites(int major_minor);
 void chordChangeMode(void);
 void chordSteppaMode(void);
-void stepChordSteppa(BYTE direction);
+void stepChordSteppa(int8_t direction);
 void saveCurrentStep(void);
 void playCurrentStep(void);
 void printCurrentStep(int step);
@@ -27,7 +27,7 @@ void printWithHash(int cp, int step);
 void printWithoutHash(int cp, int step);
 void printMinMajAugDim(int step);
 void playCurrentSeqStep(void);
-void chordStepRecordRouter(BYTE direction, int num);
+void chordStepRecordRouter(uint8_t direction, int num);
 void setAugDimNormSprites(void);
 void setCurrentChordSteppaStep(int new_step);
 

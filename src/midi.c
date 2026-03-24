@@ -13,9 +13,9 @@ uint8_t addressByte;
 uint8_t valueByte;
 uint8_t capturedAddress;
 
-UWORD coarse_sweep_value = 0;
-UWORD coarse_square_value = 0;
-UWORD coarse_wave_value = 0;
+uint16_t coarse_sweep_value = 0;
+uint16_t coarse_square_value = 0;
+uint16_t coarse_wave_value = 0;
 
 int old_sweep_midi_volume = 0;
 int old_square_midi_volume = 0;
@@ -235,7 +235,7 @@ void sweepMidiFreqCoarse(void) {
   if (valueByte*16 >= 2047) {
     sweep_freq = 2047;
   } else {    
-      sweep_freq = (UWORD)valueByte * 16; // have to do this for 16 mul otherwise it will wrap around 
+      sweep_freq = (uint16_t)valueByte * 16; // have to do this for 16 mul otherwise it will wrap around 
       coarse_sweep_value = sweep_freq;
       // printf("%d\n", sweep_freq);
   }
@@ -270,7 +270,7 @@ void squareMidiFreqCoarse(void) {
   if (valueByte*16 >= 2047) {
     square_freq = 2047;
   } else {
-    square_freq = (UWORD)valueByte * 16;
+    square_freq = (uint16_t)valueByte * 16;
     coarse_square_value = square_freq;
   }
   updateSquareFreq(0);
@@ -294,7 +294,7 @@ void waveMidiFreqCoarse(void) {
    if (valueByte*16 >= 2047) {
     wave_freq = 2047;
   } else {
-    wave_freq = (UWORD)valueByte * 16;
+    wave_freq = (uint16_t)valueByte * 16;
     coarse_wave_value = wave_freq;
   }
   updateWaveFreq(0);

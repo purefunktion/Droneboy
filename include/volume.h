@@ -11,7 +11,7 @@ void decreaseVolume(int number);
 
 void updateSweepVolume(int volume);
 void updateSquareVolume(int volume);
-void updateNoiseVolume(UBYTE volume);
+void updateNoiseVolume(uint8_t volume);
 void updateWaveToBeLoaded(int volume, int sample_index);
 void loadSquareWaveLow(int volume, int sample_index);
 void loadSquareWaveHigh(int volume, int sample_index);
@@ -27,7 +27,7 @@ void loadRampWaveHigh(int volume);
 void increaseMacroVolume(int number);
 void decreaseMacroVolume(int number);
 
-extern const UBYTE wave_volumeValues[4];
-extern const UBYTE volumeFaderPositionWave[4];
+extern const uint8_t wave_volumeValues[4];
+extern const uint8_t volumeFaderPositionWave[4];
 
 #endif

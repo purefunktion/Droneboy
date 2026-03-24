@@ -122,11 +122,11 @@ void decreaseDuty(void) {
 }
 
 // this updates sweep channels duty registers
-void updateSweepDuty(UBYTE duty) { 
+void updateSweepDuty(uint8_t duty) { 
     NR11_REG = duty;
 }
 // this updates square channels duty registers
-void updateSquareDuty(UBYTE duty) { 
+void updateSquareDuty(uint8_t duty) { 
     NR21_REG = duty;
 }
 

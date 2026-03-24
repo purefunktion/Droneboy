@@ -16,18 +16,18 @@ void loadWave(void);
 
 // fader stuff
 void moveFader(int channel);
-void change_fader(BYTE direction);
+void change_fader(uint8_t direction);
 void updateFaderMarker(void);
 void updateRecordMarker(void);
 
 void updateSweepFreq(int retrigger);
 void updateSquareFreq( int retrigger);
 void updateWaveFreq(int retrigger);
-void updateNoiseFreq(UBYTE new_freq);
-void updateNoiseNoteFreq(UBYTE new_freq);
+void updateNoiseFreq(uint8_t new_freq);
+void updateNoiseNoteFreq(uint8_t new_freq);
 
-void clearCounterValues(UINT8 position, int channel);
-void setCounterSprites(UINT8 position, int value);
+void clearCounterValues(uint8_t position, int channel);
+void setCounterSprites(uint8_t position, int value);
 void updateWaveVolume(int volume, int sample_index);
 
 void placeMacroMarker(void);
@@ -51,6 +51,5 @@ void printCurrentSeq(void);
 // bpm 
 void blinkBPM(void);
 void printBPM(void);
-
 
 #endif

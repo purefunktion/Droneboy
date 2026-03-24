@@ -1,8 +1,8 @@
 #include "volume.h"
 // Volume page
 
-const UBYTE wave_volumeValues[4] = {0x00, 0x60, 0x40, 0x20};
-const UBYTE volumeFaderPositionWave[4] = {119, 98, 71, 41};
+const uint8_t wave_volumeValues[4] = {0x00, 0x60, 0x40, 0x20};
+const uint8_t volumeFaderPositionWave[4] = {119, 98, 71, 41};
 
 // Keypad 
 void volumeKeypadController(void) {
@@ -386,7 +386,7 @@ void updateWaveVolume(int volume, int sample_index) {
 }
 
 // update the noise volume
-void updateNoiseVolume(UBYTE volume) {
+void updateNoiseVolume(uint8_t volume) {
   //NR42_REG = volume;
   //NR43_REG = noiseStruct.dividing_ratio | (noiseStruct.counter_step << 3) | (noiseStruct.clock_freq << 4);
   //NR44_REG = 0x80;
@@ -469,7 +469,7 @@ void loadSquareWaveLow(int volume, int sample_index) {
   unsigned char length = 16;
   while (length--) {
     unsigned char tmp = *src;
-    UBYTE elbyto = (UBYTE) ((volume & tmp) | ((volume & tmp)<<4));
+    uint8_t elbyto = (uint8_t) ((volume & tmp) | ((volume & tmp)<<4));
     *dst++ = elbyto;
     //*dst2++ = elbyto;
     *src++;
@@ -484,7 +484,7 @@ void loadSquareWaveHigh(int volume, int sample_index) {
   unsigned char length = 8;
   while (length--) {
     unsigned char tmp = *src;
-    UBYTE elbyto = (UBYTE) ((volume & tmp) | ((volume & tmp)<<4));
+    uint8_t elbyto = (uint8_t) ((volume & tmp) | ((volume & tmp)<<4));
     *dst++ = elbyto;
     *dst2++ = elbyto;
     *src++;
@@ -522,7 +522,7 @@ void loadRampWaveLow(int volume) {
   unsigned char length = 16;
   while (length--) {
     unsigned char tmp = *src;
-    UBYTE losbitos = ((tmp & 0x0F) << 4) | ((tmp & 0xF0) >> 4);
+    uint8_t losbitos = ((tmp & 0x0F) << 4) | ((tmp & 0xF0) >> 4);
     *dst++ = losbitos;
     *src--;
   }
@@ -536,7 +536,7 @@ void loadRampWaveHigh(int volume) {
   unsigned char length = 8;
   while (length--) {
     unsigned char tmp = *src;
-    UBYTE losbitos = ((tmp & 0x0F) << 4) | ((tmp & 0xF0) >> 4);
+    uint8_t losbitos = ((tmp & 0x0F) << 4) | ((tmp & 0xF0) >> 4);
     *dst++ = losbitos;
     *dst2++ = losbitos;
     *src--;

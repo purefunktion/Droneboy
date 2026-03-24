@@ -20,9 +20,9 @@ extern uint8_t addressByte;
 extern uint8_t valueByte;
 extern uint8_t capturedAddress;
 
-extern UWORD coarse_sweep_value;
-extern UWORD coarse_square_value;
-extern UWORD coarse_wave_value;
+extern uint16_t coarse_sweep_value;
+extern uint16_t coarse_square_value;
+extern uint16_t coarse_wave_value;
 
 void updateMidiBuffer(void);
 void eventMidiCC(void);

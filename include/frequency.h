@@ -25,7 +25,7 @@ void decreaseMacroNote(int number);
 // copy the note freq to the freq global
 void copyNoteToFreq(void);
 
-int uwti(UWORD num);
+int uwti(uint16_t num);
 
 // this updates if wave channel should use low or high waves
 // eg short or long waves, see data.c

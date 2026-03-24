@@ -7,8 +7,8 @@
 
 void increaseDuty(void);
 void decreaseDuty(void);
-void updateSweepDuty(UBYTE duty);
-void updateSquareDuty(UBYTE duty);
+void updateSweepDuty(uint8_t duty);
+void updateSquareDuty(uint8_t duty);
 void updateWaveDuty(void);
 void updateNoiseDividingRatio(int number);
 
@@ -18,8 +18,8 @@ void bPressedHandler(void);
 void changNoiseCounterStep(void);
 void changeWaveType(void);
 
-extern const UBYTE dutyValues[4];
-extern const UBYTE dutyFaderPosition[4];
-extern const UBYTE dutyFaderPositionNoise[8];
+extern const uint8_t dutyValues[4];
+extern const uint8_t dutyFaderPosition[4];
+extern const uint8_t dutyFaderPositionNoise[8];
 
 #endif

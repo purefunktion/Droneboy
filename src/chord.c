@@ -1,10 +1,10 @@
 #include "chord.h"
 
-UINT8 chord_on = 0; // this will play the chord
+uint8_t chord_on = 0; // this will play the chord
 int chord_root_note = 24; // root note taken from frequencies table
 int major_minor = 0; // 0 major, 1 minor
 int aug_dim_norm = 0; // 0 norm, 1 augmented, 2 diminished
-BYTE bpm_blink_state = 0;
+int8_t bpm_blink_state = 0;
 
 // This controls which mode is used
 void chordKeypadController(void) {
@@ -148,7 +148,7 @@ void chordSteppaMode(void) {
 }
 
 // step in da steppa
-void stepChordSteppa(BYTE direction) {
+void stepChordSteppa(int8_t direction) {
   if (direction == J_RIGHT) {
     if (current_chord_steppa_step == MAX_SEQUENCE_INDEX) {
       current_chord_steppa_step = 0;
@@ -205,7 +205,7 @@ void setCurrentChordSteppaStep(int new_step) {
 }
 
 // decide direction of record marker on stepper part
-void chordStepRecordRouter(BYTE direction, int num) {
+void chordStepRecordRouter(uint8_t direction, int num) {
   if (direction == J_RIGHT) {
     if (current_record_steppa_step == MAX_SEQUENCE_INDEX) {
       current_record_steppa_step = 0;
@@ -228,7 +228,7 @@ void updateRecordMarker(void) {
 }
 
 // send args to correct function according to current chord part
-void chordPartRouter(BYTE direction, int num) {
+void chordPartRouter(uint8_t direction, int num) {
   switch(current_chord_step)
   {
     case 0: { // change root note
@@ -249,7 +249,7 @@ void chordPartRouter(BYTE direction, int num) {
 // Change the root note of the chord A-G 12 semitones
 // play if chord mode is on
 // redraw the sprites
-void changeRootNote(BYTE direction, int num) {
+void changeRootNote(uint8_t direction, int num) {
   if (direction == J_UP && (chord_root_note + num <= 64)) {
     chord_root_note += num;
   } else if(direction == J_DOWN && (chord_root_note - num >= 0)) {
@@ -262,7 +262,7 @@ void changeRootNote(BYTE direction, int num) {
 }
 
 // Minor major switch
-void changeMinorMajor(BYTE direction) {
+void changeMinorMajor(uint8_t direction) {
   if (direction == J_UP ) {
     major_minor = (major_minor == 0) ? 1 : 0;
   } else if(direction == J_DOWN ) {
@@ -276,7 +276,7 @@ void changeMinorMajor(BYTE direction) {
 
 // this will affect the 5th of a triad chord
 // augmented, diminished and normal mode.
-void changeAugDimNorm(BYTE direction) {
+void changeAugDimNorm(uint8_t direction) {
   if (direction == J_UP ) {
     if (aug_dim_norm == 2) {
       aug_dim_norm = 0;
@@ -329,7 +329,7 @@ void changeNotes(void) {
 
 // This will step through the diffrent parts of the chord that is changeable
 // like root note, octave, major minor etc
-void changeChordPart(BYTE direction) {
+void changeChordPart(uint8_t direction) {
   if (direction == J_RIGHT) {
     if (current_chord_step == 3 - 1) {
       current_chord_step = 0;
@@ -347,20 +347,20 @@ void changeChordPart(BYTE direction) {
 }
 
 // print the minor major indicator to screen
-void setMinorMajorSprites( int major_minor) {
-  UINT8 spritenum = (major_minor == 0) ? 0x04 : 0x3E;
+void setMinorMajorSprites(int major_minor) {
+  uint8_t spritenum = (major_minor == 0) ? 0x04 : 0x3E;
   set_bkg_tile_xy(0x06, 0x05, spritenum);
 }
 
 // print the on/off indicator to screen
 void setOnOffSprites(void) {
-  UINT8 spritenum = ( chord_on == 0) ? 0x42 : 0x41;
+  uint8_t spritenum = ( chord_on == 0) ? 0x42 : 0x41;
   set_bkg_tile_xy(0x02, 0x02, spritenum);
 }
 
 // place the aug dim norm sprites
 void setAugDimNormSprites(void) {
-  UINT8 spritenum = 0x04; // norm
+  uint8_t spritenum = 0x04; // norm
   if (aug_dim_norm == 1) { // aug
     spritenum = 0x3F;  
   } else if (aug_dim_norm == 2) { // dim
@@ -410,8 +410,8 @@ void printMinMajAugDim(int step) {
     }
   }
   setNoteSpritesBg(chordsteppa[step].x, 
-                     chordsteppa[step].y + 3, 
-                     num);
+                    chordsteppa[step].y + 3, 
+                    num);
 }
 
 // when root note has a hash

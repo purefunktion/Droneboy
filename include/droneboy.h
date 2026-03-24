@@ -23,8 +23,8 @@ void chordKeypadController(void);
 void bpmKeypadController(void);
 
 // placement of the fader marker on freq page
-const UBYTE faderMarkerFreqx[2][4] = {{13, 93, 13, 93},{1,1,1,1}};
-const UBYTE faderMarkerFreqy[2][4] = {{53, 53, 117, 117},{1,1,1,1}};
+const uint8_t faderMarkerFreqx[2][4] = {{13, 93, 13, 93},{1,1,1,1}};
+const uint8_t faderMarkerFreqy[2][4] = {{53, 53, 117, 117},{1,1,1,1}};
 
 // frequency page, numbers
 void setUpFrequencySprites(void);

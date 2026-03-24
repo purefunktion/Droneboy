@@ -253,7 +253,7 @@ void increaseCurrentFreq(int amount) {
 /**
 * Below zero check for unsigned word.
 **/
-int uwti(UWORD num) {
+int uwti(uint16_t num) {
     int lol = (int) num;
     return lol; 
 }
@@ -308,13 +308,13 @@ void decreaseCurrentFreq(int amount) {
 // update frequency 
 // you dont have to retrigger to update frequency
 void updateSweepFreq(int retrigger) { 
-    UBYTE freqlow, freqhigh;
+    uint8_t freqlow, freqhigh;
     if (frequency_mode == 0) {
-        freqlow = (UBYTE)sweep_freq & 0xFF;
-        freqhigh = (UBYTE)((sweep_freq & 0x0700)>>8);
+        freqlow = (uint8_t)sweep_freq & 0xFF;
+        freqhigh = (uint8_t)((sweep_freq & 0x0700)>>8);
     } else {
-        freqlow = (UBYTE)frequencies[sweep_note] & 0xFF;
-        freqhigh = (UBYTE)((frequencies[sweep_note] & 0x0700)>>8); 
+        freqlow = (uint8_t)frequencies[sweep_note] & 0xFF;
+        freqhigh = (uint8_t)((frequencies[sweep_note] & 0x0700)>>8); 
     }
     NR13_REG = freqlow;
     if (retrigger == 1) {
@@ -326,13 +326,13 @@ void updateSweepFreq(int retrigger) {
 }
 
 void updateSquareFreq(int retrigger) {
-    UBYTE freqlow, freqhigh;
+    uint8_t freqlow, freqhigh;
     if (frequency_mode == 0) {
-        freqlow = (UBYTE)square_freq & 0xFF;
-        freqhigh = (UBYTE)((square_freq & 0x0700)>>8);
+        freqlow = (uint8_t)square_freq & 0xFF;
+        freqhigh = (uint8_t)((square_freq & 0x0700)>>8);
     } else {
-        freqlow = (UBYTE)frequencies[square_note] & 0xFF;
-        freqhigh = (UBYTE)((frequencies[square_note] & 0x0700)>>8); 
+        freqlow = (uint8_t)frequencies[square_note] & 0xFF;
+        freqhigh = (uint8_t)((frequencies[square_note] & 0x0700)>>8); 
     }
     NR23_REG = freqlow;
     if (retrigger == 1) {
@@ -345,13 +345,13 @@ void updateSquareFreq(int retrigger) {
 
 void updateWaveFreq(int retrigger) {
     //NR30_REG = 0x00; // this must be done before retriggering ...
-    UBYTE freqlow, freqhigh;
+    uint8_t freqlow, freqhigh;
     if (frequency_mode == 0) {
-        freqlow = (UBYTE)wave_freq & 0xFF;
-        freqhigh = (UBYTE)((wave_freq & 0x0700)>>8);
+        freqlow = (uint8_t)wave_freq & 0xFF;
+        freqhigh = (uint8_t)((wave_freq & 0x0700)>>8);
     } else {
-        freqlow = (UBYTE)frequencies[wave_note] & 0xFF;
-        freqhigh = (UBYTE)((frequencies[wave_note] & 0x0700)>>8); 
+        freqlow = (uint8_t)frequencies[wave_note] & 0xFF;
+        freqhigh = (uint8_t)((frequencies[wave_note] & 0x0700)>>8); 
     }
     //NR30_REG |= 0x80; // ... or the wave ram will overwrite itself 
     NR33_REG = freqlow; // Set lower byte of frequency.
@@ -362,12 +362,12 @@ void updateWaveFreq(int retrigger) {
     }
 }
 
-void updateNoiseFreq(UBYTE new_freq) {
+void updateNoiseFreq(uint8_t new_freq) {
     noiseStruct.clock_freq = new_freq;//: 4 bits;
     NR43_REG = noiseStruct.dividing_ratio | (noiseStruct.counter_step << 3) | (noiseStruct.clock_freq << 4);
 }
 
-void updateNoiseNoteFreq(UBYTE new_freq) {
+void updateNoiseNoteFreq(uint8_t new_freq) {
     noiseStruct.dividing_ratio = (int)(new_freq & 0x07);
     noiseStruct.counter_step = (int)((new_freq & (0x1 << 3)) >> 3);
     noiseStruct.clock_freq = (int) ((new_freq & 0xF0) >> 4);
@@ -382,28 +382,28 @@ void printChannelFrequency(int channel) {
     {
         case SWEEP: {
             int value = sweep_freq;
-            UINT8 position = 4;
+            uint8_t position = 4;
             setCounterSprites(position, value);
             clearCounterValues(position, channel);
             break;
         }
         case SQUARE: {
             int value = square_freq;
-            UINT8 position = 8;
+            uint8_t position = 8;
             setCounterSprites(position, value);
             clearCounterValues(position, channel);
             break;
         }
         case WAVE: {
             int value = wave_freq;
-            UINT8 position = 12;
+            uint8_t position = 12;
             setCounterSprites(position, value);
             clearCounterValues(position, channel);
             break;
         }
         case NOISE: {
             int value = noise_freq;
-            UINT8 position = 16;
+            uint8_t position = 16;
             setCounterSprites(position, value);
             clearCounterValues(position, channel);
             break;
@@ -414,7 +414,7 @@ void printChannelFrequency(int channel) {
 /*
 * This will setup the number tiles to display a value(frequency)
 */
-void setCounterSprites(UINT8 position, int value) {
+void setCounterSprites(uint8_t position, int value) {
     if (value == 0) {
         set_sprite_tile(position, 4);
     } else {
@@ -515,7 +515,7 @@ void printChannelNote(int channel) {
 /*
 * This sets a blank tile where there is no number. 
 */
-void clearCounterValues(UINT8 position, int channel) {
+void clearCounterValues(uint8_t position, int channel) {
     int val;
     if (channel == SWEEP) {
         val = sweep_freq;

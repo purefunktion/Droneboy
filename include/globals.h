@@ -6,14 +6,14 @@ enum CHANNELS {SWEEP, SQUARE, WAVE, NOISE};
 
 // Zalo key pad logic
 // https://github.com/Zal0
-extern BYTE keys;
-extern UBYTE previous_keys;
+extern int8_t keys;
+extern uint8_t previous_keys;
 
 // frequencies
-extern UWORD sweep_freq;
-extern UWORD square_freq;
-extern UWORD wave_freq;
-extern UBYTE noise_freq;
+extern uint16_t sweep_freq;
+extern uint16_t square_freq;
+extern uint16_t wave_freq;
+extern uint8_t noise_freq;
 
 // volumes
 extern int sweep_volume;
@@ -48,9 +48,9 @@ extern enum WAVES wave_type;
 
 // this is the marker for fader and other stuff
 struct fader {
-  UINT8 x;
-  UINT8 y;
-  UINT8 fader_position;
+  uint8_t x;
+  uint8_t y;
+  uint8_t fader_position;
 };
 
 extern struct fader fader_group[4];
@@ -88,23 +88,23 @@ typedef enum {
   EVENT_RIGHT
 } Event;
 
-extern UINT8 num_control_pages;
+extern uint8_t num_control_pages;
 extern Event current_state; // what page we are on
 
 extern const char noteNames[72][5];
-extern const UWORD frequencies[72];
-extern const UBYTE squareSamplesLow[64];
-extern const UBYTE squareSamplesHigh[32];
-extern const UBYTE sawSamplesLow[256];
-extern const UBYTE sawSamplesHigh[128];
-extern const UBYTE triangleSamplesLow[256];
-extern const UBYTE triangleSamplesHigh[128];
-extern const UBYTE sineSamplesLow[256];
-extern const UBYTE sineSamplesHigh[128];
-extern const UBYTE noiseNotesFrequencies[6]; // this is the UBYTE for FF22 - NR43 - Polynomial Counter
+extern const uint16_t frequencies[72];
+extern const uint8_t squareSamplesLow[64];
+extern const uint8_t squareSamplesHigh[32];
+extern const uint8_t sawSamplesLow[256];
+extern const uint8_t sawSamplesHigh[128];
+extern const uint8_t triangleSamplesLow[256];
+extern const uint8_t triangleSamplesHigh[128];
+extern const uint8_t sineSamplesLow[256];
+extern const uint8_t sineSamplesHigh[128];
+extern const uint8_t noiseNotesFrequencies[6]; // this is the uint8_t for FF22 - NR43 - Polynomial Counter
 extern const int noiseNoteNameIndex[6]; // this is the index in noteNames
-extern const UBYTE volumeFaderPosition[16];
-extern UBYTE waveToBeLoaded[16]; // this is the arae where waves are manipulated
+extern const uint8_t volumeFaderPosition[16];
+extern uint8_t waveToBeLoaded[16]; // this is the arae where waves are manipulated
 
 // Macro marker
 struct MacroStatus {
@@ -138,23 +138,23 @@ extern int doSetCurrentStep;
 
 // Chord step struct
 struct ChordStep {
-  UINT8 root; // chord root note
-  UINT8 majmin; // major or minor maj=0 min=1
-  UINT8 adn; // norm, augmented, diminished norm=0, aug=1, dim=2
+  uint8_t root; // chord root note
+  uint8_t majmin; // major or minor maj=0 min=1
+  uint8_t adn; // norm, augmented, diminished norm=0, aug=1, dim=2
   int x; // background sprite x position
-  UINT8 y; // background sprite y position
+  uint8_t y; // background sprite y position
 };
 
 extern struct ChordStep chordsteppa[8];
 // flag for the mode on chord page, 0 chord change or 1 steppa
-extern UINT8 chord_mode;
+extern uint8_t chord_mode;
 // chord on or off
-extern UINT8 chord_on;
+extern uint8_t chord_on;
 
 // state of the chord step sequencer 0=off,1=on
-extern BYTE play_chord_step;
-extern UINT8 beats_per_step;
-extern UINT8 beats_counter;
+extern int8_t play_chord_step;
+extern uint8_t beats_per_step;
+extern uint8_t beats_counter;
 extern int current_seq_chord;
 
 // counter for bpm
@@ -162,14 +162,14 @@ extern uint16_t tim_cnt;
 // bpm variables
 extern uint16_t bpm_in_cycles; // counter
 extern uint16_t bpm; // bpm
-extern BYTE bpm_blink_state; // state for the blinker
+extern int8_t bpm_blink_state; // state for the blinker
 
 extern int chord_root_note; // root note taken from frequencies table
 extern int major_minor; // 0 major, 1 minor
 extern int aug_dim_norm; // 0 norm, 1 augmented, 2 diminished
 
 // volume values 0-15
-extern const UBYTE volumeValues[16];
+extern const uint8_t volumeValues[16];
 
 void setBpm(uint16_t new_bpm);
 // lut for bpm counter
@@ -178,13 +178,13 @@ extern const uint16_t bpm_cycles_lut[240];
 void printChordSteppaOnOff(void);
 
 // this tells if we are currently reding from link port or not
-extern BYTE system_idle;
+extern int8_t system_idle;
 
 // this is to tell if we are playing the longer or shorter waves
 // in the wave channel
-extern BYTE low_or_high_wave_freq; // 0 = low
+extern int8_t low_or_high_wave_freq; // 0 = low
 
 // in frequency button controller flip if b is independently pressed
-extern BYTE low_high_wave_flip;
+extern int8_t low_high_wave_flip;
 
 #endif

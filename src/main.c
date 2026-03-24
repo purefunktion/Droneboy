@@ -7,8 +7,8 @@
 #include "serial.h"
 
 // Declaration of global variables
-BYTE keys = 0;
-UBYTE previous_keys;
+int8_t keys = 0;
+uint8_t previous_keys;
 
 uint8_t num_faders = 4;
 
@@ -16,10 +16,10 @@ int sweep_note = 36; // Tone channel 1 is called sweep
 int square_note = 40; // Tone channel 2 is called square
 int wave_note = 43; // Channel 3 Wave Output is called wave
 int noise_note = 0; // And noise channel 4 
-UWORD sweep_freq = 262;  
-UWORD square_freq = 850;
-UWORD wave_freq = 1002;
-UBYTE noise_freq = 0;
+uint16_t sweep_freq = 262;  
+uint16_t square_freq = 850;
+uint16_t wave_freq = 1002;
+uint8_t noise_freq = 0;
 int sweep_volume = 0;
 int sweep_up_down_flag = 1; //going up
 int square_volume = 0;
@@ -28,8 +28,8 @@ int noise_volume = 0;
 
 int current_channel = 0;
 int frequency_mode = 0;
-UINT8 chord_mode = 0;
-UINT8 num_control_pages = 4;
+uint8_t chord_mode = 0;
+uint8_t num_control_pages = 4;
 struct NoiseyStruct noiseStruct;
 int current_chord_step = 0;
 int current_chord_steppa_step = 0;
@@ -56,9 +56,9 @@ int duty_wave = 2;
 // current wave type in wave channel
 enum WAVES wave_type = SQUAREWAVE;
 
-const UBYTE dutyValues[4] = {0x00, 0x40, 0x80, 0xC0};
-const UBYTE dutyFaderPosition[4] = {111, 89, 65, 41};
-const UBYTE dutyFaderPositionNoise[8] = {111, 100, 89, 80, 73, 65, 53, 41};
+const uint8_t dutyValues[4] = {0x00, 0x40, 0x80, 0xC0};
+const uint8_t dutyFaderPosition[4] = {111, 89, 65, 41};
+const uint8_t dutyFaderPositionNoise[8] = {111, 100, 89, 80, 73, 65, 53, 41};
 
 // Macro markers
 struct MacroStatus volumeMacroStatus;
@@ -74,10 +74,10 @@ int doSetCurrentStep = 0;
 // the chord steppa init
 struct ChordStep chordsteppa[8];
 // play the chord step sequencer, 0=off,1=on
-BYTE play_chord_step = 0;
+int8_t play_chord_step = 0;
 // number of beats per step in sequencer
-UINT8 beats_per_step = 0; // 0 == once every beat(quarter)
-UINT8 beats_counter = 0; // keeps track of beats
+uint8_t beats_per_step = 0; // 0 == once every beat(quarter)
+uint8_t beats_counter = 0; // keeps track of beats
 int current_seq_chord = 0;
 
 // state of the navigation 
@@ -95,12 +95,12 @@ uint16_t bpm = 120;
 uint16_t bpm_in_cycles; // how many timer ticks per beat
 
 // if 0 then reading from serial
-BYTE system_idle = 0;
+int8_t system_idle = 0;
 
 // 0 read lower sounding waves else higher
-BYTE low_or_high_wave_freq = 0;
+int8_t low_or_high_wave_freq = 0;
 // flip between high or low waves in frequency button controller
-BYTE low_high_wave_flip = 0;
+int8_t low_high_wave_flip = 0;
 
 // Main 
 void main(void) {
@@ -595,7 +595,7 @@ void hideSprites(int sprite_id, int num) {
 /**
 * Flip between faders(channels) left/right 
 */
-void change_fader(BYTE direction) {
+void change_fader(uint8_t direction) {
   if (direction == J_RIGHT) {
     if (current_channel == num_faders - 1) {
       current_channel = 0;
@@ -668,14 +668,14 @@ void moveFader(int channel) {
 * Changed to use a the memory location instead of Look Up Table (LUT). 
 */
 void loadWave(void) {
-  UBYTE freqlow, freqhigh;
+  uint8_t freqlow, freqhigh;
   // diffrent freq depending on note or freq mode
   if (frequency_mode == 0) {
-    freqlow = (UBYTE)wave_freq & 0xFF; // lower byte of frquency
-    freqhigh = (UBYTE)((wave_freq & 0x0700)>>8); // higher bits
+    freqlow = (uint8_t)wave_freq & 0xFF; // lower byte of frquency
+    freqhigh = (uint8_t)((wave_freq & 0x0700)>>8); // higher bits
   } else {
-    freqlow = (UBYTE) frequencies[wave_note] & 0xFF;
-    freqhigh = (UBYTE) ((frequencies[wave_note] & 0x0700)>>8);
+    freqlow = (uint8_t) frequencies[wave_note] & 0xFF;
+    freqhigh = (uint8_t) ((frequencies[wave_note] & 0x0700)>>8);
   }
   NR51_REG = 0b10111011; // antispike
   // This next line must be done or wave ram will act weird see:
@@ -743,10 +743,10 @@ void init(void) {
   set_bkg_data(57,17, waveforms);
   set_bkg_tiles(0,0,20,18, volumefaderbackground);
 
-  UINT8 root = 19;
-  UINT8 major_scale_from_root[] = {0, 2, 4, 5, 7, 9, 11};
-  UINT8 major_scale_majmin[] = {0, 1, 1, 0, 0, 1, 1};
-  UINT8 major_scale_adn[] = {0, 0, 0, 0, 0, 0, 2};
+  uint8_t root = 19;
+  uint8_t major_scale_from_root[] = {0, 2, 4, 5, 7, 9, 11};
+  uint8_t major_scale_majmin[] = {0, 1, 1, 0, 0, 1, 1};
+  uint8_t major_scale_adn[] = {0, 0, 0, 0, 0, 0, 2};
   //chord steppa init
   for (int i = 0; i < 7; ++i) {
     if (i != 0) {
@@ -864,10 +864,10 @@ void init(void) {
 
   // zombie volume mode init
   NR12_REG = 0x08;
-  NR13_REG = (UBYTE)sweep_freq & 0xFF;
+  NR13_REG = (uint8_t)sweep_freq & 0xFF;
   NR14_REG = 0x80 | ((sweep_freq & 0x0700)>>8);
   NR22_REG = 0x08;
-  NR23_REG = (UBYTE)square_freq & 0xFF;
+  NR23_REG = (uint8_t)square_freq & 0xFF;
   NR24_REG = 0x80 | ((square_freq & 0x0700)>>8);
 
   setBpm(120); // disco time
