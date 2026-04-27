@@ -14,14 +14,24 @@ int sweep_note = 36; // Tone channel 1 is called sweep
 int square_note = 40; // Tone channel 2 is called square
 int wave_note = 43; // Channel 3 Wave Output is called wave
 int noise_note = 0; // And noise channel 4 
+
+// freq
 uint16_t sweep_freq = 262;  
 uint16_t square_freq = 850;
 uint16_t wave_freq = 1002;
 uint8_t noise_freq = 0;
+
+// volume
 int8_t sweep_volume = 0;
 int8_t square_volume = 0;
 int8_t wave_volume = 0;
 int8_t noise_volume = 0;
+
+// panning
+int8_t sweep_pan = 0;
+int8_t square_pan = 0;
+int8_t wave_pan = 0;
+int8_t noise_pan = 0;
 
 int8_t current_channel = 0;
 uint8_t frequency_mode = 0;
@@ -98,6 +108,9 @@ int8_t system_idle = 0;
 int8_t low_or_high_wave_freq = 0;
 // flip between high or low waves in frequency button controller
 int8_t low_high_wave_flip = 0;
+
+// Midi channel to listen to
+uint8_t midiChannel = 1;
 
 // Main 
 void main(void) {
@@ -196,8 +209,8 @@ void main(void) {
           case CREDIT_PAGE:
             handleCreditPage(event);
             break;
-          case BPM_PAGE:
-            handleBpmPage(event);
+          case OPTIONS_PAGE:
+            handleOptionsPage(event);
             break;
         }
       }
@@ -225,8 +238,8 @@ void main(void) {
             chordKeypadController();
             break;
           }
-          case BPM_PAGE: {
-            bpmKeypadController();
+          case OPTIONS_PAGE: {
+            optionsKeypadController();
             break;
           }
         }
@@ -322,8 +335,8 @@ void handleChordPage(Event event) {
       break;
     }
     case EVENT_UP: {
-      current_state = BPM_PAGE;
-      changeToBPMBackground();
+      current_state = OPTIONS_PAGE;
+      changeToOptionsBackground();
       break;
     }
     default:
@@ -344,8 +357,8 @@ void handleCreditPage(Event event) {
   }
 }
 
-// Handle navigation event on BPM page
-void handleBpmPage(Event event) {
+// Handle navigation event on Options page
+void handleOptionsPage(Event event) {
   switch (event) {
     case EVENT_DOWN: {
       current_state = CHORD_PAGE;
@@ -426,17 +439,17 @@ void changeToChordBackground(void) {
   setupChordSprites();
   printCurrentSeq();
   updateFaderMarker();
-  updateRecordMarker(); // record sprite 
+  updateRecordMarker(); // record sprite
   doPlayCurrentChord = 0;
   doSetCurrentStep = 0;
 }
 
 /*
-* Change to the BPM background.
+* Change to the Options background.
 */
-void changeToBPMBackground(void) {
+void changeToOptionsBackground(void) {
   set_bkg_data(0,4, fadertile); // setup fader tiles
-  set_bkg_tiles(0x00, 0x00, 20, 18, bpmbackground);
+  set_bkg_tiles(0x00, 0x00, 20, 18, optionsbackground);
   // move the duty faders on screen
   move_sprite(0, 1, 168);
   move_sprite(1, 1, 168);
@@ -448,7 +461,10 @@ void changeToBPMBackground(void) {
   move_sprite(39, 0, 0); // hide rec marker from chord
   hideSprites(0, 36);
   printBPM(); // show current bpm
+  printMidi(); // Show midi channel
+  printSelecta(); // print da selecta
   printChordSteppaOnOff(); // show if chordsteppa is on/off
+  printPanning();
 }
 
 // credit page flipper
@@ -611,10 +627,10 @@ void updateFaderMarker(void) {
   if (current_state == VOLUME_PAGE) { // Volume
     move_sprite(37, fader_group[current_channel].x, 128);
     move_sprite(38, fader_group[current_channel].x, 136);
-  } else if(current_state == DUTY_PAGE) { // Duty
+  } else if (current_state == DUTY_PAGE) { // Duty
     move_sprite(37, fader_group[current_channel].x, 120);
     move_sprite(38, fader_group[current_channel].x, 128); 
-  } else if(current_state == FREQ_PAGE) { // Frequency
+  } else if (current_state == FREQ_PAGE) { // Frequency
     if (frequency_mode == 0) { // Frequency number mode
       move_sprite(37, faderMarkerFreqx[0][current_channel], faderMarkerFreqy[0][current_channel]);
       move_sprite(38, faderMarkerFreqx[0][current_channel], faderMarkerFreqy[0][current_channel]+8);
@@ -622,7 +638,7 @@ void updateFaderMarker(void) {
       move_sprite(37, faderMarkerFreqx[0][current_channel], faderMarkerFreqy[0][current_channel]+10);
       move_sprite(38, faderMarkerFreqx[0][current_channel], faderMarkerFreqy[0][current_channel]+18);
     }
-  } else if(current_state == CHORD_PAGE) { // chord
+  } else if (current_state == CHORD_PAGE) { // chord
     if (chord_mode == 0) { // Chord mode, steppa och chord change
       move_sprite(37, chord_part_step[current_chord_step].x, chord_part_step[current_chord_step].y);
       move_sprite(38, chord_part_step[current_chord_step].x, chord_part_step[current_chord_step].y + 8);
@@ -669,14 +685,16 @@ void loadWave(void) {
     freqlow = (uint8_t) frequencies[wave_note] & 0xFF;
     freqhigh = (uint8_t) ((frequencies[wave_note] & 0x0700)>>8);
   }
-  NR51_REG = 0b10111011; // antispike
+  //NR51_REG = 0b10111011; // antispike
+  NR51_REG = (NR51_REG & ~(1 << 2)) & ~(1 << 6); // anti spike but keep save regs
   // This next line must be done or wave ram will act weird see:
   // https://gbdev.gg8.se/wiki/articles/Gameboy_sound_hardware#Obscure_Behavior
   NR30_REG = 0x00; 
   // see load_wave.s
   load_wave(&waveToBeLoaded[0]);
   NR30_REG |= 0x80; // Enable wave channel.
-  NR51_REG = 0b11111111; // antispike
+  //NR51_REG = 0b11111111; // antispike
+  setPanning(WAVE); // restore regs
   NR33_REG = freqlow; // Set lower byte of frequency.
   NR34_REG = 0x80 | freqhigh; // 0xC0 // Set higher byte of frequency and start playback.
 }
@@ -732,7 +750,7 @@ void init(void) {
   set_bkg_data(39,2, macroMarker);
   set_bkg_data(41,12, creditPageText);
   set_bkg_data(53, 4, noiseCounterStepFlip);
-  set_bkg_data(57,17, waveforms);
+  set_bkg_data(57,18, waveforms);
   set_bkg_tiles(0,0,20,18, volumefaderbackground);
 
   uint8_t root = 19;
@@ -861,6 +879,5 @@ void init(void) {
   NR22_REG = 0x08;
   NR23_REG = (uint8_t)square_freq & 0xFF;
   NR24_REG = 0x80 | ((square_freq & 0x0700)>>8);
-
   setBpm(120); // disco time
 }

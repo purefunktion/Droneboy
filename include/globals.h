@@ -21,6 +21,12 @@ extern int8_t square_volume;
 extern int8_t wave_volume;
 extern int8_t noise_volume;
 
+// panning
+extern int8_t sweep_pan;
+extern int8_t square_pan;
+extern int8_t wave_pan;
+extern int8_t noise_pan;
+
 // notes
 extern int sweep_note;  
 extern int square_note;
@@ -76,7 +82,7 @@ typedef enum {
   FREQ_PAGE,
   CHORD_PAGE,
   CREDIT_PAGE,
-  BPM_PAGE
+  OPTIONS_PAGE
 } State;
 
 typedef enum {

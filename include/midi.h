@@ -12,6 +12,9 @@
 
 #define MIDI_STATUS_SYSTEM 0xF0
 
+// The midi channel to listen to
+extern uint8_t midiChannel;
+
 // MIDI status
 extern uint8_t statusByte;
 // MIDI address (e.g. note/CC control)
@@ -25,7 +28,6 @@ extern uint16_t coarse_square_value;
 extern uint16_t coarse_wave_value;
 
 void updateMidiBuffer(void);
-void eventMidiCC(void);
 void eventMidiCCChannel(void);
 
 void sweepMidiVolume(void);
@@ -53,6 +55,17 @@ void toggleHighLowWaveTypeMidi(void);
 void noiseMidiFreq(void);
 void noiseMidiCounterStep(void);
 
+// Sets parameter to change LSB
+void nrpnLSB(void); // CC 98
+// Sets parameter to change MSB
+void nrpnMSB(void); // CC99
+// Sets the data for nrpn parameter to change LSB
+void nrpnDataLSB(void); // CC 98
+// Sets the data for nrpn parameter to change MSB
+void nrpnDataMSB(void); // CC99
+// Run the NRPN parameter with the data
+void runnrpn(void);
+
 // mute channels
 extern int old_sweep_midi_volume;
 extern int old_square_midi_volume;
@@ -73,5 +86,10 @@ void toggleChordOnOffMidi(void);
 // on off messages
 void eventMidiNoteOn(void);
 void eventMidiNoteOff(void);
+
+// increase decrease midichannel, done on bpm pag atm
+void increaseMidiChannel(void);
+void decreaseMidiChannel(void);
+void printMidi(void);
 
 #endif

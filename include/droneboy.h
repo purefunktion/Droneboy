@@ -12,7 +12,7 @@ void handleDutyPage(Event event);
 void handleFreqPage(Event event);
 void handleChordPage(Event event);
 void handleCreditPage(Event event);
-void handleBpmPage(Event event);
+void handleOptionsPage(Event event);
 
 // keypad functions
 void dutyKeypadController(void);
@@ -20,7 +20,7 @@ void volumeKeypadController(void);
 void frequencyKeypadController(void);
 void volumeKeypadController(void);
 void chordKeypadController(void);
-void bpmKeypadController(void);
+void optionsKeypadController(void);
 
 // placement of the fader marker on freq page
 const uint8_t faderMarkerFreqx[2][4] = {{13, 93, 13, 93},{1,1,1,1}};
@@ -44,7 +44,7 @@ void changeToDutyBackground(void);
 void changeToVolumeBackground(void);
 void changeToFrequencyBackground(void);
 void changeToChordBackground(void);
-void changeToBPMBackground(void);
+void changeToOptionsBackground(void);
 
 // goto credit page
 void goToCreditPage(void);

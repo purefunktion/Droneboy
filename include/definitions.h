@@ -51,5 +51,7 @@ void printCurrentSeq(void);
 // bpm 
 void blinkBPM(void);
 void printBPM(void);
-
+void printSelecta(void); // Marker to show if midi or bpm
+void setPanning(uint8_t channel);
+void printPanning(void);
 #endif

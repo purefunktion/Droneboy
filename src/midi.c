@@ -2,7 +2,7 @@
 #include "volume.h"
 #include "duty.h"
 #include "frequency.h"
-#include "bpm.h"
+#include "options.h"
 #include "chord.h"
 #include "midi.h"
 #include "serial.h"
@@ -16,6 +16,9 @@ uint8_t capturedAddress;
 uint16_t coarse_sweep_value = 0;
 uint16_t coarse_square_value = 0;
 uint16_t coarse_wave_value = 0;
+
+uint16_t nrpn = 0;
+uint16_t nrpnData = 0;
 
 int old_sweep_midi_volume = 0;
 int old_square_midi_volume = 0;
@@ -55,28 +58,21 @@ void updateMidiBuffer(void) {
   valueByte = byte;
   system_idle = 0;
 
-  switch ((statusByte >> 4) & 0x0F) {
-  case MIDI_STATUS_CC:
-    eventMidiCC();
-    break;
-  case MIDI_STATUS_NOTE_ON:
-    eventMidiNoteOn();
-    break;
-  case MIDI_STATUS_NOTE_OFF:
-    eventMidiNoteOff();
-    break;
-  /*case MIDI_STATUS_PC:
-    asmEventMidiPC();
-    break;*/
-  }
-}
-
-// midi channel could be skipped
-void eventMidiCC(void) {
-  switch ((statusByte) & 0x0F) {
-    case 0x00:
-      eventMidiCCChannel();
-      break;
+  if (midiChannel == (statusByte & 0x0F)) { // check midichannel
+    switch ((statusByte >> 4) & 0x0F) {
+      case MIDI_STATUS_CC:
+        eventMidiCCChannel();
+        break;
+      case MIDI_STATUS_NOTE_ON:
+        eventMidiNoteOn();
+        break;
+      case MIDI_STATUS_NOTE_OFF:
+        eventMidiNoteOff();
+        break;
+      /*case MIDI_STATUS_PC:
+        asmEventMidiPC();
+        break;*/
+    }
   }
 }
 
@@ -157,6 +153,19 @@ void eventMidiCCChannel(void) {
       break;
     case 0x21:  // 33
       toggleChordOnOffMidi();
+      break;
+    case 0x26: // 38 CC NRPN data LSB as per spec
+      nrpnDataLSB();
+      runnrpn();
+      break;
+    case 0x27:  // 39 CC NRPN data MSB as NOT per spec :)
+      nrpnDataMSB();
+      break;
+    case 0x62: // CC 98 NRPN LSB
+      nrpnLSB();
+      break;
+    case 0x63:  // CC 99 NRPN MSB
+      nrpnMSB();
       break;
   }
 }
@@ -478,4 +487,78 @@ void eventMidiNoteOn(void) {
 
 void eventMidiNoteOff(void) {
   // in the future this might come in handy
+}
+
+// Make midi channel moar
+void increaseMidiChannel(void) {
+  if (midiChannel >= 15) {
+    midiChannel = 15;
+  } else {
+    midiChannel++;
+  }
+  printMidi();
+}
+
+// Make midi channel less
+void decreaseMidiChannel(void) {
+  if (midiChannel > 0) {
+    midiChannel--;
+  }
+  printMidi();
+  clearCounterValuesBPM(10, 7, 1);
+}
+
+// print function for midi
+void printMidi(void) {
+  int val = midiChannel + 1; // Midi channels in gear usually start at 1
+  int x_pos = 10;
+  wait_vbl_done();
+  while (val > 0) {
+    int digit = val % 10;
+    set_bkg_tile_xy(x_pos, 7, digit + 21); // 21 is offset from where digits are in mem
+    val /= 10;
+    x_pos--;
+  }
+}
+
+void nrpnLSB(void) {
+  nrpn |= valueByte;
+}
+
+/* NRPN has a maximum of 14 bits. Midi freaks out if you send
+  bytes with msb set like FF. Hence the 7 bit shift
+*/
+void nrpnMSB(void) {
+  nrpn = 0; // Reset nrpn as this is a new value
+  nrpn = ((uint16_t)valueByte << 7); // cast and shift left
+}
+
+void nrpnDataLSB(void) {
+  nrpnData |= valueByte; // just or together as valueByte is 8 bit
+}
+
+void nrpnDataMSB(void) {
+  nrpnData = 0; // Reset nrpn data as this is a new value
+  nrpnData = ((uint16_t)valueByte << 7); // cast and shift left
+}
+
+// switch on nrpn param what to change
+void runnrpn(void) {
+  switch (nrpn) {
+    case 1: { // Sweep frequency
+      sweep_freq = nrpnData; // Set the data value
+      updateSweepFreq(0);
+      break;
+    }
+    case 2: { // Square frequency
+      square_freq = nrpnData; // Set the data value
+      updateSquareFreq(0);
+      break;
+    }
+    case 3: { // Wave frequency
+      wave_freq = nrpnData; // Set the data value
+      updateWaveFreq(0);
+      break;
+    }
+  }
 }

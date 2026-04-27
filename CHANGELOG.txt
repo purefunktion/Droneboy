@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.09] - 2026-04-27
+### Addition
+	- Change midi channel on options page
+	- Channel panning
+	- NRPN MIDI support on sweep, square and wave frequency
+### Fix
+	- Refactoring and optimizations
+	- Fixed Noise volume bug
+
 ## [1.08] - 2025-05-31
 ### Addition
 	- New navigation, hold SELECT and press D-Pad
