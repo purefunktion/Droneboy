@@ -1,3 +1,4 @@
 include.mk
 obj/
 .vscode/
+remember.txt
